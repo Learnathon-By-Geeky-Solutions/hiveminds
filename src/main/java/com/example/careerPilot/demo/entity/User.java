@@ -2,6 +2,9 @@ package com.example.careerPilot.demo.entity;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,18 +29,27 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotEmpty(message = "User name is required")
     @Column( name="user_name" , unique = true, nullable = false)
     private String username;
+
     @Nullable
+    @NotEmpty(message = "first name is required")
     @Column(name = "first_name", nullable = false)
     private String firstName;
+
     @Nullable
+    @NotEmpty(message = "last name is required")
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    @Email(message = "Input valid email")
+    @NotEmpty(message = "Email is required")
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Size( min = 8, message = "8 character long")
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -59,6 +71,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "availability_status", columnDefinition = "enum('available', 'busy', 'on_leave') default 'available'")
     private AvailabilityStatus availabilityStatus;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role" , columnDefinition = "enum('USER','ADMIN') default 'USER'")
     ROLE role;

@@ -2,7 +2,10 @@ package com.example.careerPilot.demo.service;
 import com.example.careerPilot.demo.entity.User;
 import com.example.careerPilot.demo.exception.ResourceNotFoundException;
 import com.example.careerPilot.demo.model.AuthenticationResponse;
+import com.example.careerPilot.demo.model.LoginRequest;
+import com.example.careerPilot.demo.model.RegisterRequest;
 import com.example.careerPilot.demo.repository.userRepository;
+import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
@@ -22,7 +25,7 @@ public class AuthenticationService {
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
     }
-    public AuthenticationResponse register(User request ){
+    public AuthenticationResponse register(RegisterRequest request ){
         User user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -34,7 +37,7 @@ public class AuthenticationService {
         String token = jwtService.generateToken(user);
         return new AuthenticationResponse(token);
     }
-    public AuthenticationResponse authenticate(User request) {
+    public AuthenticationResponse authenticate(LoginRequest request) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
