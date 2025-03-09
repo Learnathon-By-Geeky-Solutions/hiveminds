@@ -148,5 +148,17 @@ public class User implements UserDetails {
         USER,
         ADMIN
     }
+
+
+    // one to many relationship with post
+    @OneToMany(
+            cascade = CascadeType.ALL
+
+    )
+    @JoinColumn(
+            name = "user_id",
+            referencedColumnName = "id"
+    )
+    private List<Post> posts;
 }
 
