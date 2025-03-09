@@ -1,5 +1,6 @@
 package com.example.careerPilot.demo.service;
 import com.example.careerPilot.demo.entity.User;
+import com.example.careerPilot.demo.exception.ResourceNotFoundException;
 import com.example.careerPilot.demo.model.AuthenticationResponse;
 import com.example.careerPilot.demo.repository.userRepository;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,13 +35,19 @@ public class AuthenticationService {
         return new AuthenticationResponse(token);
     }
     public AuthenticationResponse authenticate(User request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
-        User user = repository.findByUsername(request.getUsername()).orElseThrow();
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
+
+        } catch (Exception e) {
+            throw new ResourceNotFoundException(request.getUsername());
+        }
+
+        User user = repository.findByUsername(request.getUsername()).orElseThrow(() -> new ResourceNotFoundException("User not found with user name" + request.getUsername()));
         String token = jwtService.generateToken(user);
         return new AuthenticationResponse(token);
 
