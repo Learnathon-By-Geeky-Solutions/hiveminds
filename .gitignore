@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# There us Password in this file
+./src/main/resources/application.properties
