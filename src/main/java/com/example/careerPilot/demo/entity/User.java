@@ -23,7 +23,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "User")
+@Table(name = "users")
 public class User implements UserDetails {
 
     @Id
@@ -160,5 +160,15 @@ public class User implements UserDetails {
             referencedColumnName = "id"
     )
     private List<Post> posts;
+
+    @OneToOne(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
+    @JoinColumn(
+            name = "createdBy",
+            referencedColumnName = "id"
+    )
+    private Community community;
 }
 
