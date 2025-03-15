@@ -1,0 +1,53 @@
+package com.example.careerPilot.demo.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+
+@Data
+@Entity
+@Table(name = "communities", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name")
+})
+public class Community {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "name", nullable = false, unique = true)
+    private String name;
+
+    @Column(name = "description", columnDefinition = "TEXT")
+    private String description;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "category")
+    private String category;
+
+    @Column(name = "visibility", columnDefinition = "ENUM('public', 'friend') default 'public'")
+    @Enumerated(EnumType.STRING)
+    private Visibility visibility = Visibility.PUBLIC;
+
+    @Column(name = "member_count", columnDefinition = "BIGINT default 0")
+    private Long memberCount = 0L;
+
+    public enum Visibility {
+        PUBLIC, FRIEND
+    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by" , nullable = false)
+    private User createdBy;
+
+}

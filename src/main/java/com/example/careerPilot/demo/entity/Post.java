@@ -7,7 +7,6 @@
     import lombok.Builder;
     import lombok.Data;
     import lombok.NoArgsConstructor;
-
     import java.time.LocalDateTime;
 
     @Entity
@@ -17,6 +16,7 @@
     @AllArgsConstructor
     @Table(name = "Post")
     public class Post {
+
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)

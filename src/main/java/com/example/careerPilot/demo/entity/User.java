@@ -24,8 +24,11 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "User")
+
+
 public class User implements UserDetails {
 
     @Id
@@ -154,4 +157,22 @@ public class User implements UserDetails {
     public enum ROLE {
         USER, ADMIN
     }
+
+
+
+
+    @OneToOne(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY
+    )
+    @JoinColumn(
+            name = "createdBy",
+            referencedColumnName = "id"
+    )
+    private Community community;
 }
+
+
+
+
+
