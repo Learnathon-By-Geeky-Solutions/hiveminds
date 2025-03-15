@@ -1,6 +1,7 @@
     package com.example.careerPilot.demo.entity;
 
     import com.example.careerPilot.demo.converter.VisibilityConverter;
+    import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
     import jakarta.persistence.*;
     import lombok.AllArgsConstructor;
     import lombok.Builder;
@@ -59,4 +60,11 @@
         public enum Visibility {
             PUBLIC, FRIENDS, PRIVATE
         }
+
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "user_id")
+        @JsonIgnoreProperties({"posts", "password", "authorities"})
+        private User user;
+
+
     }
