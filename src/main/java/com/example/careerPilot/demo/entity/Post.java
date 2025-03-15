@@ -1,52 +1,62 @@
-package com.example.careerPilot.demo.entity;
+    package com.example.careerPilot.demo.entity;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+    import com.example.careerPilot.demo.converter.VisibilityConverter;
+    import jakarta.persistence.*;
+    import lombok.AllArgsConstructor;
+    import lombok.Builder;
+    import lombok.Data;
+    import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+    import java.time.LocalDateTime;
 
-@Entity
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "Post")
-public class Post {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long postId;
+    @Entity
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Table(name = "Post")
+    public class Post {
 
-    @Column(columnDefinition = "TEXT", nullable = false)
-    private String content;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long postId;
 
-    @Column(length = 255)
-    private String image;
+        @Column(columnDefinition = "TEXT", nullable = false)
+        private String content;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, columnDefinition = "enum('public', 'friends') default 'public'")
-    private Visibility visibility = Visibility.PUBLIC;
+        @Column(length = 255)
+        private String image;
 
-    @Column(name = "likes_count", nullable = false)
-    private int likesCount = 0;
+        @Convert(converter = VisibilityConverter.class)
+        @Column(nullable = false, columnDefinition = "enum('public', 'friends', 'private') default 'public'")
+        private Visibility visibility = Visibility.PUBLIC;
 
-    @Column(name = "shares_count", nullable = false)
-    private int sharesCount = 0;
+        @Column(name = "likes_count", nullable = false)
+        private int likesCount = 0;
 
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+        @Column(name = "shares_count", nullable = false)
+        private int sharesCount = 0;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+        @Column(name = "created_at", updatable = false)
+        private LocalDateTime createdAt;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+        @Column(name = "updated_at")
+        private LocalDateTime updatedAt;
 
-    public enum Visibility {
-        PUBLIC,
-        FRIENDS
+        @Column(name = "deleted_at")
+        private LocalDateTime deletedAt;
+
+        @PrePersist
+        protected void onCreate() {
+            createdAt = LocalDateTime.now();
+        }
+
+        @PreUpdate
+        protected void onUpdate() {
+            updatedAt = LocalDateTime.now();
+        }
+
+        public enum Visibility {
+            PUBLIC, FRIENDS, PRIVATE
+        }
     }
-
-}

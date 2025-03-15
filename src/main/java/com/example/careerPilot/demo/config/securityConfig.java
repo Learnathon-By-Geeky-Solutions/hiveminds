@@ -31,10 +31,9 @@ public class securityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
-                        req->req.requestMatchers("/login","/register")
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated()
+                        req->req.requestMatchers("/login","/register").permitAll()
+                                .requestMatchers("/api/posts/**").authenticated()
+                                .anyRequest().authenticated()
                 ).userDetailsService(userDetailsServiceImp)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFIlter, UsernamePasswordAuthenticationFilter.class)
