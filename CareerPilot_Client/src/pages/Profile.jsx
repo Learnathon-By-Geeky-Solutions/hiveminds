@@ -1,3 +1,4 @@
+import JobPreference from "@/components/profile/JobPreference";
 import UserDetails from "@/components/profile/UserDetails";
 
 const Profile = () => {
@@ -16,7 +17,10 @@ const Profile = () => {
     <div className="min-h-screen bg-background">
       <main className="container py-24 px-4 sm:px-6">
         <div className="flex flex-col lg:flex-row gap-8">
-          <UserDetails />
+          <div className="lg:w-1/4">
+            <UserDetails />
+            <JobPreference />
+          </div>
         </div>
       </main>
     </div>
