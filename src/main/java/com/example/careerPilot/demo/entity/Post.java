@@ -8,6 +8,8 @@
     import lombok.Data;
     import lombok.NoArgsConstructor;
     import java.time.LocalDateTime;
+    import java.util.ArrayList;
+    import java.util.List;
 
     @Entity
     @Data
@@ -65,6 +67,12 @@
         @JoinColumn(name = "user_id")
         @JsonIgnoreProperties({"posts", "password", "authorities"})
         private User user;
+
+
+        // Post to Comments
+        @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+        @JsonIgnoreProperties("post")
+        private List<Comment> comments = new ArrayList<>();
 
 
     }

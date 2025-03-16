@@ -101,13 +101,8 @@ public class User implements UserDetails {
 
 
 
-//    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumn(name = "user_id", referencedColumnName = "id")
-//    private List<Post> posts;
 
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Post> posts = new ArrayList<>();
 
 
 
@@ -158,9 +153,23 @@ public class User implements UserDetails {
         USER, ADMIN
     }
 
+    // User to Posts
+
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts = new ArrayList<>();
 
 
 
+    //  User to Comments
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("user")
+    private List<Comment> comments = new ArrayList<>();
+
+
+
+
+    // User to Communities
     @OneToOne(
             cascade = CascadeType.ALL,
             fetch = FetchType.LAZY
@@ -171,8 +180,3 @@ public class User implements UserDetails {
     )
     private Community community;
 }
-
-
-
-
-
