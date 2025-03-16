@@ -1,4 +1,5 @@
 import JobPreference from "@/components/profile/JobPreference";
+import Skills from "@/components/profile/Skills";
 import UserDetails from "@/components/profile/UserDetails";
 
 const Profile = () => {
@@ -20,6 +21,9 @@ const Profile = () => {
           <div className="lg:w-1/4">
             <UserDetails />
             <JobPreference />
+          </div>
+          <div className="lg:w-3/4">
+            <Skills />
           </div>
         </div>
       </main>
