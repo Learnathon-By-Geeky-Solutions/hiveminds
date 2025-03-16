@@ -7,6 +7,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -49,5 +50,8 @@ public class Community {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by" , nullable = false)
     private User createdBy;
+
+    @OneToMany(mappedBy = "community" , cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<CommunityUser> communityUsers;
 
 }

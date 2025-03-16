@@ -4,6 +4,8 @@ package com.example.careerPilot.demo.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Data
 @Builder
@@ -19,5 +21,9 @@ public class Skill {
     @NonNull
     @Column(name = "skillName" , nullable = false)
     private String skillName;
+    @OneToMany(mappedBy = "skill", cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<UserSkill> userSkills;
+    @OneToMany(mappedBy = "skill" , cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<JobSkill> jobSkills;
 
 }

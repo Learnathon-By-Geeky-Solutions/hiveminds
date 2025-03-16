@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -77,5 +78,17 @@ public class JobPost {
         OPEN,
         CLOSED,
         PENDING
+    }
+    @OneToMany(mappedBy = "job" , cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<JobSkill> jobSkills;
+
+    public void addJobSkill(JobSkill jobSkill) {
+        jobSkills.add(jobSkill);
+        jobSkill.setJob(this);
+    }
+
+    public void removeJobSkill(JobSkill jobSkill) {
+        jobSkills.remove(jobSkill);
+        jobSkill.setJob(null);
     }
 }

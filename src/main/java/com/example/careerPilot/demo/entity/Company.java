@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -44,4 +45,6 @@ public class Company {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+    @OneToMany(mappedBy = "company" , cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<CompanyEmployee> companyEmployees;
 }

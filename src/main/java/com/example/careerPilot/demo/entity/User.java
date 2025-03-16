@@ -179,4 +179,12 @@ public class User implements UserDetails {
             referencedColumnName = "id"
     )
     private Community community;
+    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<UserSkill> userSkills;
+    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<CompanyEmployee> companyEmployees;
+    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<CommunityUser> communityUsers;
+
+
 }
