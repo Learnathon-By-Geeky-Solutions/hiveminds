@@ -1,3 +1,4 @@
+import ApplicationSection from "@/components/profile/ApplicationSection";
 import JobPreference from "@/components/profile/JobPreference";
 import Skills from "@/components/profile/Skills";
 import UserDetails from "@/components/profile/UserDetails";
@@ -24,6 +25,7 @@ const Profile = () => {
           </div>
           <div className="lg:w-3/4">
             <Skills />
+            <ApplicationSection/>
           </div>
         </div>
       </main>

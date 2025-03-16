@@ -10,6 +10,10 @@ const Skills = () => {
     { name: "React", category: "advanced", level: 85 },
     { name: "Node.js", category: "intermediate", level: 70 },
     { name: "Python", category: "beginner", level: 50 },
+    { name: "Ruby", category: "intermediate", level: 70 },
+    { name: "PHP", category: "beginner", level: 55 },
+    { name: "TypeScript", category: "advanced", level: 85 },
+    { name: "Go", category: "beginner", level: 65 },
   ];
 
   // Define the tools array
