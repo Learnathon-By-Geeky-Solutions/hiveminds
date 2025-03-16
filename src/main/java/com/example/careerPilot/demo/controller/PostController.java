@@ -1,8 +1,12 @@
 package com.example.careerPilot.demo.controller;
 
+import com.example.careerPilot.demo.dto.PostDTO;
+import com.example.careerPilot.demo.dto.PostRequest;
 import com.example.careerPilot.demo.entity.Post;
+import com.example.careerPilot.demo.exception.PostNotFoundException;
 import com.example.careerPilot.demo.service.PostService;
 import com.example.careerPilot.demo.repository.userRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -13,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j  // Enables logging
 @RestController
@@ -24,56 +29,74 @@ public class PostController {
     private final userRepository userRepository;
 
     // Get all posts (Requires authentication)
+    // Get all posts (Requires authentication)
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public ResponseEntity<List<Post>> getAllPosts() {
+    public ResponseEntity<List<PostDTO>> getAllPosts() {
         log.info("GET /api/posts called");
         List<Post> posts = postService.getAllPosts();
-        return ResponseEntity.ok(posts);
+        List<PostDTO> postDTOs = posts.stream()
+                .map(PostDTO::fromEntity) // Use PostDTO.fromEntity
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(postDTOs);
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<Post> getPostById(@PathVariable Long id) {
-        Post idPost = postService.getPostById(id)
-                .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
-        return ResponseEntity.ok(idPost);
+    public ResponseEntity<PostDTO> getPostById(@PathVariable Long id) throws PostNotFoundException {
+        Post post = postService.getPostById(id);
+        PostDTO postDTO = PostDTO.fromEntity(post);
+        return ResponseEntity.ok(postDTO);
     }
 
 
 
-//     Create a new post (Requires authentication)
-//    @PreAuthorize("isAuthenticated()")
-//    @PostMapping
-//    public ResponseEntity<Post> createPost(@RequestBody Post post) {
-//        log.info("POST /api/posts called with data: {}", post);
-//        Post savedPost = postService.createPost(post);
-//        return ResponseEntity.ok(savedPost);
-//    }
-
-    @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<Post> createPost(@RequestBody Post post, @AuthenticationPrincipal UserDetails userDetails) {
-        log.info("POST /api/posts called with data: {}", post);
-        Post savedPost = postService.createPost(post, userDetails.getUsername());
-        return ResponseEntity.ok(savedPost);
-    }
+    public ResponseEntity<PostDTO> createPost(
+            @Valid @RequestBody PostRequest postRequest,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        Post post = new Post();
+        post.setContent(postRequest.getContent());
+        post.setImage(postRequest.getImage());
+        post.setVisibility(postRequest.getVisibility());
 
-    @PreAuthorize("isAuthenticated()")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
-        return postService.deletePost(id, userDetails.getUsername())
-                ? ResponseEntity.ok().build()
-                : ResponseEntity.status(HttpStatus.FORBIDDEN).body("You don't have permission to delete this post");
+        Post savedPost = postService.createPost(post, userDetails.getUsername());
+        PostDTO savedPostDTO = PostDTO.fromEntity(savedPost); // Use PostDTO.fromEntity
+        return ResponseEntity.ok(savedPostDTO);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody Post post,
-                                        @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<?> updatePost(
+            @PathVariable Long id,
+            @Valid @RequestBody PostRequest postRequest,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
         try {
-            Post updatedPost = postService.updatePost(id, post, userDetails.getUsername());
-            return ResponseEntity.ok(updatedPost);
+            Post postUpdates = new Post();
+            postUpdates.setContent(postRequest.getContent());
+            postUpdates.setImage(postRequest.getImage());
+            postUpdates.setVisibility(postRequest.getVisibility());
+
+            Post updatedPost = postService.updatePost(id, postUpdates, userDetails.getUsername());
+            PostDTO updatedPostDTO = PostDTO.fromEntity(updatedPost); // Use PostDTO.fromEntity
+            return ResponseEntity.ok(updatedPostDTO);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
+    }
+
+    // Add delete endpoint
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deletePost(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        try {
+            postService.deletePost(id, userDetails.getUsername());
+            return ResponseEntity.ok("Post deleted successfully");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }

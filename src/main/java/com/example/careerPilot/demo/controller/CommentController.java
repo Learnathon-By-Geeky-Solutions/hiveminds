@@ -1,8 +1,11 @@
 package com.example.careerPilot.demo.controller;
 
 import com.example.careerPilot.demo.dto.CommentDTO;
+import com.example.careerPilot.demo.dto.CommentRequest;
 import com.example.careerPilot.demo.entity.Comment;
+import com.example.careerPilot.demo.exception.CommentNotFoundException;
 import com.example.careerPilot.demo.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,9 +41,12 @@ public class CommentController {
     @PostMapping
     public ResponseEntity<CommentDTO> createComment(
             @PathVariable Long postId,
-            @RequestBody Comment comment,
+            @Valid @RequestBody CommentRequest commentRequest,
             @AuthenticationPrincipal UserDetails userDetails) {
         log.info("POST /api/posts/{}/comments called", postId);
+
+        Comment comment = new Comment();
+        comment.setContent(commentRequest.getContent());
         Comment savedComment = commentService.createComment(postId, comment, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(CommentDTO.fromComment(savedComment));
     }
@@ -49,10 +55,10 @@ public class CommentController {
     @GetMapping("/{commentId}")
     public ResponseEntity<CommentDTO> getCommentById(
             @PathVariable Long postId,
-            @PathVariable Long commentId) {
+            @PathVariable Long commentId) throws CommentNotFoundException {
         log.info("GET /api/posts/{}/comments/{} called", postId, commentId);
         Comment comment = commentService.getCommentById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentId));
+                .orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + commentId));
         return ResponseEntity.ok(CommentDTO.fromComment(comment));
     }
 
@@ -61,11 +67,13 @@ public class CommentController {
     public ResponseEntity<?> updateComment(
             @PathVariable Long postId,
             @PathVariable Long commentId,
-            @RequestBody Comment comment,
+            @Valid @RequestBody CommentRequest commentRequest,
             @AuthenticationPrincipal UserDetails userDetails) {
         log.info("PUT /api/posts/{}/comments/{} called", postId, commentId);
         try {
-            Comment updatedComment = commentService.updateComment(commentId, comment, userDetails.getUsername());
+            Comment commentUpdates = new Comment();
+            commentUpdates.setContent(commentRequest.getContent());
+            Comment updatedComment = commentService.updateComment(commentId, commentUpdates, userDetails.getUsername());
             return ResponseEntity.ok(CommentDTO.fromComment(updatedComment));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());

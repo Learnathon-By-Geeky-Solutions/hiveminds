@@ -2,6 +2,7 @@ package com.example.careerPilot.demo.service;
 
 import com.example.careerPilot.demo.entity.Post;
 import com.example.careerPilot.demo.entity.User;
+import com.example.careerPilot.demo.exception.PostNotFoundException;
 import com.example.careerPilot.demo.repository.PostRepository;
 import com.example.careerPilot.demo.repository.userRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,14 +26,13 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    public Optional<Post> getPostById(Long id) {
+    public Post getPostById(Long id) throws PostNotFoundException {
         log.debug("Fetching post with ID: {}", id);
-        return postRepository.findById(id);
+        return postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + id));
     }
-//    public Post createPost(Post post) {
-//        log.debug("Saving new post: {}", post);
-//        return postRepository.save(post);
-//    }
+
+
 
     public Post createPost(Post post, String username) {
         log.debug("Saving new post for user: {}", username);
@@ -44,16 +44,18 @@ public class PostService {
     }
 
 
-    public boolean deletePost(Long id, String username) {
-        Optional<Post> postOpt = postRepository.findById(id);
-        if (postOpt.isPresent()) {
-            Post post = postOpt.get();
-            if (post.getUser() != null && post.getUser().getUsername().equals(username)) {
-                postRepository.delete(post);
-                return true;
-            }
+    // Add deletePost method
+    public void deletePost(Long id, String username) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
+
+        // Check if the user is the owner of the post
+        if (post.getUser() == null || !post.getUser().getUsername().equals(username)) {
+            throw new RuntimeException("You don't have permission to delete this post");
         }
-        return false;
+
+        postRepository.delete(post);
+        log.info("Post with ID {} deleted by user {}", id, username);
     }
 
     public Post updatePost(Long id, Post updatedPost, String username) {
