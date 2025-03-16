@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import AuthService from "../services/AuthService";
+import { Button } from "@/components/ui/button";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const Profile = () => {
         >
           Logout
         </button>
+        <Button>Shadcn</Button>
       </div>
     </div>
   );
