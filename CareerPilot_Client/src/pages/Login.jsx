@@ -27,6 +27,11 @@ const Login = () => {
       .then((response) => {
         console.log(response.data);
         localStorage.setItem("token", response.data.token); // Save token in localStorage
+        // clear loginUser state after successful login
+        setLoginUser({
+          username: "",
+          password: "",
+        });
         navigate("/profile"); // Redirect to profile page
         alert("Login successful!"); // Show success message
       })

@@ -1,5 +1,5 @@
 import { Lock, Mail, User } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormBtn from "../components/AuthenticationFormBtn";
 import Backgroundgrad from "../components/Backgroundgrad";
@@ -15,6 +15,11 @@ const Signup = () => {
     email: "",
     password: "",
   });
+  const [errorMessage, setErrorMessage] = useState({});
+  useEffect(() => {
+    // Log the updated errorMessage whenever it changes
+    console.log("Updated errorMessage:", errorMessage);
+  }, [errorMessage]); // Run this effect whenever errorMessage changes
   const inputOnChnage = (property, value) => {
     setUser((prevObj) => ({
       ...prevObj,
@@ -26,12 +31,30 @@ const Signup = () => {
     AuthService.registerUser(user)
       .then((response) => {
         console.log(response.data);
+        // clear the user state
+        setUser({
+          username: "",
+          firstName: "",
+          lastName: "",
+          email: "",
+          password: "",
+        });
         navigate("/login");
       })
       .catch((error) => {
-        console.error("Error registering employee!", error);
-        navigate("/login");
+        console.error("Error registering user!", error);
+
+        // Extract field-specific errors from the backend response
+        if (error.response && error.response.data) {
+          setErrorMessage(error.response.data); // Set errors for each field
+        } else {
+          setErrorMessage({ general: "An unexpected error occurred." }); // Generic error message
+        }
       });
+    // Clear error message after 5 seconds
+    setTimeout(() => {
+      setErrorMessage({}); // Clear error message after 3 seconds
+    }, 5000);
   };
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -61,6 +84,15 @@ const Signup = () => {
                   }}
                 />
 
+                {/* Display error message for username */}
+                <div className="mt-4 text-center font-semibold text-lg text-red-500">
+                  {errorMessage.username && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessage.username}
+                    </p>
+                  )}
+                </div>
+
                 <InputField
                   icon={User}
                   value={user.firstName}
@@ -71,6 +103,15 @@ const Signup = () => {
                     inputOnChnage("firstName", e.target.value);
                   }}
                 />
+
+                {/* Display error message for firstName */}
+                <div className="mt-4 text-center font-semibold text-lg text-red-500">
+                  {errorMessage.firstName && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessage.firstName}
+                    </p>
+                  )}
+                </div>
 
                 <InputField
                   icon={User}
@@ -83,6 +124,15 @@ const Signup = () => {
                   }}
                 />
 
+                {/* Display error message for lastName */}
+                <div className="mt-4 text-center font-semibold text-lg text-red-500">
+                  {errorMessage.lastName && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessage.lastName}
+                    </p>
+                  )}
+                </div>
+
                 <InputField
                   icon={Mail}
                   value={user.email}
@@ -94,6 +144,13 @@ const Signup = () => {
                   }}
                 />
 
+                {/* Display error message for email */}
+                <div className="mt-4 text-center font-semibold text-lg text-red-500">
+                  {errorMessage.email && (
+                    <p className="text-red-500 text-sm">{errorMessage.email}</p>
+                  )}
+                </div>
+
                 <InputField
                   icon={Lock}
                   value={user.password}
@@ -104,6 +161,15 @@ const Signup = () => {
                     inputOnChnage("password", e.target.value);
                   }}
                 />
+
+                {/* Display error message for password */}
+                <div className="mt-4 text-center font-semibold text-lg text-red-500">
+                  {errorMessage.password && (
+                    <p className="text-red-500 text-sm">
+                      {errorMessage.password}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <AuthenticationFormBtn btnText="Create Account" />
