@@ -27,7 +27,7 @@ public class CommentController {
     private final CommentService commentService;
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<CommentDTO>> getCommentsByPostId(@PathVariable Long postId) {
         log.info("GET /api/posts/{}/comments called", postId);
         List<Comment> comments = commentService.getCommentsByPostId(postId);
@@ -36,6 +36,18 @@ public class CommentController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(commentDTOs);
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping
+    public ResponseEntity<List<CommentDTO>> getFirstLayerCommentsByPostId(@PathVariable Long postId) {
+        log.info("GET /api/posts/{}/comments called", postId);
+        List<Comment> comments = commentService.getFirstLayerCommentsByPostId(postId);
+        List<CommentDTO> commentDTOs = comments.stream()
+                .map(CommentDTO::fromComment)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(commentDTOs);
+    }
+
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
@@ -47,9 +59,32 @@ public class CommentController {
 
         Comment comment = new Comment();
         comment.setContent(commentRequest.getContent());
-        Comment savedComment = commentService.createComment(postId, comment, userDetails.getUsername());
+
+        // Handle reply if parentId is provided
+        Comment savedComment;
+        if (commentRequest.getParentId() != null) {
+            savedComment = commentService.createReply(postId, commentRequest.getParentId(), comment, userDetails.getUsername());
+        } else {
+            savedComment = commentService.createComment(postId, comment, userDetails.getUsername());
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED).body(CommentDTO.fromComment(savedComment));
     }
+
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{commentId}/replies")
+    public ResponseEntity<List<CommentDTO>> getRepliesForComment(
+            @PathVariable Long postId,
+            @PathVariable Long commentId) {
+        log.info("GET /api/posts/{}/comments/{}/replies called", postId, commentId);
+        List<Comment> replies = commentService.getRepliesForComment(commentId);
+        List<CommentDTO> replyDTOs = replies.stream()
+                .map(CommentDTO::fromComment)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(replyDTOs);
+    }
+
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{commentId}")

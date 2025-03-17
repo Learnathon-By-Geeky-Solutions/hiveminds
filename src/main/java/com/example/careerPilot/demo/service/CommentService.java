@@ -26,6 +26,10 @@ public class CommentService {
         log.debug("Fetching comments for post with ID: {}", postId);
         return commentRepository.findByPostPostId(postId);
     }
+    public List<Comment> getFirstLayerCommentsByPostId(Long postId) {
+        // This should use the correct repository method
+        return commentRepository.findByPostPostIdAndParentCommentIsNull(postId);
+    }
 
     public Comment createComment(Long postId, Comment comment, String username) {
         log.debug("Creating comment for post ID: {} by user: {}", postId, username);
@@ -77,5 +81,31 @@ public class CommentService {
             log.warn("Unauthorized deletion attempt of comment ID: {} by user: {}", id, username);
         }
         return false;
+    }
+
+
+    public List<Comment> getRepliesForComment(Long commentId) {
+        log.debug("Fetching replies for comment with ID: {}", commentId);
+        return commentRepository.findByParentCommentId(commentId);
+    }
+
+
+    public Comment createReply(Long postId, Long parentCommentId, Comment reply, String username) {
+        log.debug("Creating reply for comment ID: {} by user: {}", parentCommentId, username);
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
+
+        Comment parentComment = commentRepository.findById(parentCommentId)
+                .orElseThrow(() -> new RuntimeException("Parent comment not found with id: " + parentCommentId));
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
+
+        reply.setPost(post);
+        reply.setUser(user);
+        reply.setParentComment(parentComment);
+
+        return commentRepository.save(reply);
     }
 }

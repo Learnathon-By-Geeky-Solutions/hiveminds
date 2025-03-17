@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -39,6 +41,18 @@ public class Comment {
     @JoinColumn(name = "user_id")
     @JsonIgnoreProperties({"posts", "password", "authorities", "comments"})
     private User user;
+
+
+    // Parent comment relationship
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    @JsonIgnoreProperties({"parentComment", "childComments"})
+    private Comment parentComment;
+
+    // Child comments relationship
+    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("parentComment")
+    private List<Comment> childComments = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
