@@ -8,6 +8,7 @@ import AuthService from "../services/AuthService";
 
 const Login = () => {
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState("");
   const [loginUser, setLoginUser] = useState({
     username: "",
     password: "",
@@ -20,17 +21,30 @@ const Login = () => {
   };
   const handleOnSubmit = (e) => {
     e.preventDefault();
+    setErrorMessage(""); // Clear previous error messages
+
     AuthService.loginUser(loginUser)
       .then((response) => {
         console.log(response.data);
-        localStorage.setItem("token", response.data.token);
-        navigate("/profile");
-        // Handle successful login, e.g., redirect to dashboard
+        localStorage.setItem("token", response.data.token); // Save token in localStorage
+        navigate("/profile"); // Redirect to profile page
+        alert("Login successful!"); // Show success message
       })
       .catch((error) => {
         console.error("Error logging in!", error);
-        // Handle login error, e.g., show an error message
+
+        // Extract error message from the backend response
+        if (error.response && error.response.data) {
+          const { message } = error.response.data; // Assuming the backend sends a 'message' field
+          setErrorMessage(message || "An unexpected error occurred.");
+        } else {
+          setErrorMessage("An unexpected error occurred.");
+        }
       });
+    // Clear error message after 3 seconds
+    setTimeout(() => {
+      setErrorMessage(""); // Clear error message after 3 seconds
+    }, 5000);
   };
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -74,6 +88,11 @@ const Login = () => {
 
               <AuthenticationFormBtn btnText="Sign In" />
             </form>
+
+            {/* Display error message */}
+            <div className="mt-4 text-center text-lg text-red-500">
+              {errorMessage && <p>{errorMessage}</p>}
+            </div>
 
             <div className="mt-8 text-center">
               <div className="relative">
