@@ -90,14 +90,14 @@ const Navbar = () => {
             <>
               <Link
                 to="/login"
-                className="text-sm text-gray-300 hover:text-white transition-colors duration-200 relative group"
+                className="text-lg text-gray-300 hover:text-white transition-colors duration-200 relative group"
               >
                 Login
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white/50 transition-all duration-300 group-hover:w-full"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all duration-300 group-hover:w-full"></span>
               </Link>
               <Link
                 to="/signup"
-                className="px-5 py-2 text-sm rounded-full bg-primary text-primary-foreground font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:translate-y-[-2px]"
+                className="px-5 py-2 text-sm rounded-md bg-primary text-white font-medium transition-all duration-300 hover:shadow-sm hover:shadow-blue-200 hover:translate-y-[-2px]"
               >
                 Sign Up
               </Link>
