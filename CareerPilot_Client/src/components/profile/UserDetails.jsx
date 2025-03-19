@@ -21,8 +21,11 @@ const UserDetails = () => {
       <CardContent className="pt-0 -mt-12">
         <div className="flex flex-col items-center">
           {/* <Avatar className="w-24 h-24 border-4 border-card">
-            <AvatarImage alt={user.username} />
-            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+            <AvatarImage
+              src="https://github.com/shadcn.png"
+              alt={user.username}
+            />
+            <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
           </Avatar> */}
           <div className="mt-3 text-center">
             <h2 className="text-xl font-bold flex items-center gap-2">

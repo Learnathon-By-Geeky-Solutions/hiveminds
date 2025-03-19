@@ -1,4 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { useUser } from "@/contexts/UserContext";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -6,6 +7,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { token } = useAuth(); // Access token and user from AuthContext
+  const { user } = useUser(); // Access user from UserContext
 
   useEffect(() => {
     const handleScroll = () => {
@@ -70,17 +72,20 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-10">
-          <NavLink href="#jobs">Find Jobs</NavLink>
-          <NavLink href="#categories">Categories</NavLink>
-          <NavLink href="#about">About Us</NavLink>
+          <NavLink to="/">Find Jobs</NavLink>
+          <NavLink to="/">Categories</NavLink>
+          {token && <NavLink to="/">Blog</NavLink>}
+          {!token && <NavLink to="/">About Us</NavLink>}
         </nav>
 
         {/* Desktop Login/Sign Up or Welcome Message */}
         <div className="hidden md:flex items-center space-x-6">
           {token ? (
-            <h2 className="text-sm text-gray-300 hover:text-white transition-colors duration-200 relative group">
-              Welcome user
-            </h2>
+            <Link to="/profile" className="flex items-center gap-2">
+              <h2 className="text-lg font-bold text-gray-300 hover:text-gradient transition-colors duration-200 relative group">
+                {user.username}
+              </h2>
+            </Link>
           ) : (
             <>
               <Link
@@ -131,9 +136,11 @@ const Navbar = () => {
           {/* Mobile Login/Sign Up or Welcome Message */}
           <div className="flex flex-col space-y-6 items-center mt-12">
             {token ? (
-              <h2 className="text-lg text-gray-300 hover:text-white transition-colors duration-200">
-                Welcome User
-              </h2>
+              <Link onClick={toggleMenu} to="/profile">
+                <h2 className="text-lg font-bold text-gray-300 hover:text-gradient transition-colors duration-200">
+                  {user.username}
+                </h2>
+              </Link>
             ) : (
               <>
                 <Link
@@ -163,10 +170,10 @@ const Navbar = () => {
 const NavLink = ({ href, children }) => (
   <a
     href={href}
-    className="text-sm text-gray-300 hover:text-white transition-all duration-200 relative group"
+    className="text-lg text-gray-300 hover:text-white transition-all duration-200 relative group"
   >
     {children}
-    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white/50 transition-all duration-300 group-hover:w-full"></span>
+    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all duration-300 group-hover:w-full"></span>
   </a>
 );
 
