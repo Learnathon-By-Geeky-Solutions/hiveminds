@@ -1,9 +1,11 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { token } = useAuth(); // Access token and user from AuthContext
 
   useEffect(() => {
     const handleScroll = () => {
@@ -73,21 +75,29 @@ const Navbar = () => {
           <NavLink href="#about">About Us</NavLink>
         </nav>
 
-        {/* Desktop Login and Sign Up Buttons */}
+        {/* Desktop Login/Sign Up or Welcome Message */}
         <div className="hidden md:flex items-center space-x-6">
-          <Link
-            to="/login"
-            className="text-sm text-gray-300 hover:text-white transition-colors duration-200 relative group"
-          >
-            Login
-            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white/50 transition-all duration-300 group-hover:w-full"></span>
-          </Link>
-          <Link
-            to="/signup"
-            className="px-5 py-2 text-sm rounded-full bg-primary text-primary-foreground font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:translate-y-[-2px]"
-          >
-            Sign Up
-          </Link>
+          {token ? (
+            <h2 className="text-sm text-gray-300 hover:text-white transition-colors duration-200 relative group">
+              Welcome user
+            </h2>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="text-sm text-gray-300 hover:text-white transition-colors duration-200 relative group"
+              >
+                Login
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white/50 transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+              <Link
+                to="/signup"
+                className="px-5 py-2 text-sm rounded-full bg-primary text-primary-foreground font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:translate-y-[-2px]"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
@@ -118,21 +128,30 @@ const Navbar = () => {
             </MobileNavLink>
           </nav>
 
+          {/* Mobile Login/Sign Up or Welcome Message */}
           <div className="flex flex-col space-y-6 items-center mt-12">
-            <Link
-              to="/login"
-              className="text-lg text-gray-300 hover:text-white transition-colors duration-200"
-              onClick={toggleMenu}
-            >
-              Login
-            </Link>
-            <Link
-              to="/signup"
-              className="px-8 py-3 text-base rounded-full bg-primary text-primary-foreground font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:translate-y-[-2px]"
-              onClick={toggleMenu}
-            >
-              Sign Up
-            </Link>
+            {token ? (
+              <h2 className="text-lg text-gray-300 hover:text-white transition-colors duration-200">
+                Welcome User
+              </h2>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="text-lg text-gray-300 hover:text-white transition-colors duration-200"
+                  onClick={toggleMenu}
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="px-8 py-3 text-base rounded-full bg-primary text-primary-foreground font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:translate-y-[-2px]"
+                  onClick={toggleMenu}
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

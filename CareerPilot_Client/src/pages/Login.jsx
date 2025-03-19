@@ -5,10 +5,12 @@ import AuthenticationFormBtn from "../components/AuthenticationFormBtn";
 import Backgroundgrad from "../components/Backgroundgrad";
 import InputField from "../components/InputField";
 import AuthService from "../services/AuthService";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
+  const {setToken} = useAuth();
   const [loginUser, setLoginUser] = useState({
     username: "",
     password: "",
@@ -26,7 +28,8 @@ const Login = () => {
     AuthService.loginUser(loginUser)
       .then((response) => {
         console.log(response.data);
-        localStorage.setItem("token", response.data.token); // Save token in localStorage
+        const {token} = response.data; // Extract token from the response
+        setToken(token); // Set token in context
         // clear loginUser state after successful login
         setLoginUser({
           username: "",

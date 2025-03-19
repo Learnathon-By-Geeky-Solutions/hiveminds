@@ -4,16 +4,7 @@ import Skills from "@/components/profile/Skills";
 import UserDetails from "@/components/profile/UserDetails";
 
 const Profile = () => {
-  // const navigate = useNavigate();
-
-  // const handleLogout = async () => {
-  //   try {
-  //     await AuthService.logout();
-  //     navigate("/login");
-  //   } catch (error) {
-  //     console.error("Logout failed", error);
-  //   }
-  // };
+  
 
   return (
     <div className="min-h-screen bg-background">

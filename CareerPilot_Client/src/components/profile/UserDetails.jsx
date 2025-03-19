@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Calendar,
   Edit,
@@ -11,8 +12,16 @@ import {
   Phone,
 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const UserDetails = () => {
+  const navigate = useNavigate();
+  const { setToken } = useAuth();
+  const handleLogout = (e) => {
+    e.preventDefault();
+    setToken(null);
+    navigate("/login");
+  };
   const [user, setUser] = useState({
     name: "John Doe",
     email: "john@gmail.com",
@@ -34,10 +43,6 @@ const UserDetails = () => {
       salary: "$120,000 - $150,000",
     },
   });
-  const handleLogout = () => {
-    // Implement logout functionality
-    console.log("Logging out...");
-  };
   return (
     <Card className="overflow-hidden">
       <div className="h-28 bg-gradient-to-r from-primary/30 to-primary/10"></div>
