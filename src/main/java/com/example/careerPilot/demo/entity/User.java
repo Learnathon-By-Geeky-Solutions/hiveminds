@@ -156,13 +156,14 @@ public class User implements UserDetails {
     //  User to Comments
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties("user")
-    private List<Comment> comments = new ArrayList<>();
+    private List<Comment> comments;
 
 
 
 
     // User to Communities
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("createdBy")
     private List<Community> communities;
 
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)

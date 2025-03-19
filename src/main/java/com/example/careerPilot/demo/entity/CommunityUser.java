@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -29,7 +30,20 @@ public class CommunityUser {
         MEMBER,
         MODERATOR,
     }
+    public enum status{
+        ACCEPTED,
+        PENDING,
+        REJECTED
+    }
+    @Column(name = "status", columnDefinition = "VARCHAR(10)")
+    @Enumerated(EnumType.STRING)
+    private status status;
+
+    @Column(name = "role", columnDefinition = "VARCHAR(10)")
+    @Enumerated(EnumType.STRING)
     private role role;
+
+    @CreationTimestamp
     private LocalDateTime joinDate;
 
 }
