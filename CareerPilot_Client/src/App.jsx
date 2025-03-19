@@ -5,6 +5,7 @@ import Guest from "./pages/Guest";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Signup from "./pages/Signup";
+import ProtectedRoute from "./utils/ProtectedRoute";
 function App() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -13,7 +14,14 @@ function App() {
         <Route path="/" element={<Guest />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
       <Footer />
     </div>
