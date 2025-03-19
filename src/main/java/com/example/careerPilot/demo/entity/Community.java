@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "communities", uniqueConstraints = {
+@Table(name = "community", uniqueConstraints = {
         @UniqueConstraint(columnNames = "name")
 })
 public class Community {
@@ -37,9 +37,9 @@ public class Community {
     @Column(name = "category")
     private String category;
 
-    @Column(name = "visibility", columnDefinition = "ENUM('public', 'friend') default 'public'")
+    @Column(name = "visibility", columnDefinition = "VARCHAR(10) default 'PUBLIC'")
     @Enumerated(EnumType.STRING)
-    private Visibility visibility = Visibility.PUBLIC;
+    private Visibility visibility;
 
     @Column(name = "member_count", columnDefinition = "BIGINT default 0")
     private Long memberCount = 0L;
@@ -48,7 +48,7 @@ public class Community {
         PUBLIC, FRIEND
     }
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by" , nullable = false)
+    @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
 
     @OneToMany(mappedBy = "community" , cascade = CascadeType.ALL , orphanRemoval = true)
