@@ -34,3 +34,6 @@ build/
 
 # There us Password in this file
 ./src/main/resources/application.properties
+
+# Node Modules
+CareerPilot_Client/node_modules
