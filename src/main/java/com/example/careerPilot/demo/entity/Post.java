@@ -7,6 +7,8 @@
     import lombok.Builder;
     import lombok.Data;
     import lombok.NoArgsConstructor;
+    import org.springframework.lang.Nullable;
+
     import java.time.LocalDateTime;
     import java.util.ArrayList;
     import java.util.List;
@@ -40,6 +42,9 @@
         @Column(name = "shares_count", nullable = false)
         private int sharesCount = 0;
 
+        @Column(name = "approved" , nullable = false)
+        private boolean approved = false;
+
         @Column(name = "created_at", updatable = false)
         private LocalDateTime createdAt;
 
@@ -67,6 +72,12 @@
         @JoinColumn(name = "user_id")
         @JsonIgnoreProperties({"posts", "password", "authorities"})
         private User user;
+
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "community_id")
+        @JsonIgnoreProperties({"posts", "password", "authorities"})
+        private Community community = null;
+
 
 
         // Post to Comments

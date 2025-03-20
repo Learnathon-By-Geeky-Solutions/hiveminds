@@ -27,36 +27,67 @@ public class CommunityController {
     // /api/community?page=0&size=10&sort=name,asc
     @PreAuthorize("isAuthenticated()")
     @GetMapping
-    public ResponseEntity<Page<CommunityDTO>> getAllCommunities(Pageable pageable) {
-        Page<CommunityDTO>  communityDTOS = communityService.getCommunities(pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(communityDTOS);
+    public ResponseEntity<?> getAllCommunities(Pageable pageable) {
+        try {
+            Page<CommunityDTO> communityDTOS = communityService.getCommunities(pageable);
+            return ResponseEntity.status(HttpStatus.OK).body(communityDTOS);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred while fetching communities: " + e.getMessage());
+        }
     }
 
     // api/community?userId=x
     @PreAuthorize("isAuthenticated()")
     @PostMapping()
-    @JsonIgnore()
-    public ResponseEntity<Community> createCommunity (@RequestBody CommunityDTO communityDTO,
-                                                      @RequestParam Long userId )
-    {
-        Community community = communityService.createCommunity(communityDTO, userId);
-        return ResponseEntity.status(201).body(community);
+    @JsonIgnore
+    public ResponseEntity<?> createCommunity(
+            @RequestBody CommunityDTO communityDTO,
+            @RequestParam Long userId) {
+        try {
+            Community community = communityService.createCommunity(communityDTO, userId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(CommunityDTO.fromEntity(community));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Invalid input: " + e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred: " + e.getMessage());
+        }
     }
     //api/community/{id}?page=0&size=1
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<Page<CommunityDTO>>  getByCreator(@PathVariable Long id, Pageable pageable) {
-        Page<CommunityDTO> communityDTOS = communityService.getByCreator(id,pageable);
-        return ResponseEntity.status(200).body(communityDTOS);
+    public ResponseEntity<?> getByCreator(
+            @PathVariable Long id,
+            Pageable pageable) {
+        try {
+            Page<CommunityDTO> communityDTOS = communityService.getByCreator(id, pageable);
+            return ResponseEntity.status(HttpStatus.OK).body(communityDTOS);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Invalid input: " + e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred: " + e.getMessage());
+        }
     }
 
     // api/community/{id}
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteCommunity(@PathVariable Long id) {
-        communityService.deleteCommunity(id);
-        ApiResponse response = new ApiResponse("Community deleted successfully", Map.of("id", id));
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> deleteCommunity(@PathVariable Long id) {
+        try {
+            communityService.deleteCommunity(id);
+            ApiResponse response = new ApiResponse("Community deleted successfully", Map.of("id", id));
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse("Invalid input: " + e.getMessage(), null));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse("An unexpected error occurred: " + e.getMessage(), null));
+        }
     }
 
 }
