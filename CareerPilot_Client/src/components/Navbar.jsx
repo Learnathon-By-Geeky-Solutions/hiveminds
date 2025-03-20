@@ -72,10 +72,10 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-10">
-          <NavLink to="/">Find Jobs</NavLink>
-          <NavLink to="/">Categories</NavLink>
-          {token && <NavLink to="/">Blog</NavLink>}
-          {!token && <NavLink to="/">About Us</NavLink>}
+          <LinkStyled to="/">Find Jobs</LinkStyled>
+          <LinkStyled to="/">Categories</LinkStyled>
+          {token && <LinkStyled to="/profile/blog">Blog</LinkStyled>}
+          {!token && <LinkStyled to="/">About Us</LinkStyled>}
         </nav>
 
         {/* Desktop Login/Sign Up or Welcome Message */}
@@ -128,9 +128,16 @@ const Navbar = () => {
             <MobileNavLink href="#categories" onClick={toggleMenu}>
               Categories
             </MobileNavLink>
-            <MobileNavLink href="#about" onClick={toggleMenu}>
-              About Us
-            </MobileNavLink>
+            {token && (
+              <MobileNavLink href="#about" onClick={toggleMenu}>
+                Blog
+              </MobileNavLink>
+            )}
+            {!token && (
+              <MobileNavLink href="#about" onClick={toggleMenu}>
+                About Us
+              </MobileNavLink>
+            )}
           </nav>
 
           {/* Mobile Login/Sign Up or Welcome Message */}
@@ -167,15 +174,17 @@ const Navbar = () => {
 };
 
 // Helper components for cleaner code
-const NavLink = ({ href, children }) => (
-  <a
-    href={href}
-    className="text-lg text-gray-300 hover:text-white transition-all duration-200 relative group"
-  >
-    {children}
-    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all duration-300 group-hover:w-full"></span>
-  </a>
-);
+const LinkStyled = ({ to, children }) => {
+  return (
+    <Link
+      to={to}
+      className="text-lg text-gray-300 cursor-pointer hover:text-white transition-all duration-200 relative group"
+    >
+      {children}
+      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all duration-300 group-hover:w-full"></span>
+    </Link>
+  );
+};
 
 const MobileNavLink = ({ href, onClick, children }) => (
   <a

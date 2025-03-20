@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
+import Blog from "./pages/Blog";
 import Guest from "./pages/Guest";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
@@ -21,7 +22,16 @@ function App() {
               <Profile />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route
+            path="blog"
+            element={
+              <ProtectedRoute>
+                <Blog />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
       </Routes>
       <Footer />
     </div>
