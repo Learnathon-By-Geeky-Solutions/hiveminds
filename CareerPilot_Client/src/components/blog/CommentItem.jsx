@@ -2,12 +2,34 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import CommentService from "@/services/CommentService";
 import { Reply } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import CommentList from "./CommentList";
 import NewCommentForm from "./NewCommentForm";
 
 const CommentItem = ({ comment, postId, onAddReply }) => {
   const [showReplyForm, setShowReplyForm] = useState(false); // Toggle reply form visibility
-  const [replies, setReplies] = useState(comment.comments || []); // State for nested replies
+  const [replies, setReplies] = useState([]); // State for nested replies
+  const [loadingReplies, setLoadingReplies] = useState(false); // Loading state for replies
+
+  // Fetch replies for the current comment
+  useEffect(() => {
+    const fetchReplies = async () => {
+      setLoadingReplies(true);
+      try {
+        const response = await CommentService.getRepliesForComment(
+          postId,
+          comment.id
+        );
+        setReplies(response.data); // Set fetched replies to state
+      } catch (error) {
+        console.error("Error fetching replies:", error);
+      } finally {
+        setLoadingReplies(false);
+      }
+    };
+
+    fetchReplies(); // Fetch replies when the component mounts
+  }, [postId, comment.id]);
 
   const handleReplySubmit = async (replyContent) => {
     try {
@@ -45,7 +67,7 @@ const CommentItem = ({ comment, postId, onAddReply }) => {
         <div className="absolute left-0 top-2 h-8 w-8 rounded-full overflow-hidden border border-primary/10">
           <Avatar className="h-8 w-8">
             <AvatarFallback>
-              {comment.author?.username.substring(0, 2).toUpperCase()}
+              {comment.username.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </div>
@@ -54,7 +76,7 @@ const CommentItem = ({ comment, postId, onAddReply }) => {
         <div className="bg-secondary/50 rounded-lg p-3 backdrop-blur-sm">
           <div className="flex justify-between items-start">
             <div className="font-medium text-sm">
-              {comment.author?.username || "Anonymous"}
+              {comment.username || "Anonymous"}
             </div>
             <div className="text-xs text-muted-foreground">
               {formatDate(comment.createdAt)}
@@ -81,7 +103,7 @@ const CommentItem = ({ comment, postId, onAddReply }) => {
         )}
 
         {replies.length > 0 && (
-          <div className="mt-2 pl-2">
+          <div className="mt-2 pl-8">
             <CommentList
               comments={replies}
               postId={postId}

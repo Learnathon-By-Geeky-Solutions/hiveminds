@@ -46,6 +46,20 @@ class CommentService {
       }
     );
   }
+
+  // Get replies for a specific comment
+  getRepliesForComment(postId, commentId) {
+    const token = localStorage.getItem("ACCESS_TOKEN");
+    if (!postId || !commentId) {
+      throw new Error("Invalid postId or commentId");
+    }
+    return axios.get(`http://localhost:8082/api/posts/${postId}/comments/${commentId}/replies`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+  }
 }
 
 export default new CommentService();
