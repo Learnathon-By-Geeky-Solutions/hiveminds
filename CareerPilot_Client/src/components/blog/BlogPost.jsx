@@ -1,6 +1,6 @@
+import CommentList from "./CommentList";
 import CommentService from "@/services/CommentService";
 import { useEffect, useState } from "react";
-import CommentList from "./CommentList";
 import NewCommentForm from "./NewCommentForm";
 
 const BlogPost = ({ post }) => {
@@ -17,9 +17,7 @@ const BlogPost = ({ post }) => {
           return;
         }
         console.log("Fetching comments for postId:", post.postId); // Debugging log
-        const response = await CommentService.getFirstLayerCommentsByPostId(
-          post.postId
-        );
+        const response = await CommentService.getFirstLayerCommentsByPostId(post.postId);
         setComments(response.data); // Set fetched comments to state
       } catch (error) {
         console.error("Error fetching comments:", error);
@@ -38,10 +36,7 @@ const BlogPost = ({ post }) => {
         return;
       }
       const newComment = { content };
-      const response = await CommentService.addNewComment(
-        post.postId,
-        newComment
-      );
+      const response = await CommentService.addNewComment(post.postId, newComment);
       setComments((prevComments) => [...prevComments, response.data]); // Add new comment to state
     } catch (error) {
       console.error("Error adding comment:", error);
@@ -55,18 +50,13 @@ const BlogPost = ({ post }) => {
         return;
       }
       const newReply = { content: replyContent };
-      const response = await CommentService.createReply(
-        post.postId,
-        parentId,
-        newReply
-      );
+      const response = await CommentService.createReply(post.postId, parentId, newReply);
+
+      // Update the parent comment with the new reply
       setComments((prevComments) =>
         prevComments.map((comment) =>
           comment.id === parentId
-            ? {
-                ...comment,
-                comments: [...(comment.comments || []), response.data],
-              }
+            ? { ...comment, replies: [...(comment.replies || []), response.data] }
             : comment
         )
       );
@@ -78,7 +68,8 @@ const BlogPost = ({ post }) => {
   return (
     <div className="bg-white shadow-md rounded-lg p-6 space-y-4">
       {/* Post Content */}
-      <p className="text-lg text-gray-800">{post.content}</p>
+      <p className="text-lg text-gray-800">Username: {post.username}</p>
+      <p className="text-lg text-gray-800">Post: {post.content}</p>
 
       {/* Add Comment Form */}
       <NewCommentForm onSubmit={handleAddComment} />
