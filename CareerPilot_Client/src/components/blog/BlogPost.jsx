@@ -1,11 +1,32 @@
-import CommentList from "./CommentList";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import CommentService from "@/services/CommentService";
+import {
+  ChevronDown,
+  ChevronUp,
+  Heart,
+  Loader2,
+  MessageCircle,
+  Share2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
+import CommentList from "./CommentList";
 import NewCommentForm from "./NewCommentForm";
+import TimeAgo from "./TimeAgo";
 
 const BlogPost = ({ post }) => {
   const [comments, setComments] = useState([]); // State to store fetched comments
   const [loading, setLoading] = useState(true); // Loading state for comments
+  const [showCommentForm, setShowCommentForm] = useState(false);
+  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 50));
+  const [liked, setLiked] = useState(false);
+  const [commentsCollapsed, setCommentsCollapsed] = useState(false);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -17,7 +38,9 @@ const BlogPost = ({ post }) => {
           return;
         }
         console.log("Fetching comments for postId:", post.postId); // Debugging log
-        const response = await CommentService.getFirstLayerCommentsByPostId(post.postId);
+        const response = await CommentService.getFirstLayerCommentsByPostId(
+          post.postId
+        );
         setComments(response.data); // Set fetched comments to state
       } catch (error) {
         console.error("Error fetching comments:", error);
@@ -36,8 +59,13 @@ const BlogPost = ({ post }) => {
         return;
       }
       const newComment = { content };
-      const response = await CommentService.addNewComment(post.postId, newComment);
+      const response = await CommentService.addNewComment(
+        post.postId,
+        newComment
+      );
       setComments((prevComments) => [...prevComments, response.data]); // Add new comment to state
+      setShowCommentForm(false);
+      setCommentsCollapsed(false); // Expand comments when a new one is added
     } catch (error) {
       console.error("Error adding comment:", error);
     }
@@ -50,13 +78,20 @@ const BlogPost = ({ post }) => {
         return;
       }
       const newReply = { content: replyContent };
-      const response = await CommentService.createReply(post.postId, parentId, newReply);
+      const response = await CommentService.createReply(
+        post.postId,
+        parentId,
+        newReply
+      );
 
       // Update the parent comment with the new reply
       setComments((prevComments) =>
         prevComments.map((comment) =>
           comment.id === parentId
-            ? { ...comment, replies: [...(comment.replies || []), response.data] }
+            ? {
+                ...comment,
+                replies: [...(comment.replies || []), response.data],
+              }
             : comment
         )
       );
@@ -65,29 +100,121 @@ const BlogPost = ({ post }) => {
     }
   };
 
+  const handleLike = () => {
+    setLiked(!liked);
+    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
+  };
+
+  const toggleComments = () => {
+    setCommentsCollapsed(!commentsCollapsed);
+  };
+
+  const getInitials = (name) => {
+    return name.substring(0, 2).toUpperCase();
+  };
+
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 space-y-4">
-      {/* Post Content */}
-      <p className="text-lg text-gray-800">Username: {post.username}</p>
-      <p className="text-lg text-gray-800">Post: {post.content}</p>
+    <Card className="glass-card h-full overflow-hidden flex flex-col">
+      <CardHeader className="pb-2 flex flex-row items-center space-y-0 gap-3">
+        <Avatar className="h-10 w-10 border border-primary/20">
+          <AvatarFallback className="bg-white text-primary-foreground">
+            {getInitials(post.username || "User")}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+          <div className="font-bold text-xl text-gradient">{post.username || "Anonymous"}</div>
+          <TimeAgo className="text-xs text-muted-foreground" createdAt={post.createdAt}/>
+        </div>
+      </CardHeader>
 
-      {/* Add Comment Form */}
-      <NewCommentForm onSubmit={handleAddComment} />
+      <CardContent className="py-4 flex-grow">
+        <p className="text-foreground whitespace-pre-wrap">{post.content}</p>
+      </CardContent>
 
-      {/* Comments Section */}
-      <div className="space-y-4">
-        <h3 className="font-medium">Comments</h3>
-        {loading ? (
-          <div>Loading comments...</div>
-        ) : (
-          <CommentList
-            comments={comments}
-            postId={post.postId}
-            onAddReply={handleAddReply}
-          />
+      <CardFooter className="flex flex-col pt-0 pb-4 px-4 gap-4 border-t border-border/30">
+        <div className="flex items-center justify-between w-full pt-2">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`px-2 ${
+                liked ? "text-primary" : "text-muted-foreground"
+              }`}
+              onClick={handleLike}
+            >
+              <Heart
+                className={`h-4 w-4 mr-1 ${liked ? "fill-primary" : ""}`}
+              />
+              {likeCount}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="px-2 text-muted-foreground"
+              onClick={() => setShowCommentForm(!showCommentForm)}
+            >
+              <MessageCircle className="h-4 w-4 mr-1" />
+              {comments.length}
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {comments.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-2 text-muted-foreground"
+                onClick={toggleComments}
+              >
+                {commentsCollapsed ? (
+                  <>
+                    <ChevronDown className="h-8 w-8 mr-1 text-blue-500" />
+                    Show comments
+                  </>
+                ) : (
+                  <>
+                    <ChevronUp className="h-4 w-4 mr-1" />
+                    Hide comments
+                  </>
+                )}
+              </Button>
+            )}
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="px-2 text-muted-foreground"
+            >
+              <Share2 className="h-4 w-4 mr-1" />
+              Share
+            </Button>
+          </div>
+        </div>
+
+        {showCommentForm && (
+          <div className="w-full">
+            <NewCommentForm onSubmit={handleAddComment} />
+          </div>
         )}
-      </div>
-    </div>
+
+        {comments.length > 0 && !commentsCollapsed && (
+          <div className="w-full transition-all duration-300 ease-in-out">
+            {loading ? (
+              <div className="flex justify-center py-2">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              </div>
+            ) : (
+              <CommentList
+                comments={comments}
+                postId={post.postId}
+                onAddReply={handleAddReply}
+              />
+            )}
+          </div>
+        )}
+      </CardFooter>
+    </Card>
   );
 };
 

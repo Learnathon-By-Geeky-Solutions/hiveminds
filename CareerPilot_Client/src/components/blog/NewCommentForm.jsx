@@ -22,8 +22,8 @@ const NewCommentForm = ({ isReply = false, onCancel, onSubmit }) => {
   return (
     <form onSubmit={handleSubmit} className="flex gap-2 items-start">
       {!isReply && (
-        <Avatar className="h-8 w-8 shrink-0">
-          <AvatarFallback>YO</AvatarFallback>
+        <Avatar className="h-8 w-8 shrink-0 border border-primary/20">
+          <AvatarFallback className="bg-primary/10 text-primary-foreground">YO</AvatarFallback>
         </Avatar>
       )}
       <div className="relative flex-grow">
@@ -46,7 +46,13 @@ const NewCommentForm = ({ isReply = false, onCancel, onSubmit }) => {
               <X className="h-4 w-4" />
             </Button>
           )}
-          <Button type="submit" size="sm" variant="ghost" className="text-primary h-7 w-7 p-0">
+          <Button
+            type="submit"
+            size="sm"
+            variant="ghost"
+            className="text-primary h-7 w-7 p-0"
+            disabled={!content.trim()}
+          >
             <Send className="h-4 w-4" />
           </Button>
         </div>
