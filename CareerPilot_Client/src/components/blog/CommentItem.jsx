@@ -1,15 +1,24 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import CommentService from "@/services/CommentService";
-import { Reply } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import {
+  ChevronDown,
+  ChevronUp,
+  Heart,
+  MessageSquareReply,
+} from "lucide-react";
 import { useEffect, useState } from "react";
-import CommentList from "./CommentList";
 import NewCommentForm from "./NewCommentForm";
+import TimeAgo from "./TimeAgo";
 
 const CommentItem = ({ comment, postId, onAddReply }) => {
   const [showReplyForm, setShowReplyForm] = useState(false); // Toggle reply form visibility
   const [replies, setReplies] = useState([]); // State for nested replies
   const [loadingReplies, setLoadingReplies] = useState(false); // Loading state for replies
+  const [liked, setLiked] = useState(false); // Like button state
+  const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 10)); // Random like count
+  const [collapsed, setCollapsed] = useState(false); // Collapsed state for replies
 
   // Fetch replies for the current comment
   useEffect(() => {
@@ -51,66 +60,123 @@ const CommentItem = ({ comment, postId, onAddReply }) => {
     }
   };
 
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const handleLike = () => {
+    setLiked(!liked);
+    setLikeCount((prev) => (liked ? prev - 1 : prev + 1));
   };
 
-  return (
-    <div className="group relative">
-      <div className="absolute left-5 top-0 bottom-0 w-[1px] bg-primary/10 group-last:hidden"></div>
-      <div className="pl-10 pb-2 relative">
-        <div className="absolute left-0 top-2 h-8 w-8 rounded-full overflow-hidden border border-primary/10">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback>
-              {comment.username.substring(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-        </div>
-        <div className="absolute left-[32px] top-[14px] h-[1px] w-[8px] bg-primary/10"></div>
+  const toggleCollapsed = () => {
+    setCollapsed(!collapsed);
+  };
 
-        <div className="bg-secondary/50 rounded-lg p-3 backdrop-blur-sm">
-          <div className="flex justify-between items-start">
-            <div className="font-medium text-sm">
-              {comment.username || "Anonymous"}
+  // Generate a random time for demo purposes
+  const commentTime = formatDistanceToNow(
+    new Date(Date.now() - Math.floor(Math.random() * 5000000000)),
+    {
+      addSuffix: true,
+    }
+  );
+
+  const getInitials = (name) => {
+    return (name || "AN").substring(0, 2).toUpperCase();
+  };
+
+  const hasReplies = replies && replies.length > 0;
+
+  return (
+    <div className="group">
+      <div className="flex gap-2">
+        <Avatar className="h-7 w-7 shrink-0 mt-0.5 border border-primary/20">
+          <AvatarFallback className="bg-blue-300 text-primary-foreground text-xs">
+            {getInitials(comment.username)}
+          </AvatarFallback>
+        </Avatar>
+
+        <div className="flex-1 space-y-1.5">
+          <div className="bg-secondary/50 backdrop-blur-sm p-2.5 rounded-lg rounded-tl-none">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-medium text-sm text-gradient">
+                {comment.username || "Anonymous"}
+              </span>
+              {/* <span className="text-xs text-muted-foreground">
+                {commentTime}
+              </span> */}
+              <TimeAgo className="text-xs text-muted-foreground" createdAt={comment.createdAt}/>
             </div>
-            <div className="text-xs text-muted-foreground">
-              {formatDate(comment.createdAt)}
-            </div>
+            <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
           </div>
-          <div className="text-sm mt-1">{comment.content}</div>
-          <div className="mt-2">
+
+          <div className="flex items-center gap-3 pl-1">
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 text-xs text-muted-foreground hover:text-primary"
+              className={`h-6 px-1.5 text-xs ${
+                liked ? "text-primary" : "text-muted-foreground"
+              }`}
+              onClick={handleLike}
+            >
+              <Heart
+                className={`h-3 w-3 mr-1 ${liked ? "fill-primary" : ""}`}
+              />
+              {likeCount > 0 && likeCount}
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 px-1.5 text-xs text-muted-foreground"
               onClick={() => setShowReplyForm(!showReplyForm)}
             >
-              <Reply className="h-3 w-3 mr-1" />
+              <MessageSquareReply className="h-3 w-3 mr-1" />
               Reply
             </Button>
+
+            {hasReplies && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-1.5 text-xs text-muted-foreground"
+                onClick={toggleCollapsed}
+              >
+                {collapsed ? (
+                  <>
+                    <ChevronDown className="h-3 w-3 mr-1" />
+                    Show {replies.length}{" "}
+                    {replies.length === 1 ? "reply" : "replies"}
+                  </>
+                ) : (
+                  <>
+                    <ChevronUp className="h-3 w-3 mr-1" />
+                    Hide replies
+                  </>
+                )}
+              </Button>
+            )}
           </div>
+
+          {showReplyForm && (
+            <div className="pl-1 pt-1">
+              <NewCommentForm
+                isReply={true}
+                onCancel={() => setShowReplyForm(false)}
+                onSubmit={handleReplySubmit}
+              />
+            </div>
+          )}
+
+          {hasReplies && !collapsed && (
+            <div className="pl-4 pt-2 border-l border-gray-600 mt-2 space-y-3 transition-all duration-300 ease-in-out">
+              {replies.map((reply) => (
+                <CommentItem
+                  key={reply.id}
+                  comment={reply}
+                  postId={postId}
+                  onAddReply={onAddReply}
+                />
+              ))}
+            </div>
+          )}
         </div>
-
-        {showReplyForm && (
-          <div className="mt-2 ml-2">
-            <NewCommentForm onSubmit={handleReplySubmit} isReply />
-          </div>
-        )}
-
-        {replies.length > 0 && (
-          <div className="mt-2 pl-8">
-            <CommentList
-              comments={replies}
-              postId={postId}
-              onAddReply={onAddReply}
-            />
-          </div>
-        )}
       </div>
     </div>
   );

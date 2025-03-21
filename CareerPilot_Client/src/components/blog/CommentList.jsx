@@ -3,7 +3,7 @@ import CommentItem from "./CommentItem";
 
 const CommentList = ({ comments, postId, onAddReply }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 pl-1">
       {comments.map((comment) => (
         <CommentItem
           key={comment.id} // Ensure unique key
