@@ -18,7 +18,7 @@ const CommentItem = ({ comment, postId, onAddReply }) => {
   const [loadingReplies, setLoadingReplies] = useState(false); // Loading state for replies
   const [liked, setLiked] = useState(false); // Like button state
   const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 10)); // Random like count
-  const [collapsed, setCollapsed] = useState(false); // Collapsed state for replies
+  const [collapsed, setCollapsed] = useState(true); // Collapsed state for replies
 
   // Fetch replies for the current comment
   useEffect(() => {
