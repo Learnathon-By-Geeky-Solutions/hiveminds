@@ -1,18 +1,12 @@
 import React from "react";
 import CommentItem from "./CommentItem";
 
-const CommentList = ({ comments, postId, onAddReply, parentCommentId }) => {
-  // Calculate indentation class based on parentCommentId
-  const getIndentationClass = (parentCommentId) => {
-    // Example logic: Add "pl-8" for each level of nesting
-    return parentCommentId ? "pl-8" : "";
-  };
-
+const CommentList = ({ comments, postId, onAddReply }) => {
   return (
-    <div className={`space-y-4 ${getIndentationClass(parentCommentId)}`}>
+    <div className="space-y-4">
       {comments.map((comment) => (
         <CommentItem
-          key={comment.id}
+          key={comment.id} // Ensure unique key
           comment={comment}
           postId={postId}
           onAddReply={onAddReply}

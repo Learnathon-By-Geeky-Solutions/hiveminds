@@ -1,24 +1,41 @@
-import React, { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import CommentService from "@/services/CommentService";
 import { Reply } from "lucide-react";
-import CommentList from "./CommentList";
+import { useState } from "react";
 import NewCommentForm from "./NewCommentForm";
-
 
 const CommentItem = ({ comment, postId, onAddReply }) => {
   const [showReplyForm, setShowReplyForm] = useState(false); // Toggle reply form visibility
+  const [replies, setReplies] = useState(comment.comments || []); // State for nested replies
 
-  // Handle reply submission
-  const handleReplySubmit = (reply) => {
-    onAddReply(comment.id, reply); // Call the onAddReply function with the comment ID and reply content
-    setShowReplyForm(false); // Hide the reply form after submission
+  const handleReplySubmit = async (replyContent) => {
+    try {
+      if (!postId) {
+        console.error("Cannot add reply: Invalid postId");
+        return;
+      }
+      const newReply = { content: replyContent };
+      const response = await CommentService.createReply(
+        postId,
+        comment.id,
+        newReply
+      );
+      setReplies((prevReplies) => [...prevReplies, response.data]); // Add new reply to state
+      onAddReply(comment.id, response.data); // Notify parent component
+      setShowReplyForm(false); // Hide reply form
+    } catch (error) {
+      console.error("Error adding reply:", error);
+    }
   };
 
-  // Format timestamp into a readable date
   const formatDate = (timestamp) => {
     const date = new Date(timestamp);
-    return date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    return date.toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   return (
@@ -27,16 +44,21 @@ const CommentItem = ({ comment, postId, onAddReply }) => {
       <div className="pl-10 pb-2 relative">
         <div className="absolute left-0 top-2 h-8 w-8 rounded-full overflow-hidden border border-primary/10">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={comment.author.avatar} alt={comment.author.username} />
-            <AvatarFallback>{comment.author.username.substring(0, 2).toUpperCase()}</AvatarFallback>
+            <AvatarFallback>
+              {comment.author?.username.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
         </div>
         <div className="absolute left-[32px] top-[14px] h-[1px] w-[8px] bg-primary/10"></div>
 
         <div className="bg-secondary/50 rounded-lg p-3 backdrop-blur-sm">
           <div className="flex justify-between items-start">
-            <div className="font-medium text-sm">{comment.author.username}</div>
-            <div className="text-xs text-muted-foreground">{formatDate(comment.timestamp)}</div>
+            <div className="font-medium text-sm">
+              {comment.author?.username || "Anonymous"}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {formatDate(comment.createdAt)}
+            </div>
           </div>
           <div className="text-sm mt-1">{comment.content}</div>
           <div className="mt-2">
@@ -58,12 +80,11 @@ const CommentItem = ({ comment, postId, onAddReply }) => {
           </div>
         )}
 
-        {comment.comments.length > 0 && (
+        {replies.length > 0 && (
           <div className="mt-2 pl-2">
             <CommentList
-              comments={comment.comments}
+              comments={replies}
               postId={postId}
-              parentCommentId={comment.id}
               onAddReply={onAddReply}
             />
           </div>

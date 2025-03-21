@@ -1,71 +1,102 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ThumbsUp } from "lucide-react";
-import { useState } from "react";
+import CommentService from "@/services/CommentService";
+import { useEffect, useState } from "react";
+import CommentList from "./CommentList";
+import NewCommentForm from "./NewCommentForm";
 
 const BlogPost = ({ post }) => {
-  const [likes, setLikes] = useState(post.likes || 0); // Initialize with likes from the post
+  const [comments, setComments] = useState([]); // State to store fetched comments
+  const [loading, setLoading] = useState(true); // Loading state for comments
 
-  // Handle like button click
-  const handleLike = () => {
-    setLikes((prevLikes) => prevLikes + 1); // Increment likes
+  useEffect(() => {
+    const fetchComments = async () => {
+      setLoading(true);
+      try {
+        if (!post.postId) {
+          console.error("Invalid postId:", post.postId);
+          setLoading(false);
+          return;
+        }
+        console.log("Fetching comments for postId:", post.postId); // Debugging log
+        const response = await CommentService.getFirstLayerCommentsByPostId(
+          post.postId
+        );
+        setComments(response.data); // Set fetched comments to state
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchComments(); // Fetch comments when the component mounts
+  }, [post.postId]); // Re-fetch comments if postId changes
+
+  const handleAddComment = async (content) => {
+    try {
+      if (!post.postId) {
+        console.error("Cannot add comment: Invalid postId");
+        return;
+      }
+      const newComment = { content };
+      const response = await CommentService.addNewComment(
+        post.postId,
+        newComment
+      );
+      setComments((prevComments) => [...prevComments, response.data]); // Add new comment to state
+    } catch (error) {
+      console.error("Error adding comment:", error);
+    }
   };
 
-  // Format timestamp into a readable date
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
+  const handleAddReply = async (parentId, replyContent) => {
+    try {
+      if (!post.postId) {
+        console.error("Cannot add reply: Invalid postId");
+        return;
+      }
+      const newReply = { content: replyContent };
+      const response = await CommentService.createReply(
+        post.postId,
+        parentId,
+        newReply
+      );
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment.id === parentId
+            ? {
+                ...comment,
+                comments: [...(comment.comments || []), response.data],
+              }
+            : comment
+        )
+      );
+    } catch (error) {
+      console.error("Error adding reply:", error);
+    }
   };
 
   return (
-    <Card className="w-full mb-6 bg-card/90 backdrop-blur-sm hover:shadow-md transition-all duration-200 animate-fade-in overflow-hidden border border-primary/10">
-      <CardHeader className="pb-3">
-        <div className="flex items-center gap-3 mb-2">
-          <Avatar className="h-9 w-9">
-            {/* Use fallback since avatar image is not required for now */}
-            <AvatarFallback>{post.username?.substring(0, 2).toUpperCase()}</AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="font-semibold text-sm">{post.username}</div>
-            <div className="text-xs text-muted-foreground">
-              {formatDate(post.timestamp)}
-            </div>
-          </div>
-        </div>
-        <CardTitle className="text-xl font-semibold leading-tight">
-          {post.title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pb-4">
-        <p className="text-sm leading-relaxed text-foreground/90">
-          {post.content}
-        </p>
-      </CardContent>
-      <CardFooter className="flex justify-between pt-0 pb-4 border-t border-primary/5">
-        <div className="flex gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-muted-foreground hover:text-primary flex items-center gap-1 px-2"
-            onClick={handleLike}
-          >
-            <ThumbsUp className="h-4 w-4" />
-            <span>{likes > 0 ? likes : ""}</span>
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+    <div className="bg-white shadow-md rounded-lg p-6 space-y-4">
+      {/* Post Content */}
+      <p className="text-lg text-gray-800">{post.content}</p>
+
+      {/* Add Comment Form */}
+      <NewCommentForm onSubmit={handleAddComment} />
+
+      {/* Comments Section */}
+      <div className="space-y-4">
+        <h3 className="font-medium">Comments</h3>
+        {loading ? (
+          <div>Loading comments...</div>
+        ) : (
+          <CommentList
+            comments={comments}
+            postId={post.postId}
+            onAddReply={handleAddReply}
+          />
+        )}
+      </div>
+    </div>
   );
 };
 
