@@ -1,18 +1,21 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, X } from "lucide-react";
 import { useState } from "react";
 
-const NewCommentForm = ({ isReply = false, onCancel }) => {
+const NewCommentForm = ({ isReply = false, onCancel, onSubmit }) => {
   const [content, setContent] = useState(""); // State for the comment/reply content
 
-  // Handle form submission
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
-    if (content.trim()) {
-      console.log("Submitted:", content); // Replace with actual submission logic
-      setContent(""); // Reset the form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!content.trim()) return;
+
+    try {
+      await onSubmit(content); // Pass the content to the parent component
+      setContent(""); // Clear the form
+    } catch (error) {
+      console.error("Error submitting comment:", error);
     }
   };
 
@@ -20,7 +23,6 @@ const NewCommentForm = ({ isReply = false, onCancel }) => {
     <form onSubmit={handleSubmit} className="flex gap-2 items-start">
       {!isReply && (
         <Avatar className="h-8 w-8 shrink-0">
-          <AvatarImage src="/placeholder.svg" alt="Your Avatar" />
           <AvatarFallback>YO</AvatarFallback>
         </Avatar>
       )}
@@ -44,13 +46,7 @@ const NewCommentForm = ({ isReply = false, onCancel }) => {
               <X className="h-4 w-4" />
             </Button>
           )}
-          <Button
-            type="submit"
-            size="sm"
-            variant="ghost"
-            className="text-primary h-7 w-7 p-0"
-            disabled={!content.trim()}
-          >
+          <Button type="submit" size="sm" variant="ghost" className="text-primary h-7 w-7 p-0">
             <Send className="h-4 w-4" />
           </Button>
         </div>

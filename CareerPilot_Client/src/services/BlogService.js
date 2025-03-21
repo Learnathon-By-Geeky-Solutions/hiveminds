@@ -1,11 +1,11 @@
 import axios from "axios";
 
-class BlogService{
+class BlogService {
 
-    // Post a blog (public endpoint)
-    addNewPost(content) {
+    // Post a new blog post
+    addNewPost(postData) {
         const token = localStorage.getItem("ACCESS_TOKEN");
-        return axios.post("http://localhost:8082/api/posts", content, {
+        return axios.post("http://localhost:8082/api/posts", postData, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
@@ -13,7 +13,7 @@ class BlogService{
         });
     }
 
-    // Get all posts (public endpoint)
+    // Get all posts
     getAllPosts() {
         const token = localStorage.getItem("ACCESS_TOKEN");
         return axios.get("http://localhost:8082/api/posts", {
@@ -21,7 +21,40 @@ class BlogService{
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
             }
-        }); 
+        });
+    }
+
+    // Get a specific post by ID
+    getPostById(postId) {
+        const token = localStorage.getItem("ACCESS_TOKEN");
+        return axios.get(`http://localhost:8082/api/posts/${postId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            }
+        });
+    }
+
+    // Update a specific post by ID
+    updatePost(postId, updatedData) {
+        const token = localStorage.getItem("ACCESS_TOKEN");
+        return axios.put(`http://localhost:8082/api/posts/${postId}`, updatedData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            }
+        });
+    }
+
+    // Delete a specific post by ID
+    deletePost(postId) {
+        const token = localStorage.getItem("ACCESS_TOKEN");
+        return axios.delete(`http://localhost:8082/api/posts/${postId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            }
+        });
     }
 }
 

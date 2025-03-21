@@ -43,13 +43,19 @@ const Blog = () => {
 
           <div className="space-y-8">
             {/* Form to create a new post */}
-            <NewPostForm />
+            <NewPostForm
+              onPostCreated={(newPost) => setPosts([newPost, ...posts])}
+            />
 
             {/* Render all posts */}
             {posts.length > 0 ? (
-              posts.map((post) => (
-                <BlogPost key={post.id} post={post} />
-              ))
+              posts.map((post) => {
+                if (!post.postId) {
+                  console.error("Invalid post object:", post);
+                  return null; // Skip invalid posts
+                }
+                return <BlogPost key={post.postId} post={post} />;
+              })
             ) : (
               <div>No posts available.</div>
             )}
