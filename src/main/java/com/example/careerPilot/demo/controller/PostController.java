@@ -6,9 +6,13 @@ import com.example.careerPilot.demo.entity.Post;
 import com.example.careerPilot.demo.exception.PostNotFoundException;
 import com.example.careerPilot.demo.service.PostService;
 import com.example.careerPilot.demo.repository.userRepository;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -49,6 +53,17 @@ public class PostController {
         Post post = postService.getPostById(id);
         PostDTO postDTO = PostDTO.fromEntity(post);
         return ResponseEntity.ok(postDTO);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<PostDTO>> getPostByUserId(@PathVariable Long userId, Pageable pageable) throws PostNotFoundException {
+        try {
+            Page<PostDTO> post = postService.getPostByUserId(userId , pageable);
+        return ResponseEntity.ok(post);
+        } catch (Exception e) {
+            throw new PostNotFoundException(e.getMessage());
+        }
     }
 
 
@@ -103,6 +118,37 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
     }
+
+    //community post create
+    // api/posts/communityId
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{communityId}")
+    public ResponseEntity<?> createPostByCommunity(@Valid @RequestBody PostRequest postRequest,
+                                                         @PathVariable Long communityId,
+                                                         @AuthenticationPrincipal UserDetails userDetails) {
+        try {
+            PostDTO createdPost = postService.createPostByCommunity(postRequest,communityId,userDetails);
+            return ResponseEntity.ok(createdPost);
+        }
+        catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create Post"+e.getMessage());
+        }
+    }
+
+    //get post by community
+    // api/posts/communityId?page=0&size=10
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{communityId}")
+    public ResponseEntity<?> getPostByCommunity(@PathVariable Long communityId , Pageable pageable) {
+        try{
+            Page<PostDTO> posts = postService.getPostByCommunityId(communityId ,pageable);
+            return ResponseEntity.ok(posts);
+        }
+        catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 
 
 }

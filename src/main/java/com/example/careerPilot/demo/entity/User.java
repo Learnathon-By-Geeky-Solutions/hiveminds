@@ -1,7 +1,6 @@
 package com.example.careerPilot.demo.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -99,13 +98,6 @@ public class User implements UserDetails {
     @Column(name = "language", columnDefinition = "varchar(255) default 'en'")
     private String language;
 
-
-
-
-
-
-
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
@@ -164,22 +156,16 @@ public class User implements UserDetails {
     //  User to Comments
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties("user")
-    private List<Comment> comments = new ArrayList<>();
+    private List<Comment> comments;
 
 
 
 
     // User to Communities
-    @OneToOne(
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY
-    )
-    @JoinColumn(
-            name = "createdBy",
-            referencedColumnName = "id"
-    )
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("createdBy")
+    private List<Community> communities;
 
-    private Community community;
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)
     private List<UserSkill> userSkills;
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)

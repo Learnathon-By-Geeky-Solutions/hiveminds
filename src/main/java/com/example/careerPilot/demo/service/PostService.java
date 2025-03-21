@@ -1,16 +1,25 @@
 package com.example.careerPilot.demo.service;
 
+import com.example.careerPilot.demo.dto.PostDTO;
+import com.example.careerPilot.demo.dto.PostRequest;
+import com.example.careerPilot.demo.entity.Community;
 import com.example.careerPilot.demo.entity.Post;
 import com.example.careerPilot.demo.entity.User;
 import com.example.careerPilot.demo.exception.PostNotFoundException;
+import com.example.careerPilot.demo.repository.CommunityRepository;
 import com.example.careerPilot.demo.repository.PostRepository;
 import com.example.careerPilot.demo.repository.userRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j  // Enables logging
 @Service
@@ -19,6 +28,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final userRepository userRepository;
+    private final CommunityRepository communityRepository;
 
 
     public List<Post> getAllPosts() {
@@ -40,6 +50,7 @@ public class PostService {
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
 
         post.setUser(user);
+        post.setApproved(true);
         return postRepository.save(post);
     }
 
@@ -74,6 +85,29 @@ public class PostService {
         return postRepository.save(existingPost);
     }
 
+    public PostDTO createPostByCommunity(@Valid PostRequest postRequest, Long communityId, UserDetails userDetails) {
+        Community community = communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community not found with id: " + communityId));
+        Post post = new Post();
+        post.setUser(userRepository.findByUsername(userDetails.getUsername()).orElseThrow(() -> new RuntimeException("User not found with username: " + userDetails.getUsername())));
+        post.setCommunity(community);
+        post.setContent(postRequest.getContent());
+        post.setImage(postRequest.getImage());
+        post.setVisibility(postRequest.getVisibility());
+        postRepository.save(post);
+        return PostDTO.fromEntity(post);
+    }
+
+    public Page<PostDTO> getPostByCommunityId(Long communityId, Pageable pageable) {
+        Community community = communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community not found with id: " + communityId));
+         Page<Post> posts = postRepository.findPostByCommunity(community,pageable);
+         return posts.map(post-> PostDTO.fromEntity(post));
+    }
+
+    public Page<PostDTO> getPostByUserId(Long userId , Pageable pageable) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        Page<Post> posts = postRepository.findPostByUser(user,pageable);
+        return posts.map(post -> PostDTO.fromEntity(post));
+    }
 }
 
 

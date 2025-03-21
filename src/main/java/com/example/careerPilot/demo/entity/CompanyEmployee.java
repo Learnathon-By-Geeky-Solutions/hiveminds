@@ -2,6 +2,8 @@ package com.example.careerPilot.demo.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -35,5 +37,8 @@ public class CompanyEmployee {
 
     @NonNull
     private LocalDateTime releasedAt;
+
+    @NonNull
+    private String jobTitle;
 
 }
