@@ -19,6 +19,8 @@ import { useEffect, useState } from "react";
 import CommentList from "./CommentList";
 import NewCommentForm from "./NewCommentForm";
 import TimeAgo from "./TimeAgo";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUser } from "@/contexts/UserContext";
 
 const BlogPost = ({ post }) => {
   const [comments, setComments] = useState([]); // State to store fetched comments
@@ -26,7 +28,9 @@ const BlogPost = ({ post }) => {
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [likeCount, setLikeCount] = useState(Math.floor(Math.random() * 50));
   const [liked, setLiked] = useState(false);
-  const [commentsCollapsed, setCommentsCollapsed] = useState(false);
+  const [commentsCollapsed, setCommentsCollapsed] = useState(true);
+  const {token} = useAuth();
+  const {user} = useUser();
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -113,8 +117,14 @@ const BlogPost = ({ post }) => {
     return name.substring(0, 2).toUpperCase();
   };
 
+  const isAuthor = token && user.username === post.username;
+
   return (
-    <Card className="glass-card h-full overflow-hidden flex flex-col">
+    <Card
+      className={`bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-300 h-full overflow-hidden flex flex-col ${
+        isAuthor ? "border-2 border-cyan-900 shadow-cyan-700 shadow-md" : ""
+      }`}
+    >
       <CardHeader className="pb-2 flex flex-row items-center space-y-0 gap-3">
         <Avatar className="h-10 w-10 border border-primary/20">
           <AvatarFallback className="bg-white text-primary-foreground">
