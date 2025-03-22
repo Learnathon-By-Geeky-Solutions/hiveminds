@@ -74,6 +74,7 @@ const Navbar = () => {
         <nav className="hidden md:flex items-center space-x-10">
           <LinkStyled to="/">Find Jobs</LinkStyled>
           <LinkStyled to="/">Categories</LinkStyled>
+          <LinkStyled to="/company">Company</LinkStyled>
           {token && <LinkStyled to="/profile/blog">Blog</LinkStyled>}
           {!token && <LinkStyled to="/">About Us</LinkStyled>}
         </nav>
