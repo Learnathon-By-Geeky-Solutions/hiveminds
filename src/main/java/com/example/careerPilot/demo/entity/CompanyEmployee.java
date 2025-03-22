@@ -17,6 +17,7 @@ public class CompanyEmployee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -25,20 +26,39 @@ public class CompanyEmployee {
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
-    @NonNull
+    @Column(nullable = false)
     private LocalDateTime hiringDate;
-    public enum status{
-        active,
-        inactive,
-        terminated,
-    }
 
-    private status status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", columnDefinition = "VARCHAR(20) default 'ACTIVE'")
+    private Status status = Status.ACTIVE;
 
-    @NonNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
+
     private LocalDateTime releasedAt;
 
-    @NonNull
+    @Column(nullable = false)
     private String jobTitle;
 
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    public enum Status {
+        ACTIVE,
+        INACTIVE,
+        TERMINATED
+    }
+
+    public enum Role {
+        ADMIN,
+        MODERATOR,
+        EMPLOYEE
+    }
 }
