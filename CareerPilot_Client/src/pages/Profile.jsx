@@ -2,6 +2,7 @@ import ApplicationSection from "@/components/profile/ApplicationSection";
 import JobPreference from "@/components/profile/JobPreference";
 import RecommendationsSection from "@/components/profile/RecommendationsSection";
 import Skills from "@/components/profile/Skills";
+import UserBlogPosts from "@/components/profile/UserBlogPosts";
 import UserDetails from "@/components/profile/UserDetails";
 import { Outlet, useMatch } from "react-router-dom";
 
@@ -23,6 +24,7 @@ const Profile = () => {
               <Skills />
               <ApplicationSection />
               <RecommendationsSection />
+              <UserBlogPosts/>
             </div>
           </div>
         )}
