@@ -31,7 +31,7 @@ const NewCommentForm = ({ isReply = false, onCancel, onSubmit }) => {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder={isReply ? "Write a reply..." : "Write a comment..."}
-          className="w-full p-2 pr-10 bg-secondary/50 backdrop-blur-sm rounded-lg border border-primary/10 text-sm min-h-[2.5rem] resize-none focus:outline-none focus:ring-1 focus:ring-primary"
+          className="w-full p-2 text-white pr-10 bg-secondary/50 backdrop-blur-sm rounded-lg border border-primary/10 text-sm min-h-[2.5rem] resize-none focus:outline-none focus:ring-1 focus:ring-primary"
           rows={content.split("\n").length > 1 ? 3 : 1}
         />
         <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">

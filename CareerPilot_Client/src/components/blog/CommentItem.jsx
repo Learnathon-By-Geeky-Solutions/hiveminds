@@ -103,7 +103,7 @@ const CommentItem = ({ comment, postId, onAddReply }) => {
               </span> */}
               <TimeAgo className="text-xs text-muted-foreground" createdAt={comment.createdAt}/>
             </div>
-            <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
+            <p className="text-sm text-white whitespace-pre-wrap">{comment.content}</p>
           </div>
 
           <div className="flex items-center gap-3 pl-1">

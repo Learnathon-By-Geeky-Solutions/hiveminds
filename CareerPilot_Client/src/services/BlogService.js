@@ -56,6 +56,20 @@ class BlogService {
             }
         });
     }
+
+    // Fetch posts by user ID
+    getPostsByUserId(userId, page = 0, size = 20) {
+        const token = localStorage.getItem("ACCESS_TOKEN");
+        return axios.get(`http://localhost:8082/api/posts/user/${userId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        params: {
+            page,
+            size,
+        },
+        });
+    }
 }
 
 export default new BlogService();
