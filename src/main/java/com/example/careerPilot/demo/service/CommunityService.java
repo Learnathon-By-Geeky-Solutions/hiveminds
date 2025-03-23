@@ -11,10 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,33 +35,26 @@ public class CommunityService {
         return communityRepository.findAll(pageable).map(this::mapToDTO);
     }
 
-    @Transactional
-    public Community createCommunity(CommunityDTO communityDTO, Long userId) {
+    public Community createCommunity(@RequestBody CommunityDTO communityDTO, @RequestBody Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         Community community = new Community();
         community.setName(communityDTO.getName());
         community.setDescription(communityDTO.getDescription());
         community.setCategory(communityDTO.getCategory());
         community.setCreatedBy(user);
+        community.setMemberCount(1L);
 
         if (communityDTO.getVisibility() != null) {
             community.setVisibility(Community.Visibility.valueOf(communityDTO.getVisibility().toUpperCase()));
         }
-
-        // Save the Community first
-        Community savedCommunity = communityRepository.save(community);
-
-
         CommunityUser communityUser = new CommunityUser();
         communityUser.setCommunity(community);
         communityUser.setUser(user);
         communityUser.setRole(CommunityUser.role.ADMIN);
-        communityUser.setStatus(CommunityUser.status.ACCEPTED);
-        communityUser.setJoinDate(LocalDateTime.now());
 
-//        Community community1 =  communityRepository.save(community);
-//        communityUserRepository.save(communityUser);
-        return savedCommunity;
+        Community community1 =  communityRepository.save(community);
+        communityUserRepository.save(communityUser);
+        return community1;
 
     }
 

@@ -42,7 +42,7 @@ public class Community {
     private Visibility visibility;
 
     @Column(name = "member_count", columnDefinition = "BIGINT default 0")
-    private Long memberCount = 0L;
+    private Long memberCount = 0L ;
 
     public enum Visibility {
         PUBLIC, FRIEND
