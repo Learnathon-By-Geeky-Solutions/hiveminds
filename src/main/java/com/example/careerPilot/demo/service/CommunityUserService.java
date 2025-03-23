@@ -1,5 +1,6 @@
 package com.example.careerPilot.demo.service;
 
+import com.example.careerPilot.demo.dto.CommunityUserDtO;
 import com.example.careerPilot.demo.entity.Community;
 import com.example.careerPilot.demo.entity.CommunityUser;
 import com.example.careerPilot.demo.entity.User;
@@ -7,8 +8,14 @@ import com.example.careerPilot.demo.repository.CommunityRepository;
 import com.example.careerPilot.demo.repository.CommunityUserRepository;
 import com.example.careerPilot.demo.repository.userRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CommunityUserService {
@@ -47,6 +54,10 @@ public class CommunityUserService {
     public void acceptRequest(Long requestId) {
         CommunityUser communityUser = communityUserRepository.findById(requestId).orElseThrow(()->new RuntimeException("Request not found"));
         communityUser.setStatus(CommunityUser.status.ACCEPTED);
+        Community community = communityUser.getCommunity();
+        Long number = community.getMemberCount();
+        number++;
+        community.setMemberCount(number);
         communityUserRepository.save(communityUser);
     }
 
@@ -69,6 +80,21 @@ public class CommunityUserService {
         User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException("User not found"));
         Community community = communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community not found"));
         CommunityUser communityUser = communityUserRepository.findByUserAndCommunity(user, community);
+        Long number = community.getMemberCount();
+        number--;
+        community.setMemberCount(number);
         communityUserRepository.delete(communityUser);
+    }
+
+    public Page<CommunityUserDtO> getByUser(UserDetails userDetails , Pageable pageable) {
+        User user =  userRepository.findByUsername(userDetails.getUsername()).orElseThrow(()->new RuntimeException("User not found"));
+        List<CommunityUser> communityUsers = communityUserRepository.findByUser(user);
+        List<CommunityUserDtO> communityUserDtOs = new ArrayList<>();
+        for( CommunityUser communityUser : communityUsers){
+            if(communityUser.getStatus().equals(CommunityUser.status.PENDING)){
+                communityUserDtOs.add( CommunityUserDtO.fromEntity(communityUser));
+            }
+        }
+        return new PageImpl<>(communityUserDtOs, pageable, communityUsers.size());
     }
 }

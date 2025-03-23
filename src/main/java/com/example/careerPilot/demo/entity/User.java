@@ -172,6 +172,10 @@ public class User implements UserDetails {
     private List<CompanyEmployee> companyEmployees;
     @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)
     private List<CommunityUser> communityUsers;
+    @OneToMany(mappedBy = "user1" , cascade = CascadeType.ALL ,orphanRemoval = true)
+    private List<Connection> connectionInitiated;
+    @OneToMany(mappedBy = "user2" , cascade = CascadeType.ALL ,orphanRemoval = true)
+    private List<Connection> connectionReceived;
 
 
 }

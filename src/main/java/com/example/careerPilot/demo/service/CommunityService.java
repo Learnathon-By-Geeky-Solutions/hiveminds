@@ -42,6 +42,7 @@ public class CommunityService {
         community.setDescription(communityDTO.getDescription());
         community.setCategory(communityDTO.getCategory());
         community.setCreatedBy(user);
+        community.setMemberCount(1L);
 
         if (communityDTO.getVisibility() != null) {
             community.setVisibility(Community.Visibility.valueOf(communityDTO.getVisibility().toUpperCase()));
@@ -50,6 +51,7 @@ public class CommunityService {
         communityUser.setCommunity(community);
         communityUser.setUser(user);
         communityUser.setRole(CommunityUser.role.ADMIN);
+
         Community community1 =  communityRepository.save(community);
         communityUserRepository.save(communityUser);
         return community1;

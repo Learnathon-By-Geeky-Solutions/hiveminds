@@ -1,6 +1,7 @@
 package com.example.careerPilot.demo.controller;
 
 import com.example.careerPilot.demo.Reponse.ApiResponse;
+import com.example.careerPilot.demo.dto.CommunityUserDtO;
 import com.example.careerPilot.demo.entity.Community;
 import com.example.careerPilot.demo.entity.CommunityUser;
 import com.example.careerPilot.demo.entity.User;
@@ -11,6 +12,8 @@ import com.example.careerPilot.demo.service.CommunityUserService;
 import com.example.careerPilot.demo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -122,6 +125,20 @@ public class CommunityUserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse("An unexpected error occurred: " + e.getMessage(), null));
         }
+    }
+    //get request by user /getRequest?page=0&size=4
+    @GetMapping("/getRequest")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getRequest(@AuthenticationPrincipal UserDetails userDetails, Pageable pageable) {
+        try{
+            Page<CommunityUserDtO> communityUserDtO =communityUserService.getByUser(userDetails , pageable);
+            return ResponseEntity.ok(communityUserDtO);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
+        }
+
     }
 
 }
