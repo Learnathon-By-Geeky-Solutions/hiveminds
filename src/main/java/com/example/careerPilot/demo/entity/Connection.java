@@ -25,6 +25,8 @@ public class Connection {
         REJECTED,
         PENDING
     }
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", columnDefinition = "VARCHAR(10)")
     private status status;
 
 }
