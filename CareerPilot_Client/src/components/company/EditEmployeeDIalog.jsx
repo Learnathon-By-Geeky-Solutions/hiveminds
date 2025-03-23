@@ -1,4 +1,6 @@
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,27 +19,40 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
 
-const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
-  // Mock companies data
-  const mockCompanies = [
-    { id: 1, name: "TechCorp" },
-    { id: 2, name: "Innovate Inc." },
-    { id: 3, name: "FutureTech" },
-  ];
-
-  // State for form data
+const EditEmployeeDialog = ({
+  open,
+  onOpenChange,
+  employee,
+  companies,
+  onSave,
+}) => {
+  // Initialize form data with employee details
   const [formData, setFormData] = useState({
-    name: "",
-    jobTitle: "",
-    company_id: "",
-    hireDate: "",
-    status: "",
+    id: employee?.id || "",
+    name: employee?.name || "",
+    jobTitle: employee?.jobTitle || "",
+    company_id: employee?.company_id?.toString() || "",
+    hireDate: employee?.hireDate || "",
+    status: employee?.status || "",
   });
 
   // State for validation errors
   const [errors, setErrors] = useState({});
+
+  // Update form data when the employee prop changes
+  useEffect(() => {
+    if (employee) {
+      setFormData({
+        id: employee.id,
+        name: employee.name,
+        jobTitle: employee.jobTitle,
+        company_id: employee.company_id?.toString() || "",
+        hireDate: employee.hireDate || "",
+        status: employee.status || "",
+      });
+    }
+  }, [employee]);
 
   // Handle input changes for text and date fields
   const handleChange = (e) => {
@@ -73,20 +89,46 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
     }
   };
 
+  // Validate form before submission
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Employee name is required.";
+    }
+    if (!formData.jobTitle.trim()) {
+      newErrors.jobTitle = "Job title is required.";
+    }
+    if (!formData.company_id) {
+      newErrors.company_id = "Company selection is required.";
+    }
+    if (!formData.hireDate) {
+      newErrors.hireDate = "Hire date is required.";
+    }
+    if (!formData.status) {
+      newErrors.status = "Status selection is required.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
-    onOpenChange(false);
+    if (validateForm()) {
+      onSave(formData); // Pass the updated form data to the parent component
+      onOpenChange(false); // Close the dialog after submission
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Add New Employee</DialogTitle>
+          <DialogTitle>Edit Employee</DialogTitle>
           <DialogDescription>
-            Enter the details for the new employee. Click save when you're done.
+            Update the employee details. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -95,7 +137,6 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
             <Input
               id="name"
               name="name"
-              placeholder="John Doe"
               value={formData.name}
               onChange={handleChange}
               className={errors.name ? "border-destructive" : ""}
@@ -110,7 +151,6 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
             <Input
               id="jobTitle"
               name="jobTitle"
-              placeholder="Software Engineer"
               value={formData.jobTitle}
               onChange={handleChange}
               className={errors.jobTitle ? "border-destructive" : ""}
@@ -135,7 +175,7 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
                   <SelectValue placeholder="Select a company" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockCompanies.map((company) => (
+                  {companies.map((company) => (
                     <SelectItem key={company.id} value={company.id.toString()}>
                       {company.name}
                     </SelectItem>
@@ -155,7 +195,7 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
                 type="date"
                 value={formData.hireDate}
                 onChange={handleChange}
-                className={errors.hireDate ? "border-destructive" : "bg-secondary"}
+                className={errors.hireDate ? "border-destructive" : ""}
               />
               {errors.hireDate && (
                 <p className="text-sm text-destructive">{errors.hireDate}</p>
@@ -193,7 +233,7 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
             >
               Cancel
             </Button>
-            <Button type="submit">Save Employee</Button>
+            <Button type="submit">Save Changes</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -201,4 +241,4 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
   );
 };
 
-export default AddEmployeeDialog;
+export default EditEmployeeDialog;

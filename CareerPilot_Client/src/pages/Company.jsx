@@ -1,24 +1,32 @@
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import AddEmployeeDialog from "@/components/company/AddEmployeeDialog";
+import EditCompanyDialog from "@/components/company/EditCompanyDialog";
+import EmployeeSection from "@/components/company/EmployeeSection";
+import JobSection from "@/components/company/JobSection";
+import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
-  Users,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  BarChart3,
   Briefcase,
   Building2,
+  Clock,
+  Edit,
   Mail,
   MapPin,
   Phone,
-  Edit,
   Trash2,
-  BarChart3,
   TrendingUp,
-  Clock,
+  Users,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import EmployeeSection from "@/components/company/EmployeeSection";
-import JobSection from "@/components/company/JobSection";
-import EditCompanyDialog from "@/components/company/EditCompanyDialog"; // Import the dialog
+import { useState } from "react";
 
 const Company = () => {
   // Define state for company data
@@ -44,6 +52,8 @@ const Company = () => {
   // State for modals and actions
   const [editCompanyOpen, setEditCompanyOpen] = useState(false);
   const [deleteCompanyOpen, setDeleteCompanyOpen] = useState(false);
+  const [addEmployeeOpen, setAddEmployeeOpen] = useState(false);
+  const [addJobOpen, setAddJobOpen] = useState(false);
 
   // Handle updating company data
   const handleUpdateCompany = (updatedData) => {
@@ -59,20 +69,28 @@ const Company = () => {
         <h1 className="text-3xl font-bold">{company.name} Dashboard</h1>
       </div>
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="employees">Employees</TabsTrigger>
-          <TabsTrigger value="jobs">Job Posts</TabsTrigger>
+        <TabsList className="p-6 rounded-sm">
+          <TabsTrigger className="text-base" value="overview">
+            Overview
+          </TabsTrigger>
+          <TabsTrigger className="text-base" value="employees">
+            Employees
+          </TabsTrigger>
+          <TabsTrigger className="text-base" value="jobs">
+            Job Posts
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
           {/* Company Profile Card */}
-          <Card className="overflow-hidden">
+          <Card className="overflow-hidden rounded-sm">
             <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-6">
               <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
                 <Avatar className="h-24 w-24 border-4 border-background">
                   <AvatarImage src={company.logo} alt={company.name} />
-                  <AvatarFallback className="text-2xl">{company.name.charAt(0)}</AvatarFallback>
+                  <AvatarFallback className="text-2xl">
+                    {company.name.charAt(0)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="space-y-1 flex-1">
                   <div className="flex items-center justify-between">
@@ -83,14 +101,19 @@ const Company = () => {
                       </p>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="icon" onClick={() => setEditCompanyOpen(true)}>
+                      <Button
+                        className="h-10 w-10 border-blue-400 hover:bg-blue-400 rounded-sm"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setEditCompanyOpen(true)}
+                      >
                         <Edit className="h-4 w-4" />
                         <span className="sr-only">Edit Company</span>
                       </Button>
                       <Button
                         variant="outline"
                         size="icon"
-                        className="text-destructive hover:text-destructive"
+                        className="h-10 w-10 border-red-400 hover:bg-red-500 rounded-sm"
                         onClick={() => setDeleteCompanyOpen(true)}
                       >
                         <Trash2 className="h-4 w-4" />
@@ -98,30 +121,38 @@ const Company = () => {
                       </Button>
                     </div>
                   </div>
-                  <p className="text-sm md:text-base max-w-3xl">{company.description}</p>
+                  <p className="text-sm md:text-base max-w-3xl">
+                    {company.description}
+                  </p>
                 </div>
               </div>
             </div>
             <CardContent className="grid gap-6 p-6 sm:grid-cols-3">
               <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium leading-none">Location</p>
-                  <p className="text-sm text-muted-foreground">{company.location}</p>
+                <MapPin className="h-8 w-8 text-blue-400" />
+                <div className="space-y-1">
+                  <p className="text-base font-medium leading-none">Location</p>
+                  <p className="text-base text-muted-foreground">
+                    {company.location}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium leading-none">Email</p>
-                  <p className="text-sm text-muted-foreground">{company.contactEmail}</p>
+                <Mail className="h-8 w-8 text-blue-400" />
+                <div className="space-y-1">
+                  <p className="text-base font-medium leading-none">Email</p>
+                  <p className="text-base text-muted-foreground">
+                    {company.contactEmail}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Phone className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium leading-none">Phone</p>
-                  <p className="text-sm text-muted-foreground">{company.contactPhone}</p>
+                <Phone className="h-8 w-8 text-blue-400" />
+                <div className="space-y-1">
+                  <p className="text-base font-medium leading-none">Phone</p>
+                  <p className="text-base text-muted-foreground">
+                    {company.contactPhone}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -129,44 +160,74 @@ const Company = () => {
 
           {/* Key Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
+            <Card className="overflow-hidden rounded-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-base font-medium">
+                  Total Employees
+                </CardTitle>
+                <Users className="h-8 w-8 text-blue-400" />
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{company.employeeCount}</div>
-                <div className="flex items-center pt-1">
-                  <TrendingUp className="mr-1 h-3 w-3 text-green-500" />
-                  <p className="text-xs text-green-500">+{metrics.employeeGrowth}% from last quarter</p>
+              <CardContent className="space-y-1">
+                <div className="text-2xl font-bold">
+                  {company.employeeCount}
+                </div>
+                <div className="flex items-center pt-1 space-x-2">
+                  <TrendingUp className="mr-1 h-6 w-6 text-green-500" />
+                  <p className="text-sm text-green-500">
+                    +{metrics.employeeGrowth}% from last quarter
+                  </p>
                 </div>
               </CardContent>
+              <Button
+                size="lg"
+                className="text-base text-white p-6 rounded-none w-full"
+                onClick={() => setAddEmployeeOpen(true)}
+              >
+                Add Employee
+              </Button>
             </Card>
 
-            <Card>
+            <Card className="overflow-hidden rounded-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Open Positions</CardTitle>
-                <Briefcase className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-base font-medium">
+                  Open Positions
+                </CardTitle>
+                <Briefcase className="h-8 w-8 text-blue-400" />
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{metrics.openPositions}</div>
-                <div className="flex items-center pt-1">
-                  <Clock className="mr-1 h-3 w-3 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">{metrics.newHires} new hires in the last 30 days</p>
+              <CardContent className="space-y-1">
+                <div className="text-2xl font-bold">
+                  {metrics.openPositions}
+                </div>
+                <div className="flex items-center pt-1 space-x-2">
+                  <Clock className="mr-1 h-6 w-6 text-green-500" />
+                  <p className="text-sm text-green-500">
+                    {metrics.newHires} new hires in the last 30 days
+                  </p>
                 </div>
               </CardContent>
+              <Button
+                size="lg"
+                className="text-base p-6 rounded-none text-white w-full"
+                onClick={() => setAddJobOpen(true)}
+              >
+                Add Job
+              </Button>
             </Card>
 
-            <Card>
+            <Card className="overflow-hidden rounded-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Department Growth</CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-base font-medium">
+                  Department Growth
+                </CardTitle>
+                <BarChart3 className="h-8 w-8 text-blue-400" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-1">
                 <div className="text-2xl font-bold">6 Departments</div>
-                <div className="flex items-center pt-1">
-                  <Building2 className="mr-1 h-3 w-3 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">Engineering is the largest department</p>
+                <div className="flex items-center pt-1 space-x-2">
+                  <Building2 className="mr-1 h-6 w-6 text-green-500" />
+                  <p className="text-sm text-green-500">
+                    Engineering is the largest department
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -176,11 +237,15 @@ const Company = () => {
         <TabsContent value="employees">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Employees</CardTitle>
-                <CardDescription>Manage all employees at {company.name}</CardDescription>
+              <div className="space-y-2">
+                <CardTitle className="text-xl">Employees</CardTitle>
+                <CardDescription className="text-base">
+                  Manage all employees at {company.name}
+                </CardDescription>
               </div>
-              <Button>Add Employee</Button>
+              <Button className="rounded-sm text-white" onClick={() => setAddEmployeeOpen(true)}>
+                Add Employee
+              </Button>
             </CardHeader>
             <CardContent>
               <EmployeeSection />
@@ -191,11 +256,13 @@ const Company = () => {
         <TabsContent value="jobs">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Job Posts</CardTitle>
-                <CardDescription>Manage all job postings for {company.name}</CardDescription>
+              <div className="space-y-2">
+                <CardTitle className="text-xl">Job Posts</CardTitle>
+                <CardDescription className="text-base">
+                  Manage all job postings for {company.name}
+                </CardDescription>
               </div>
-              <Button>Add Job Post</Button>
+              <Button className="rounded-sm text-white">Add Job Post</Button>
             </CardHeader>
             <CardContent>
               <JobSection />
@@ -204,12 +271,23 @@ const Company = () => {
         </TabsContent>
       </Tabs>
 
+      <AddEmployeeDialog
+        open={addEmployeeOpen}
+        onOpenChange={setAddEmployeeOpen}
+      />
       {/* Edit Company Dialog */}
       <EditCompanyDialog
         company={company}
         open={editCompanyOpen}
         onOpenChange={setEditCompanyOpen}
         onSave={handleUpdateCompany}
+      />
+      <DeleteConfirmationDialog
+        open={deleteCompanyOpen}
+        onOpenChange={setDeleteCompanyOpen}
+        onConfirm={() => console.log("Delete company")}
+        title="Delete Company"
+        description="Are you sure you want to delete this company? This action cannot be undone and will remove all associated data including employees and job posts."
       />
     </div>
   );
