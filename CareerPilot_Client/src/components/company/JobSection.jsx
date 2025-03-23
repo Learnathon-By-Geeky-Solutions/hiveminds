@@ -40,7 +40,7 @@ const JobSection = () => {
       location: "San Francisco, CA",
       type: "Full-time",
       category: "Engineering",
-      salary: "$120,000 - $150,000",
+      salary: "$120,000 - $160,000",
       deadline: "2023-12-15",
       description:
         "We are looking for a senior software engineer to join our team.",
