@@ -1,196 +1,157 @@
-//package com.example.careerPilot.demo.service;
-//
-//import com.example.careerPilot.demo.dto.JobPostDTO;
-//import com.example.careerPilot.demo.dto.JobSkillDTO;
-//import com.example.careerPilot.demo.entity.*;
-//import com.example.careerPilot.demo.exception.ResourceNotFoundException;
-//import com.example.careerPilot.demo.exception.UnauthorizedException;
-//import com.example.careerPilot.demo.repository.*;
-//import jakarta.transaction.Transactional;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.stereotype.Service;
-//
-//import java.time.LocalDate;
-//import java.time.LocalDateTime;
-//import java.util.ArrayList;
-//import java.util.List;
-//import java.util.Optional;
-//import java.util.stream.Collectors;
-//
-//@Service
-//@RequiredArgsConstructor
-//public class JobPostService {
-//    private final JobPostRepository jobPostRepository;
-//    private final CompanyRepository companyRepository;
-//    private final CompanyEmployeeRepository companyEmployeeRepository;
-//    private final SkillRepository skillRepository;
-//    private final JobSkillRepository jobSkillRepository;
-//
-//    @Transactional
-//    public JobPostDTO.Response createJobPost(Long companyId, JobPostDTO.Request request, Long currentUserId) {
-//        // Check if user has permission (Admin or Moderator)
-//        Optional<CompanyEmployee> employeeOpt = companyEmployeeRepository.findByCompanyIdAndUserId(companyId, currentUserId);
-//
-//        if (employeeOpt.isEmpty() ||
-//                (employeeOpt.get().getRole() != CompanyEmployee.Role.ADMIN &&
-//                        employeeOpt.get().getRole() != CompanyEmployee.Role.MODERATOR)) {
-//            throw new UnauthorizedException("Only admins and moderators can create job posts");
-//        }
-//
-//        Company company = companyRepository.findById(companyId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Company not found with id: " + companyId));
-//
+// JobPostService.java
+package com.example.careerPilot.demo.service;
+
+import com.example.careerPilot.demo.dto.*;
+import com.example.careerPilot.demo.entity.*;
+import com.example.careerPilot.demo.exception.ResourceNotFoundException;
+import com.example.careerPilot.demo.exception.UnauthorizedException;
+import com.example.careerPilot.demo.repository.*;
+import com.example.careerPilot.demo.security.CompanySecurity;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class JobPostService {
+
+    private final JobPostRepository jobPostRepository;
+    private final CompanyRepository companyRepository;
+    private final SkillRepository skillRepository;
+    private final CompanySecurity companySecurity;
+
+    @Transactional
+    public JobPostDTO createJobPost(Long companyId, JobPostRequest request, String username) {
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found"));
+
+        if (!companySecurity.isCompanyAdmin(companyId, username)) {
+            throw new UnauthorizedException("Only company admins can create job posts");
+        }
+
+        // Validate skills exist
+        Set<Long> skillIds = request.getSkills().stream()
+                .map(JobSkillRequest::getSkillId)
+                .collect(Collectors.toSet());
+
+        List<Skill> skills = skillRepository.findAllBySkillIdIn(skillIds);
+        if (skills.size() != skillIds.size()) {
+            throw new ResourceNotFoundException("One or more skills not found");
+        }
+
 //        JobPost jobPost = new JobPost();
 //        jobPost.setCompany(company);
 //        jobPost.setJobTitle(request.getJobTitle());
 //        jobPost.setJobDescription(request.getJobDescription());
 //        jobPost.setRequirements(request.getRequirements());
-//        jobPost.setUpperSalary(request.getUpperSalary() != null ? request.getUpperSalary() : 0);
-//        jobPost.setLowerSalary(request.getLowerSalary() != null ? request.getLowerSalary() : 0);
+//        jobPost.setLowerSalary(request.getLowerSalary());
+//        jobPost.setUpperSalary(request.getUpperSalary());
 //        jobPost.setLocation(request.getLocation());
 //        jobPost.setJobType(request.getJobType());
 //        jobPost.setJobCategory(request.getJobCategory());
 //        jobPost.setApplicationDeadline(request.getApplicationDeadline());
-//        jobPost.setStatus(JobPost.Status.OPEN);
-//        jobPost.setJobSkills(new ArrayList<>());
-//
-//        JobPost savedJobPost = jobPostRepository.save(jobPost);
-//
-//        // Add job skills if provided
-//        if (request.getSkills() != null && !request.getSkills().isEmpty()) {
-//            for (JobSkillDTO.Request skillRequest : request.getSkills()) {
-//                Skill skill = skillRepository.findById(skillRequest.getSkillId())
-//                        .orElseThrow(() -> new ResourceNotFoundException("Skill not found with id: " + skillRequest.getSkillId()));
-//
-//                JobSkill jobSkill = JobSkill.builder()
-//                        .job(savedJobPost)
-//                        .skill(skill)
-//                        .proficiencyLevel(skillRequest.getProficiencyLevel())
-//                        .build();
-//
-//                jobSkillRepository.save(jobSkill);
-//                savedJobPost.getJobSkills().add(jobSkill);
-//            }
-//        }
-//
-//        return JobPostDTO.Response.fromEntity(savedJobPost);
-//    }
-//
-//    public List<JobPostDTO.Response> getAllJobPosts() {
-//        // Return all active job posts
-//        return jobPostRepository.findActiveJobPosts(LocalDate.now()).stream()
-//                .map(JobPostDTO.Response::fromEntity)
-//                .collect(Collectors.toList());
-//    }
-//
-//    public List<JobPostDTO.Response> getCompanyJobPosts(Long companyId) {
-//        if (!companyRepository.existsById(companyId)) {
-//            throw new ResourceNotFoundException("Company not found with id: " + companyId);
-//        }
-//
-//        return jobPostRepository.findByCompanyId(companyId).stream()
-//                .map(JobPostDTO.Response::fromEntity)
-//                .collect(Collectors.toList());
-//    }
-//
-//    public JobPostDTO.Response getJobPost(Long jobPostId) {
-//        JobPost jobPost = jobPostRepository.findById(jobPostId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Job post not found with id: " + jobPostId));
-//
-//        return JobPostDTO.Response.fromEntity(jobPost);
-//    }
-//
-//    @Transactional
-//    public JobPostDTO.Response updateJobPost(Long jobPostId, JobPostDTO.Request request, Long currentUserId) {
-//        JobPost jobPost = jobPostRepository.findById(jobPostId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Job post not found with id: " + jobPostId));
-//
-//        Long companyId = jobPost.getCompany().getId();
-//
-//        // Check if user has permission (Admin or Moderator)
-//        Optional<CompanyEmployee> employeeOpt = companyEmployeeRepository.findByCompanyIdAndUserId(companyId, currentUserId);
-//
-//        if (employeeOpt.isEmpty() ||
-//                (employeeOpt.get().getRole() != CompanyEmployee.Role.ADMIN &&
-//                        employeeOpt.get().getRole() != CompanyEmployee.Role.MODERATOR)) {
-//            throw new UnauthorizedException("Only admins and moderators can update job posts");
-//        }
-//
-//        jobPost.setJobTitle(request.getJobTitle());
-//        jobPost.setJobDescription(request.getJobDescription());
-//        jobPost.setRequirements(request.getRequirements());
-//        jobPost.setUpperSalary(request.getUpperSalary() != null ? request.getUpperSalary() : 0);
-//        jobPost.setLowerSalary(request.getLowerSalary() != null ? request.getLowerSalary() : 0);
-//        jobPost.setLocation(request.getLocation());
-//        jobPost.setJobType(request.getJobType());
-//        jobPost.setJobCategory(request.getJobCategory());
-//        jobPost.setApplicationDeadline(request.getApplicationDeadline());
-//
-//        // Update skills if provided
-//        if (request.getSkills() != null) {
-//            // Remove existing skills
-//            jobSkillRepository.deleteAll(jobPost.getJobSkills());
-//            jobPost.getJobSkills().clear();
-//
-//            // Add new skills
-//            for (JobSkillDTO.Request skillRequest : request.getSkills()) {
-//                Skill skill = skillRepository.findById(skillRequest.getSkillId())
-//                        .orElseThrow(() -> new ResourceNotFoundException("Skill not found with id: " + skillRequest.getSkillId()));
-//
-//                JobSkill jobSkill = JobSkill.builder()
-//                        .job(jobPost)
-//                        .skill(skill)
-//                        .proficiencyLevel(skillRequest.getProficiencyLevel())
-//                        .build();
-//
-//                jobSkillRepository.save(jobSkill);
-//                jobPost.getJobSkills().add(jobSkill);
-//            }
-//        }
-//
-//        JobPost updatedJobPost = jobPostRepository.save(jobPost);
-//        return JobPostDTO.Response.fromEntity(updatedJobPost);
-//    }
-//
-//    @Transactional
-//    public void deleteJobPost(Long jobPostId, Long currentUserId) {
-//        JobPost jobPost = jobPostRepository.findById(jobPostId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Job post not found with id: " + jobPostId));
-//
-//        Long companyId = jobPost.getCompany().getId();
-//
-//        // Check if user has permission (Admin or Moderator)
-//        Optional<CompanyEmployee> employeeOpt = companyEmployeeRepository.findByCompanyIdAndUserId(companyId, currentUserId);
-//
-//        if (employeeOpt.isEmpty() ||
-//                (employeeOpt.get().getRole() != CompanyEmployee.Role.ADMIN &&
-//                        employeeOpt.get().getRole() != CompanyEmployee.Role.MODERATOR)) {
-//            throw new UnauthorizedException("Only admins and moderators can delete job posts");
-//        }
-//
-//        jobPost.setDeletedAt(LocalDateTime.now());
-//        jobPost.setStatus(JobPost.Status.CLOSED);
-//        jobPostRepository.save(jobPost);
-//    }
-//
-//    @Transactional
-//    public JobPostDTO.Response updateJobPostStatus(Long jobPostId, JobPost.Status status, Long currentUserId) {
-//        JobPost jobPost = jobPostRepository.findById(jobPostId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Job post not found with id: " + jobPostId));
-//
-//        Long companyId = jobPost.getCompany().getId();
-//
-//        // Check if user has permission (Admin or Moderator)
-//        Optional<CompanyEmployee> employeeOpt = companyEmployeeRepository.findByCompanyIdAndUserId(companyId, currentUserId);
-//
-//        if (employeeOpt.isEmpty() ||
-//                (employeeOpt.get().getRole() != CompanyEmployee.Role.ADMIN &&
-//                        employeeOpt.get().getRole() != CompanyEmployee.Role.MODERATOR)) {
-//            throw new UnauthorizedException("Only admins and moderators can update job post status");
-//        }
-//
-//        jobPost.setStatus(status);
-//        JobPost updatedJobPost = jobPostRepository.save(jobPost);
-//        return JobPostDTO.Response.fromEntity(updatedJobPost);
-//    }
-//}
+
+        JobPost jobPost = JobPost.builder()
+                .company(company)
+                .jobTitle(request.getJobTitle())
+                .jobDescription(request.getJobDescription())
+                // ... other fields
+                .requirements(request.getRequirements())
+                .lowerSalary(request.getLowerSalary())
+                .upperSalary(request.getUpperSalary())
+                .location(request.getLocation())
+                .jobType(request.getJobType())
+                .jobCategory(request.getJobCategory())
+                .applicationDeadline(request.getApplicationDeadline())
+                .jobSkills(new ArrayList<>()) // Initialize empty list
+                .build();
+
+        // Add job skills
+        request.getSkills().forEach(skillReq -> {
+            Skill skill = skills.stream()
+                    .filter(s -> s.getSkillId().equals(skillReq.getSkillId()))
+                    .findFirst()
+                    .orElseThrow();
+
+            JobSkill jobSkill = new JobSkill();
+            jobSkill.setSkill(skill);
+            jobSkill.setProficiencyLevel(skillReq.getProficiencyLevel());
+            jobPost.addJobSkill(jobSkill);
+        });
+
+        return JobPostDTO.fromEntity(jobPostRepository.save(jobPost));
+    }
+
+    @Transactional
+    public JobPostDTO updateJobPost(Long companyId, Long postId, JobPostRequest request, String username) {
+        JobPost jobPost = jobPostRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job post not found"));
+
+        if (!companySecurity.isCompanyAdmin(companyId, username)) {
+            throw new UnauthorizedException("Only company admins can update job posts");
+        }
+
+        // Validate skills exist
+        Set<Long> skillIds = request.getSkills().stream()
+                .map(JobSkillRequest::getSkillId)
+                .collect(Collectors.toSet());
+
+        List<Skill> skills = skillRepository.findAllBySkillIdIn(skillIds);
+        if (skills.size() != skillIds.size()) {
+            throw new ResourceNotFoundException("One or more skills not found");
+        }
+
+        // Update fields
+        jobPost.setJobTitle(request.getJobTitle());
+        jobPost.setJobDescription(request.getJobDescription());
+        jobPost.setRequirements(request.getRequirements());
+        jobPost.setLowerSalary(request.getLowerSalary());
+        jobPost.setUpperSalary(request.getUpperSalary());
+        jobPost.setLocation(request.getLocation());
+        jobPost.setJobType(request.getJobType());
+        jobPost.setJobCategory(request.getJobCategory());
+        jobPost.setApplicationDeadline(request.getApplicationDeadline());
+
+        // Update skills
+        jobPost.getJobSkills().clear();
+        request.getSkills().forEach(skillReq -> {
+            Skill skill = skills.stream()
+                    .filter(s -> s.getSkillId().equals(skillReq.getSkillId()))
+                    .findFirst()
+                    .orElseThrow();
+
+            JobSkill jobSkill = new JobSkill();
+            jobSkill.setSkill(skill);
+            jobSkill.setProficiencyLevel(skillReq.getProficiencyLevel());
+            jobPost.addJobSkill(jobSkill);
+        });
+
+        return JobPostDTO.fromEntity(jobPostRepository.save(jobPost));
+    }
+
+    public void deleteJobPost(Long companyId, Long postId, String username) {
+        JobPost jobPost = jobPostRepository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("Job post not found"));
+
+        if (!companySecurity.isCompanyAdmin(companyId, username)) {
+            throw new UnauthorizedException("Only company admins can delete job posts");
+        }
+
+        jobPostRepository.delete(jobPost);
+    }
+
+    public List<JobPostDTO> getCompanyJobPosts(Long companyId) {
+        return jobPostRepository.findByCompanyId(companyId).stream()
+                .map(JobPostDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    public List<JobPostDTO> getAllPublicJobPosts() {
+        return jobPostRepository.findAllByStatus(JobPost.Status.OPEN).stream()
+                .map(JobPostDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+}
