@@ -1,4 +1,5 @@
 import AddEmployeeDialog from "@/components/company/AddEmployeeDialog";
+import AddJobPostDialog from "@/components/company/AddJobPostDialog";
 import EditCompanyDialog from "@/components/company/EditCompanyDialog";
 import EmployeeSection from "@/components/company/EmployeeSection";
 import JobSection from "@/components/company/JobSection";
@@ -243,7 +244,10 @@ const Company = () => {
                   Manage all employees at {company.name}
                 </CardDescription>
               </div>
-              <Button className="rounded-sm text-white" onClick={() => setAddEmployeeOpen(true)}>
+              <Button
+                className="rounded-sm text-white"
+                onClick={() => setAddEmployeeOpen(true)}
+              >
                 Add Employee
               </Button>
             </CardHeader>
@@ -262,7 +266,12 @@ const Company = () => {
                   Manage all job postings for {company.name}
                 </CardDescription>
               </div>
-              <Button className="rounded-sm text-white">Add Job Post</Button>
+              <Button
+                onClick={() => setAddJobOpen(true)}
+                className="rounded-sm text-white"
+              >
+                Add Job Post
+              </Button>
             </CardHeader>
             <CardContent>
               <JobSection />
@@ -275,6 +284,7 @@ const Company = () => {
         open={addEmployeeOpen}
         onOpenChange={setAddEmployeeOpen}
       />
+      <AddJobPostDialog open={addJobOpen} onOpenChange={setAddJobOpen} />
       {/* Edit Company Dialog */}
       <EditCompanyDialog
         company={company}

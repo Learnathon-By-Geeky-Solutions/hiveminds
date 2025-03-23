@@ -20,10 +20,10 @@ import { useState } from "react";
 
 const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
   // Mock companies data
-  const mockCompanies = [
-    { id: 1, name: "TechCorp" },
-    { id: 2, name: "Innovate Inc." },
-    { id: 3, name: "FutureTech" },
+  const mockDepartment = [
+    { id: 1, name: "HR" },
+    { id: 2, name: "CS" },
+    { id: 3, name: "Logi" },
   ];
 
   // State for form data
@@ -82,14 +82,16 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[525px]">
+      <DialogContent className="sm:max-w-[625px]">
         <DialogHeader>
-          <DialogTitle>Add New Employee</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-gradient font-bold text-xl">
+            Add New Employee
+          </DialogTitle>
+          <DialogDescription className="text-base">
             Enter the details for the new employee. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name">Employee Name</Label>
             <Input
@@ -98,7 +100,9 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
               placeholder="John Doe"
               value={formData.name}
               onChange={handleChange}
-              className={errors.name ? "border-destructive" : ""}
+              className={
+                errors.name ? "border-destructive" : "p-6 text-lg rounded-sm"
+              }
             />
             {errors.name && (
               <p className="text-sm text-destructive">{errors.name}</p>
@@ -113,7 +117,9 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
               placeholder="Software Engineer"
               value={formData.jobTitle}
               onChange={handleChange}
-              className={errors.jobTitle ? "border-destructive" : ""}
+              className={
+                errors.jobTitle ? "border-destructive" : "p-6 rounded-sm"
+              }
             />
             {errors.jobTitle && (
               <p className="text-sm text-destructive">{errors.jobTitle}</p>
@@ -130,13 +136,21 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
                 }
               >
                 <SelectTrigger
-                  className={errors.company_id ? "border-destructive" : ""}
+                  className={
+                    errors.company_id
+                      ? "border-destructive"
+                      : "p-6 text-base rounded-sm"
+                  }
                 >
-                  <SelectValue placeholder="Select a company" />
+                  <SelectValue placeholder="Select a Department" />
                 </SelectTrigger>
-                <SelectContent>
-                  {mockCompanies.map((company) => (
-                    <SelectItem key={company.id} value={company.id.toString()}>
+                <SelectContent className="rounded-sm p-1">
+                  {mockDepartment.map((company) => (
+                    <SelectItem
+                      className="rounded-sm text-base"
+                      key={company.id}
+                      value={company.id.toString()}
+                    >
                       {company.name}
                     </SelectItem>
                   ))}
@@ -155,7 +169,11 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
                 type="date"
                 value={formData.hireDate}
                 onChange={handleChange}
-                className={errors.hireDate ? "border-destructive" : "bg-secondary"}
+                className={
+                  errors.hireDate
+                    ? "border-destructive"
+                    : "p-6 bg-secondary text-white rounded-sm"
+                }
               />
               {errors.hireDate && (
                 <p className="text-sm text-destructive">{errors.hireDate}</p>
@@ -170,14 +188,14 @@ const AddEmployeeDialog = ({ open, onOpenChange, onSave }) => {
               onValueChange={(value) => handleSelectChange("status", value)}
             >
               <SelectTrigger
-                className={errors.status ? "border-destructive" : ""}
+                className={errors.status ? "border-destructive" : "p-6 rounded-sm text-base"}
               >
                 <SelectValue placeholder="Select a status" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="terminated">Terminated</SelectItem>
+              <SelectContent className="rounded-sm p-1">
+                <SelectItem className="rounded-sm text-base" value="active">Active</SelectItem>
+                <SelectItem className="rounded-sm text-base" value="inactive">Inactive</SelectItem>
+                <SelectItem className="rounded-sm text-base" value="terminated">Terminated</SelectItem>
               </SelectContent>
             </Select>
             {errors.status && (
