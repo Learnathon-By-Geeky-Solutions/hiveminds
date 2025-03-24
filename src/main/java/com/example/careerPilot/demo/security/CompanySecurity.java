@@ -16,6 +16,9 @@ public class CompanySecurity {
     private final CompanyEmployeeRepository companyEmployeeRepository;
 
     public boolean isCompanyAdmin(Long companyId, String username) {
+        if (companyId == null || username == null || username.isEmpty()) {
+            return false;
+        }
         return companyEmployeeRepository.existsByCompanyIdAndUserUsernameAndRole(
                 companyId, username, CompanyEmployee.Role.ADMIN);
     }

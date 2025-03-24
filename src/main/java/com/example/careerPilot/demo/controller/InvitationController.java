@@ -21,15 +21,19 @@ public class InvitationController {
     private final InvitationService invitationService;
 
     @PostMapping("/{companyId}/invite")
-    @PreAuthorize("@companySecurity.isCompanyAdmin(#companyId, #userDetails.username)")
-    public ResponseEntity<InvitationDTO> sendInvitation(
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> sendInvitation(
             @PathVariable Long companyId,
             @Valid @RequestBody InvitationRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-        return new ResponseEntity<>(
-                invitationService.createInvitation(companyId, request, userDetails.getUsername()),
-                HttpStatus.CREATED
-        );
+
+
+        try {
+            return ResponseEntity.ok(invitationService.createInvitation(companyId, request, userDetails.getUsername()));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
     }
 
     @PutMapping("/{invitationId}/accept")

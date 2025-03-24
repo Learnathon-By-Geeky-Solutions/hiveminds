@@ -17,4 +17,6 @@ public interface CompanyEmployeeRepository extends JpaRepository<CompanyEmployee
 
     @Query("SELECT ce FROM CompanyEmployee ce JOIN FETCH ce.user WHERE ce.company.id = :companyId")
     List<CompanyEmployee> findAllByCompanyId(@Param("companyId") Long companyId);
+
+    void deleteByCompanyId(Long id);
 }

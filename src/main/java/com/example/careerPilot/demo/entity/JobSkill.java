@@ -24,7 +24,7 @@ public class JobSkill {
 
     @Column(name = "proficiency_level", nullable = false)
     @Enumerated(EnumType.STRING)
-//    private UserSkill.ProficiencyLevel proficiencyLevel;
+
     private ProficiencyLevel proficiencyLevel;
     public enum ProficiencyLevel {
         BEGINNER,

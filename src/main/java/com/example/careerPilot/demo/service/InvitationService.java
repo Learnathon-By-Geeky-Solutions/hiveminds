@@ -35,7 +35,10 @@ public class InvitationService {
         User invitedUser = userRepository.findById(request.getInvitedUserId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Invited user not found"));
 
-        // Check if user already has an active invitation or employment
+        if(company.getCreatedBy()==null || !company.getCreatedBy().getUsername().equals(inviterUsername))
+            throw new RuntimeException("You don't have permission to send invitation");
+
+
         if (invitationRepository.existsByCompanyAndInvitedUserAndStatus(
                 company, invitedUser, Invitation.InvitationStatus.PENDING)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Pending invitation already exists");
@@ -44,6 +47,8 @@ public class InvitationService {
         if (companyEmployeeRepository.existsByUserAndCompany(invitedUser, company)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User already belongs to this company");
         }
+
+
 
         Invitation invitation = new Invitation();
         invitation.setCompany(company);

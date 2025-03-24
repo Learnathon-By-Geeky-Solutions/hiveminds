@@ -15,4 +15,6 @@ public interface JobPostRepository extends JpaRepository<JobPost, Long> {
     List<JobPost> findAllByStatus(JobPost.Status status);
     @Query("SELECT jp FROM JobPost jp LEFT JOIN FETCH jp.jobSkills WHERE jp.id = :id")
     Optional<JobPost> findByIdWithSkills(@Param("id") Long id);
+
+    void deleteByCompanyId(Long id);
 }

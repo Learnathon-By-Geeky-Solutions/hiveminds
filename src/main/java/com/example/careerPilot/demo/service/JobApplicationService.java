@@ -76,7 +76,7 @@ public class JobApplicationService {
             application.setStatus(JobApplication.Status.ACCEPTED);
             application.getJobPost().setFulfilled(true);
 
-            // Add user to company employees
+
             CompanyEmployee employee = CompanyEmployee.builder()
                     .user(application.getApplicant())
                     .company(application.getJobPost().getCompany())

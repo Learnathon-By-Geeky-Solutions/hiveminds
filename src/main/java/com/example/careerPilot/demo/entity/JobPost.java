@@ -47,9 +47,7 @@ public class JobPost {
     @Column(name = "location")
     private String location;
 
-//    @Column(name = "job_type", columnDefinition = "ENUM('full_time', 'part_time', 'contract', 'internship', 'temporary') default 'full_time'")
-//    @Enumerated(EnumType.STRING)
-//    private JobType jobType = JobType.FULL_TIME;
+
 @Column(name = "job_type", columnDefinition = "ENUM('full_time', 'part_time', 'contract', 'internship', 'temporary') default 'full_time'")
 @Convert(converter = JobType.JobTypeConverter.class)
 private JobType jobType = JobType.FULL_TIME;
@@ -74,15 +72,6 @@ private JobType jobType = JobType.FULL_TIME;
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
-
-    // Enum for job type
-//    public enum JobType {
-//        FULL_TIME,
-//        PART_TIME,
-//        CONTRACT,
-//        INTERNSHIP,
-//        TEMPORARY
-//    }
 
     public enum JobType {
         FULL_TIME("full_time"),

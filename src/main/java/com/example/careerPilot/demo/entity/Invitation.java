@@ -1,4 +1,3 @@
-// Invitation.java
 package com.example.careerPilot.demo.entity;
 
 import jakarta.persistence.*;

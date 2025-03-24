@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j  // Enables logging
+@Slf4j
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
@@ -32,8 +32,7 @@ public class PostController {
     private final PostService postService;
     private final userRepository userRepository;
 
-    // Get all posts (Requires authentication)
-    // Get all posts (Requires authentication)
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<PostDTO>> getAllPosts() {
@@ -102,7 +101,7 @@ public class PostController {
         }
     }
 
-    // Add delete endpoint
+
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePost(

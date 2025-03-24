@@ -47,7 +47,6 @@ public class JobPostService {
                 .company(company)
                 .jobTitle(request.getJobTitle())
                 .jobDescription(request.getJobDescription())
-                // ... other fields
                 .requirements(request.getRequirements())
                 .lowerSalary(request.getLowerSalary())
                 .upperSalary(request.getUpperSalary())
@@ -58,7 +57,7 @@ public class JobPostService {
                 .jobSkills(new ArrayList<>()) // Initialize empty list
                 .build();
 
-        // Add job skills
+        // Adding job skills
         request.getSkills().forEach(skillReq -> {
             Skill skill = skills.stream()
                     .filter(s -> s.getSkillId().equals(skillReq.getSkillId()))
@@ -83,7 +82,7 @@ public class JobPostService {
             throw new UnauthorizedException("Only company admins can update job posts");
         }
 
-        // Validate that skills exist
+
         Set<Long> skillIds = request.getSkills().stream()
                 .map(JobSkillRequest::getSkillId)
                 .collect(Collectors.toSet());

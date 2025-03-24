@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class JobApplicationRequest {
-    private String coverLetter; // Optional field
+    private String coverLetter;
 }
