@@ -125,11 +125,18 @@ private JobType jobType = JobType.FULL_TIME;
         CLOSED,
         PENDING
     }
-//    @OneToMany(mappedBy = "job" , cascade = CascadeType.ALL , orphanRemoval = true)
-//    private List<JobSkill> jobSkills;
-@OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
-@Builder.Default // Add this for Lombok builder
-private List<JobSkill> jobSkills = new ArrayList<>();
+
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default // Add this for Lombok builder
+    private List<JobSkill> jobSkills = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "jobPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<JobApplication> applications = new ArrayList<>();
+
+    @Column(name = "is_fulfilled", columnDefinition = "boolean default false")
+    private boolean fulfilled = false;
 
     public void addJobSkill(JobSkill jobSkill) {
         jobSkills.add(jobSkill);

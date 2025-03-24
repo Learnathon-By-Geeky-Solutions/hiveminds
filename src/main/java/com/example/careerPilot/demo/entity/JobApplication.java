@@ -17,36 +17,31 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table(name = "job_applications")
 public class JobApplication {
+    public enum Status {
+        PENDING,
+        ACCEPTED,
+        REJECTED
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "applicant_id", nullable = false)
-    private User applicant;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "job_post_id", nullable = false)
     private JobPost jobPost;
 
-    @CreationTimestamp
-    @Column(name = "applied_at", updatable = false)
-    private LocalDateTime appliedAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User applicant;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "VARCHAR(20) default 'PENDING'")
+    @Column(nullable = false)
     private Status status = Status.PENDING;
 
-    @Column(name = "cover_letter", columnDefinition = "TEXT")
-    private String coverLetter;
+    @Column(name = "applied_at", nullable = false)
+    private LocalDateTime appliedAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    public enum Status {
-        PENDING,
-        APPROVED,
-        REJECTED
-    }
+    @Column(name = "processed_at")
+    private LocalDateTime processedAt;
 }

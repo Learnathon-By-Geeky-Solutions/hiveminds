@@ -42,17 +42,6 @@ public class JobPostService {
             throw new ResourceNotFoundException("One or more skills not found");
         }
 
-//        JobPost jobPost = new JobPost();
-//        jobPost.setCompany(company);
-//        jobPost.setJobTitle(request.getJobTitle());
-//        jobPost.setJobDescription(request.getJobDescription());
-//        jobPost.setRequirements(request.getRequirements());
-//        jobPost.setLowerSalary(request.getLowerSalary());
-//        jobPost.setUpperSalary(request.getUpperSalary());
-//        jobPost.setLocation(request.getLocation());
-//        jobPost.setJobType(request.getJobType());
-//        jobPost.setJobCategory(request.getJobCategory());
-//        jobPost.setApplicationDeadline(request.getApplicationDeadline());
 
         JobPost jobPost = JobPost.builder()
                 .company(company)
@@ -94,7 +83,7 @@ public class JobPostService {
             throw new UnauthorizedException("Only company admins can update job posts");
         }
 
-        // Validate skills exist
+        // Validate that skills exist
         Set<Long> skillIds = request.getSkills().stream()
                 .map(JobSkillRequest::getSkillId)
                 .collect(Collectors.toSet());
@@ -104,7 +93,7 @@ public class JobPostService {
             throw new ResourceNotFoundException("One or more skills not found");
         }
 
-        // Update fields
+        // Updating fields
         jobPost.setJobTitle(request.getJobTitle());
         jobPost.setJobDescription(request.getJobDescription());
         jobPost.setRequirements(request.getRequirements());
@@ -115,7 +104,7 @@ public class JobPostService {
         jobPost.setJobCategory(request.getJobCategory());
         jobPost.setApplicationDeadline(request.getApplicationDeadline());
 
-        // Update skills
+        // Updating skills
         jobPost.getJobSkills().clear();
         request.getSkills().forEach(skillReq -> {
             Skill skill = skills.stream()

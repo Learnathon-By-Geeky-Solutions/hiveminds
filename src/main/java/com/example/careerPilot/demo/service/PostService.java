@@ -55,7 +55,6 @@ public class PostService {
     }
 
 
-    // Add deletePost method
     public void deletePost(Long id, String username) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
