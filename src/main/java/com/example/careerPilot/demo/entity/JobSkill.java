@@ -17,15 +17,15 @@ public class JobSkill {
     @JoinColumn(name = "job_id" , nullable = false)
     private JobPost job;
 
-    @Setter
+//    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "skill_id" , nullable = false)
     private Skill skill;
 
     @Column(name = "proficiency_level", nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserSkill.ProficiencyLevel proficiencyLevel;
 
+    private ProficiencyLevel proficiencyLevel;
     public enum ProficiencyLevel {
         BEGINNER,
         INTERMEDIATE,

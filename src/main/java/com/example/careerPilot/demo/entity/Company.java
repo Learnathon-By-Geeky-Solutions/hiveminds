@@ -35,6 +35,10 @@ public class Company {
     @Column(name = "no_of_employee", columnDefinition = "INT default 0")
     private Integer noOfEmployee = 0;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by", nullable = false)
+    private User createdBy;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -45,6 +49,7 @@ public class Company {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
-    @OneToMany(mappedBy = "company" , cascade = CascadeType.ALL , orphanRemoval = true)
+
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CompanyEmployee> companyEmployees;
 }

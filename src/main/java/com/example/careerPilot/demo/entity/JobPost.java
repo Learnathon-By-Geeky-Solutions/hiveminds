@@ -1,17 +1,25 @@
 package com.example.careerPilot.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+@Builder
 @Data
 @Entity
 @Table(name = "job_posts")
+@AllArgsConstructor
+@NoArgsConstructor
 public class JobPost {
 
     @Id
@@ -39,9 +47,10 @@ public class JobPost {
     @Column(name = "location")
     private String location;
 
-    @Column(name = "job_type", columnDefinition = "ENUM('full_time', 'part_time', 'contract', 'internship', 'temporary') default 'full_time'")
-    @Enumerated(EnumType.STRING)
-    private JobType jobType = JobType.FULL_TIME;
+
+@Column(name = "job_type", columnDefinition = "ENUM('full_time', 'part_time', 'contract', 'internship', 'temporary') default 'full_time'")
+@Convert(converter = JobType.JobTypeConverter.class)
+private JobType jobType = JobType.FULL_TIME;
 
     @Column(name = "job_category")
     private String jobCategory;
@@ -64,23 +73,59 @@ public class JobPost {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    // Enum for job type
     public enum JobType {
-        FULL_TIME,
-        PART_TIME,
-        CONTRACT,
-        INTERNSHIP,
-        TEMPORARY
-    }
+        FULL_TIME("full_time"),
+        PART_TIME("part_time"),
+        CONTRACT("contract"),
+        INTERNSHIP("internship"),
+        TEMPORARY("temporary");
 
+        private final String dbValue;
+
+        JobType(String dbValue) {
+            this.dbValue = dbValue;
+        }
+
+        public String getDbValue() {
+            return dbValue;
+        }
+
+        @Converter(autoApply = true)
+        public static class JobTypeConverter implements AttributeConverter<JobType, String> {
+            @Override
+            public String convertToDatabaseColumn(JobType jobType) {
+                return jobType != null ? jobType.getDbValue() : null;
+            }
+
+            @Override
+            public JobType convertToEntityAttribute(String dbValue) {
+                if (dbValue == null) return null;
+
+                return Arrays.stream(JobType.values())
+                        .filter(jt -> jt.getDbValue().equalsIgnoreCase(dbValue))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("Unknown job type: " + dbValue));
+            }
+        }
+    }
     // Enum for status
     public enum Status {
         OPEN,
         CLOSED,
         PENDING
     }
-    @OneToMany(mappedBy = "job" , cascade = CascadeType.ALL , orphanRemoval = true)
-    private List<JobSkill> jobSkills;
+
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default // Add this for Lombok builder
+    private List<JobSkill> jobSkills = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "jobPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<JobApplication> applications = new ArrayList<>();
+
+    @Column(name = "is_fulfilled", columnDefinition = "boolean default false")
+    private boolean fulfilled = false;
 
     public void addJobSkill(JobSkill jobSkill) {
         jobSkills.add(jobSkill);

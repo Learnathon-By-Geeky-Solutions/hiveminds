@@ -34,8 +34,7 @@ public class PostController {
     private final PostService postService;
     private final userRepository userRepository;
 
-    // Get all posts (Requires authentication)
-    // Get all posts (Requires authentication)
+
     @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<PostDTO>> getAllPosts() {
@@ -104,7 +103,7 @@ public class PostController {
         }
     }
 
-    // Add delete endpoint
+
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deletePost(
