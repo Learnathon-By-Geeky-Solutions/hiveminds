@@ -1,13 +1,14 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useUser } from "@/contexts/UserContext";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { token } = useAuth(); // Access token and user from AuthContext
-  const { user } = useUser(); // Access user from UserContext
+  const { token } = useAuth();
+  const { user } = useUser();
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,9 +30,9 @@ const Navbar = () => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out ${
         scrolled
-          ? "bg-background/90 backdrop-blur-xl shadow-sm py-3"
+          ? "bg-background/95 backdrop-blur-xl shadow-md py-3"
           : "bg-transparent py-5"
       }`}
     >
@@ -51,20 +52,20 @@ const Navbar = () => {
           onClick={toggleMenu}
           aria-label="Toggle menu"
         >
-          <div className="relative w-6 h-6">
+          <div className="relative w-7 h-5">
             <span
-              className={`absolute block h-0.5 bg-white transform transition-all duration-300 ease-in-out ${
-                isMenuOpen ? "rotate-45 top-3 w-6" : "w-6 top-1"
+              className={`absolute block h-0.5 rounded-full bg-white transform transition-all duration-300 ease-out ${
+                isMenuOpen ? "rotate-45 top-2.5 w-7" : "w-7 top-0"
               }`}
             ></span>
             <span
-              className={`absolute block h-0.5 bg-white transform transition-all duration-300 ease-in-out ${
-                isMenuOpen ? "opacity-0 w-0" : "w-5 top-3 right-0"
+              className={`absolute block h-0.5 rounded-full bg-white transform transition-all duration-300 ease-out ${
+                isMenuOpen ? "opacity-0 w-0" : "w-5 top-2.5 right-0"
               }`}
             ></span>
             <span
-              className={`absolute block h-0.5 bg-white transform transition-all duration-300 ease-in-out ${
-                isMenuOpen ? "-rotate-45 top-3 w-6" : "w-4 top-5 right-0"
+              className={`absolute block h-0.5 rounded-full bg-white transform transition-all duration-300 ease-out ${
+                isMenuOpen ? "-rotate-45 top-2.5 w-7" : "w-4 top-5 right-0"
               }`}
             ></span>
           </div>
@@ -72,18 +73,41 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-10">
-          <LinkStyled to="/">Find Jobs</LinkStyled>
-          <LinkStyled to="/">Categories</LinkStyled>
-          <LinkStyled to="/company">Company</LinkStyled>
-          {token && <LinkStyled to="/profile/blog">Blog</LinkStyled>}
-          {!token && <LinkStyled to="/">About Us</LinkStyled>}
+          <LinkStyled to="/" isActive={location.pathname === "/"}>
+            Find Jobs
+          </LinkStyled>
+          <LinkStyled
+            to="/all-jobs"
+            isActive={location.pathname === "/all-jobs"}
+          >
+            Jobs
+          </LinkStyled>
+          <LinkStyled to="/company" isActive={location.pathname === "/company"}>
+            Company
+          </LinkStyled>
+          {token && (
+            <LinkStyled
+              to="/profile/blog"
+              isActive={location.pathname === "/profile/blog"}
+            >
+              Blog
+            </LinkStyled>
+          )}
+          {!token && (
+            <LinkStyled to="/" isActive={false}>
+              About Us
+            </LinkStyled>
+          )}
         </nav>
 
         {/* Desktop Login/Sign Up or Welcome Message */}
         <div className="hidden md:flex items-center space-x-6">
           {token ? (
-            <Link to="/profile" className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-gray-300 hover:text-gradient transition-colors duration-200 relative group">
+            <Link to="/profile" className="flex items-center gap-2 group">
+              <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold border border-primary/30">
+                {user.username.charAt(0).toUpperCase()}
+              </div>
+              <h2 className="text-base font-medium text-gray-200 group-hover:text-white transition-colors duration-200">
                 {user.username}
               </h2>
             </Link>
@@ -91,14 +115,14 @@ const Navbar = () => {
             <>
               <Link
                 to="/login"
-                className="text-lg text-gray-300 hover:text-white transition-colors duration-200 relative group"
+                className="text-base text-gray-300 hover:text-white transition-colors duration-200 relative group"
               >
                 Login
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all duration-300 group-hover:w-full"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
               </Link>
               <Link
                 to="/signup"
-                className="px-5 py-2 text-sm rounded-md bg-primary text-white font-medium transition-all duration-300 hover:shadow-sm hover:shadow-blue-200 hover:translate-y-[-2px]"
+                className="px-5 py-2.5 text-sm rounded-full bg-primary text-white font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:translate-y-[-2px]"
               >
                 Sign Up
               </Link>
@@ -123,19 +147,38 @@ const Navbar = () => {
           }`}
         >
           <nav className="flex flex-col space-y-8 items-center">
-            <MobileNavLink href="#jobs" onClick={toggleMenu}>
+            <MobileNavLink
+              href="/"
+              onClick={toggleMenu}
+              isActive={location.pathname === "/"}
+            >
               Find Jobs
             </MobileNavLink>
-            <MobileNavLink href="#categories" onClick={toggleMenu}>
-              Categories
+            <MobileNavLink
+              href="/all-jobs"
+              onClick={toggleMenu}
+              isActive={location.pathname === "/all-jobs"}
+            >
+              Jobs
+            </MobileNavLink>
+            <MobileNavLink
+              href="/company"
+              onClick={toggleMenu}
+              isActive={location.pathname === "/company"}
+            >
+              Company
             </MobileNavLink>
             {token && (
-              <MobileNavLink href="#about" onClick={toggleMenu}>
+              <MobileNavLink
+                href="/profile/blog"
+                onClick={toggleMenu}
+                isActive={location.pathname === "/profile/blog"}
+              >
                 Blog
               </MobileNavLink>
             )}
             {!token && (
-              <MobileNavLink href="#about" onClick={toggleMenu}>
+              <MobileNavLink href="/" onClick={toggleMenu} isActive={false}>
                 About Us
               </MobileNavLink>
             )}
@@ -144,8 +187,15 @@ const Navbar = () => {
           {/* Mobile Login/Sign Up or Welcome Message */}
           <div className="flex flex-col space-y-6 items-center mt-12">
             {token ? (
-              <Link onClick={toggleMenu} to="/profile">
-                <h2 className="text-lg font-bold text-gray-300 hover:text-gradient transition-colors duration-200">
+              <Link
+                onClick={toggleMenu}
+                to="/profile"
+                className="flex flex-col items-center gap-3"
+              >
+                <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xl font-semibold border border-primary/30">
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
+                <h2 className="text-lg font-medium text-gray-200 hover:text-white transition-colors duration-200">
                   {user.username}
                 </h2>
               </Link>
@@ -153,14 +203,15 @@ const Navbar = () => {
               <>
                 <Link
                   to="/login"
-                  className="text-lg text-gray-300 hover:text-white transition-colors duration-200"
+                  className="text-lg text-gray-300 hover:text-white transition-colors duration-200 relative group"
                   onClick={toggleMenu}
                 >
                   Login
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
                 </Link>
                 <Link
                   to="/signup"
-                  className="px-8 py-3 text-base rounded-full bg-primary text-primary-foreground font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:translate-y-[-2px]"
+                  className="px-8 py-3 text-base rounded-full bg-primary text-white font-medium transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:translate-y-[-2px]"
                   onClick={toggleMenu}
                 >
                   Sign Up
@@ -175,27 +226,39 @@ const Navbar = () => {
 };
 
 // Helper components for cleaner code
-const LinkStyled = ({ to, children }) => {
+const LinkStyled = ({ to, children, isActive }) => {
   return (
     <Link
       to={to}
-      className="text-lg text-gray-300 cursor-pointer hover:text-white transition-all duration-200 relative group"
+      className={`text-base font-medium cursor-pointer transition-all duration-200 relative group ${
+        isActive ? "text-primary" : "text-gray-300 hover:text-white"
+      }`}
     >
       {children}
-      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all duration-300 group-hover:w-full"></span>
+      <span
+        className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${
+          isActive ? "w-full" : "w-0 group-hover:w-full"
+        }`}
+      ></span>
     </Link>
   );
 };
 
-const MobileNavLink = ({ href, onClick, children }) => (
-  <a
-    href={href}
-    className="text-xl text-gray-200 hover:text-white transition-all duration-200 relative group"
+const MobileNavLink = ({ href, onClick, children, isActive }) => (
+  <Link
+    to={href}
+    className={`text-xl font-medium transition-all duration-200 relative group ${
+      isActive ? "text-primary" : "text-gray-200 hover:text-white"
+    }`}
     onClick={onClick}
   >
     {children}
-    <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-1/2"></span>
-  </a>
+    <span
+      className={`absolute -bottom-2 left-1/2 -translate-x-1/2 h-0.5 bg-primary transition-all duration-300 ${
+        isActive ? "w-1/2" : "w-0 group-hover:w-1/2"
+      }`}
+    ></span>
+  </Link>
 );
 
 export default Navbar;

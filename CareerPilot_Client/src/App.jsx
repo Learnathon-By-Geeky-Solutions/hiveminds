@@ -8,6 +8,8 @@ import Profile from "./pages/Profile";
 import Signup from "./pages/Signup";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import Company from "./pages/Company";
+import AllJobs from "./pages/AllJobs";
+import JobDetails from "./pages/JobDetails";
 function App() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -34,6 +36,9 @@ function App() {
           />
         </Route>
         <Route path="/company" element={<Company/>} />
+        <Route path="/all-jobs" element={<AllJobs/>}>
+            <Route path="job/:id" element={<JobDetails/>}/>
+        </Route>
       </Routes>
       <Footer />
     </div>
