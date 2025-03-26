@@ -9,12 +9,13 @@ import { Outlet, useMatch } from "react-router-dom";
 const Profile = () => {
   // Check if the current route matches /profile/blog
   const isBlogPage = useMatch("/profile/blog");
+  const isCompanyPage = useMatch("/profile/company");
 
   return (
     <div className="min-h-screen bg-background">
       <main className="container py-24 px-4 sm:px-6">
         {/* Render Profile content only if not on /profile/blog */}
-        {!isBlogPage && (
+        {!isBlogPage && !isCompanyPage && (
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="lg:w-1/4">
               <UserDetails />
@@ -24,11 +25,10 @@ const Profile = () => {
               <Skills />
               <ApplicationSection />
               <RecommendationsSection />
-              <UserBlogPosts/>
+              <UserBlogPosts />
             </div>
           </div>
         )}
-
         {/* Render the nested route /blog) */}
         <Outlet />
       </main>

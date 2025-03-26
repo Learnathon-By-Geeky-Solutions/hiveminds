@@ -82,15 +82,23 @@ const Navbar = () => {
           >
             Jobs
           </LinkStyled>
-          <LinkStyled to="/company" isActive={location.pathname === "/company"}>
+          {/* <LinkStyled to="/company" isActive={location.pathname === "/company"}>
             Company
-          </LinkStyled>
+          </LinkStyled> */}
           {token && (
             <LinkStyled
               to="/profile/blog"
               isActive={location.pathname === "/profile/blog"}
             >
               Blog
+            </LinkStyled>
+          )}
+          {token && (
+            <LinkStyled
+              to="/profile/company"
+              isActive={location.pathname === "/profile/company"}
+            >
+              Company
             </LinkStyled>
           )}
           {!token && (
@@ -161,13 +169,6 @@ const Navbar = () => {
             >
               Jobs
             </MobileNavLink>
-            <MobileNavLink
-              href="/company"
-              onClick={toggleMenu}
-              isActive={location.pathname === "/company"}
-            >
-              Company
-            </MobileNavLink>
             {token && (
               <MobileNavLink
                 href="/profile/blog"
@@ -175,6 +176,15 @@ const Navbar = () => {
                 isActive={location.pathname === "/profile/blog"}
               >
                 Blog
+              </MobileNavLink>
+            )}
+             {token && (
+              <MobileNavLink
+                href="/profile/company"
+                onClick={toggleMenu}
+                isActive={location.pathname === "/profile/company"}
+              >
+                Company
               </MobileNavLink>
             )}
             {!token && (

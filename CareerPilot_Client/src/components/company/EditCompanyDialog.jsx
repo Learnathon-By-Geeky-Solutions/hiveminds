@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,12 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 
-export default function EditCompanyDialog({
-  company,
-  open,
-  onOpenChange,
-  onSave,
-}) {
+const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
   const [formData, setFormData] = useState({
     id: company.id,
     name: company.name,
@@ -258,4 +251,6 @@ export default function EditCompanyDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default EditCompanyDialog;

@@ -65,9 +65,9 @@ const Company = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-8 m-20">
+    <div className="container mx-auto py-6 space-y-8 m-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">{company.name} Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gradient">{company.name} Dashboard</h1>
       </div>
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="p-6 rounded-sm">
