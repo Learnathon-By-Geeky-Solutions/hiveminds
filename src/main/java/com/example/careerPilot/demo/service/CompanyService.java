@@ -90,4 +90,8 @@
                     .map(CompanyDTO::fromEntity)
                     .orElseThrow();
         }
+
+        public List<Company> getAllCompaniesByCreatorId(Long creatorId) {
+            return companyRepository.findByCreatedBy_Id(creatorId);
+        }
     }

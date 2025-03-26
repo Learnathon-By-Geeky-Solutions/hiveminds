@@ -33,7 +33,13 @@ public class CompanyController {
 
         return ResponseEntity.ok(companyDTOS);
     }
-
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/creator/{creatorId}/allcompanies")
+    public ResponseEntity<List<CompanyDTO>> getAllCompaniesByCreatorId(@PathVariable Long creatorId) {
+        List<Company> companies = companyService.getAllCompaniesByCreatorId(creatorId);
+        List<CompanyDTO> companyDTOS = companies.stream().map(CompanyDTO::fromEntity).collect(Collectors.toList());
+        return ResponseEntity.ok(companyDTOS);
+    }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
