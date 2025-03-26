@@ -15,16 +15,16 @@ import { useEffect, useState } from "react";
 const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
   const [formData, setFormData] = useState({
     id: company.id,
-    name: company.name,
+    companyName: company.companyName,
     industry: company.industry,
     location: company.location,
     contactEmail: company.contactEmail,
-    contactPhone: company.contactPhone || "",
-    website: company.website || "",
-    employeeCount: company.employeeCount,
-    foundedYear: company.foundedYear || 2000,
-    description: company.description,
-    logo: company.logo || "",
+    // contactPhone: company.contactPhone || "",
+    // website: company.website || "",
+    noOfEmployee: company.noOfEmployee,
+    // foundedYear: company.foundedYear || 2000,
+    descriptions: company.descriptions,
+    // logo: company.logo || "",
   });
 
   const [errors, setErrors] = useState({});
@@ -34,16 +34,16 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
     if (company) {
       setFormData({
         id: company.id,
-        name: company.name,
+        companyName: company.companyName,
         industry: company.industry,
         location: company.location,
         contactEmail: company.contactEmail,
-        contactPhone: company.contactPhone || "",
-        website: company.website || "",
-        employeeCount: company.employeeCount,
-        foundedYear: company.foundedYear || 2000,
-        description: company.description,
-        logo: company.logo || "",
+        // contactPhone: company.contactPhone || "",
+        // website: company.website || "",
+        noOfEmployee: company.noOfEmployee,
+        // foundedYear: company.foundedYear || 2000,
+        descriptions: company.descriptions,
+        // logo: company.logo || "",
       });
     }
   }, [company]);
@@ -71,6 +71,7 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
       foundedYear: Number(formData.foundedYear),
     };
     onSave(processedData);
+    onOpenChange(false);
   };
 
   return (
@@ -87,14 +88,14 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
             <div className="space-y-2">
               <Label htmlFor="name">Company Name</Label>
               <Input
-                id="name"
-                name="name"
-                value={formData.name}
+                id="companyName"
+                name="companyName"
+                value={formData.companyName}
                 onChange={handleChange}
-                className={errors.name ? "border-destructive" : ""}
+                className={errors.companyName ? "border-destructive" : ""}
               />
-              {errors.name && (
-                <p className="text-sm text-destructive">{errors.name}</p>
+              {errors.companyName && (
+                <p className="text-sm text-destructive">{errors.companyName}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -158,7 +159,7 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
                 </p>
               )}
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="contactPhone">Contact Phone</Label>
               <Input
                 id="contactPhone"
@@ -172,11 +173,11 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
                   {errors.contactPhone}
                 </p>
               )}
-            </div>
+            </div> */}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="website">Website</Label>
               <Input
                 id="website"
@@ -188,26 +189,26 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
               {errors.website && (
                 <p className="text-sm text-destructive">{errors.website}</p>
               )}
-            </div>
+            </div> */}
             <div className="space-y-2">
               <Label htmlFor="employeeCount">Employee Count</Label>
               <Input
                 id="employeeCount"
                 name="employeeCount"
                 type="number"
-                value={formData.employeeCount}
+                value={formData.noOfEmployee}
                 onChange={handleChange}
-                className={errors.employeeCount ? "border-destructive" : ""}
+                className={errors.noOfEmployee ? "border-destructive" : ""}
               />
               {errors.employeeCount && (
                 <p className="text-sm text-destructive">
-                  {errors.employeeCount}
+                  {errors.noOfEmployee}
                 </p>
               )}
             </div>
           </div>
 
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label htmlFor="logo">Logo URL</Label>
             <Input
               id="logo"
@@ -219,21 +220,21 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
             {errors.logo && (
               <p className="text-sm text-destructive">{errors.logo}</p>
             )}
-          </div>
+          </div> */}
 
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
-              id="description"
-              name="description"
-              value={formData.description}
+              id="descriptions"
+              name="descriptions"
+              value={formData.descriptions}
               onChange={handleChange}
               className={`min-h-[100px] ${
-                errors.description ? "border-destructive" : ""
+                errors.descriptions ? "border-destructive" : ""
               }`}
             />
-            {errors.description && (
-              <p className="text-sm text-destructive">{errors.description}</p>
+            {errors.descriptions && (
+              <p className="text-sm text-destructive">{errors.descriptions}</p>
             )}
           </div>
 

@@ -89,11 +89,19 @@ const Company = () => {
   }, [userId]);
 
   // Handle updating company data
-  const handleUpdateCompany = (updatedData) => {
-    setCompany((prevCompany) => ({
-      ...prevCompany,
-      ...updatedData,
-    }));
+  const handleUpdateCompany = async (updatedData) => {
+    try {
+      // Call the updateCompany API
+      await CompanyService.updateCompany(company.id, updatedData);
+
+      // Update the local company state with the new data
+      setCompany((prevCompany) => ({
+        ...prevCompany,
+        ...updatedData, // Merge updated fields with existing company data
+      }));
+    } catch (error) {
+      console.error("Error updating company:", error);
+    }
   };
 
   if (!company) {
