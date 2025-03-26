@@ -1,5 +1,6 @@
 import AddEmployeeDialog from "@/components/company/AddEmployeeDialog";
 import AddJobPostDialog from "@/components/company/AddJobPostDialog";
+import CreateNewCompany from "@/components/company/CreateNewCompany";
 import EditCompanyDialog from "@/components/company/EditCompanyDialog";
 import EmployeeSection from "@/components/company/EmployeeSection";
 import JobSection from "@/components/company/JobSection";
@@ -14,6 +15,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useUser } from "@/contexts/UserContext";
+import CompanyService from "@/services/CompanyService";
 import {
   BarChart3,
   Briefcase,
@@ -27,21 +30,21 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Company = () => {
   // Define state for company data
-  const [company, setCompany] = useState({
-    name: "Example Corp",
-    logo: "/example-logo.png",
-    industry: "Technology",
-    foundedYear: 2010,
-    description: "A leading technology company focused on innovation.",
-    location: "San Francisco, CA",
-    contactEmail: "info@example.com",
-    contactPhone: "+1 234 567 890",
-    employeeCount: 150,
-  });
+  // const [company, setCompany] = useState({
+  //   name: "Example Corp",
+  //   logo: "/example-logo.png",
+  //   industry: "Technology",
+  //   foundedYear: 2010,
+  //   description: "A leading technology company focused on innovation.",
+  //   location: "San Francisco, CA",
+  //   contactEmail: "info@example.com",
+  //   contactPhone: "+1 234 567 890",
+  //   employeeCount: 150,
+  // });
 
   // Define state for metrics
   const [metrics, setMetrics] = useState({
@@ -55,19 +58,54 @@ const Company = () => {
   const [deleteCompanyOpen, setDeleteCompanyOpen] = useState(false);
   const [addEmployeeOpen, setAddEmployeeOpen] = useState(false);
   const [addJobOpen, setAddJobOpen] = useState(false);
+  const [company, setCompany] = useState(null);
+  const { user } = useUser();
+  const userId = user?.id;
+
+  useEffect(() => {
+    const fetchCompanyData = async (userId) => {
+      try {
+        const response = await CompanyService.getCompanyProfileById(userId);
+        const data = response.data;
+
+        // Check if the response is an array and contains data
+        if (Array.isArray(data) && data.length > 0) {
+          setCompany(data[0]); // Extract the first object from the array
+        } else {
+          setCompany(null); // No company exists
+        }
+
+        console.log("Company Data", data);
+        console.log("User ID", userId);
+      } catch (error) {
+        console.error("Error fetching company data:", error);
+        setCompany(null); // Reset company state in case of an error
+      }
+    };
+
+    if (userId) {
+      fetchCompanyData(userId);
+    }
+  }, [userId]);
 
   // Handle updating company data
   const handleUpdateCompany = (updatedData) => {
     setCompany((prevCompany) => ({
       ...prevCompany,
-      ...updatedData, // Merge updated fields with existing company data
+      ...updatedData,
     }));
   };
+
+  if (!company) {
+    return <CreateNewCompany/>;
+  }
 
   return (
     <div className="container mx-auto py-6 space-y-8 m-8">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gradient">{company.name} Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gradient">
+          {company.companyName} Dashboard
+        </h1>
       </div>
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="p-6 rounded-sm">
@@ -90,13 +128,13 @@ const Company = () => {
                 <Avatar className="h-24 w-24 border-4 border-background">
                   <AvatarImage src={company.logo} alt={company.name} />
                   <AvatarFallback className="text-2xl">
-                    {company.name.charAt(0)}
+                    {company.companyName.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="space-y-1 flex-1">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-2xl font-bold">{company.name}</h2>
+                      <h2 className="text-2xl font-bold">{company.companyName}</h2>
                       <p className="text-muted-foreground">
                         {company.industry} • Founded {company.foundedYear}
                       </p>
@@ -123,7 +161,7 @@ const Company = () => {
                     </div>
                   </div>
                   <p className="text-sm md:text-base max-w-3xl">
-                    {company.description}
+                    {company.descriptions}
                   </p>
                 </div>
               </div>
@@ -170,7 +208,7 @@ const Company = () => {
               </CardHeader>
               <CardContent className="space-y-1">
                 <div className="text-2xl font-bold">
-                  {company.employeeCount}
+                  {company.noOfEmployee}
                 </div>
                 <div className="flex items-center pt-1 space-x-2">
                   <TrendingUp className="mr-1 h-6 w-6 text-green-500" />
