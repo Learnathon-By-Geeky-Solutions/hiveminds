@@ -1,5 +1,5 @@
-import React from "react";
 import { Button } from "@/components/ui/button"; // Import the Button component
+import React from "react";
 import CreateCompanyDialog from "./CreateCompanyDialog";
 
 const CreateNewCompany = () => {
@@ -24,14 +24,7 @@ const CreateNewCompany = () => {
       </Button>
 
       {/* Dialog for creating a company */}
-      <CreateCompanyDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        onSave={(newCompany) => {
-          console.log("New Company Created:", newCompany);
-          setIsDialogOpen(false); // Close the dialog after saving
-        }}
-      />
+      <CreateCompanyDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
     </div>
   );
 };

@@ -33,5 +33,16 @@ class CompanyService {
             },
         });
     }
+
+    // Update an existing company
+    updateCompany(companyId, companyData) {
+        const token = localStorage.getItem("ACCESS_TOKEN");
+        return axios.put(`http://localhost:8082/api/companies/${companyId}`, companyData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+    }
 }
 export default new CompanyService();

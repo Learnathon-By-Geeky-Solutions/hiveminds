@@ -18,7 +18,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/contexts/UserContext";
 import CompanyService from "@/services/CompanyService";
 import {
-  BarChart3,
   Briefcase,
   Building2,
   Clock,
@@ -29,6 +28,7 @@ import {
   Trash2,
   TrendingUp,
   Users,
+  ShieldCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -256,16 +256,16 @@ const Company = () => {
             <Card className="overflow-hidden rounded-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-base font-medium">
-                  Department Growth
+                  Admins
                 </CardTitle>
-                <BarChart3 className="h-8 w-8 text-blue-400" />
+                <ShieldCheck className="h-8 w-8 text-blue-400" />
               </CardHeader>
               <CardContent className="space-y-1">
-                <div className="text-2xl font-bold">6 Departments</div>
+                <div className="text-2xl font-bold">Drop Down</div>
                 <div className="flex items-center pt-1 space-x-2">
                   <Building2 className="mr-1 h-6 w-6 text-green-500" />
                   <p className="text-sm text-green-500">
-                    Engineering is the largest department
+                    Select Users for Admins
                   </p>
                 </div>
               </CardContent>
