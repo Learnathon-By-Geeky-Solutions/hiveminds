@@ -52,7 +52,7 @@ const CreateCompanyDialog = ({ open, onOpenChange }) => {
           noOfEmployee: "",
         });
         onOpenChange(false);
-        navigate("/profile/company");
+        navigate("/profile/company", { replace: true });
       })
       .catch((error) => {
         console.error("Error creating company:", error);

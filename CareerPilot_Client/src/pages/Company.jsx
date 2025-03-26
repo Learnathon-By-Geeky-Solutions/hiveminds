@@ -25,12 +25,13 @@ import {
   Mail,
   MapPin,
   Phone,
+  ShieldCheck,
   Trash2,
   TrendingUp,
   Users,
-  ShieldCheck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Company = () => {
   // Define state for company data
@@ -59,6 +60,7 @@ const Company = () => {
   const [addEmployeeOpen, setAddEmployeeOpen] = useState(false);
   const [addJobOpen, setAddJobOpen] = useState(false);
   const [company, setCompany] = useState(null);
+  const navigate = useNavigate();
   const { user } = useUser();
   const userId = user?.id;
 
@@ -104,8 +106,22 @@ const Company = () => {
     }
   };
 
+  // Handle deleting the company
+  const handleDeleteCompany = async () => {
+    try {
+      // Call the deleteCompany API
+      await CompanyService.deleteCompany(company.id);
+
+      // Navigate the user back to the profile page or another appropriate route
+      navigate("/profile");
+    } catch (error) {
+      console.error("Error deleting company:", error);
+      alert("Failed to delete company. Please try again.");
+    }
+  };
+
   if (!company) {
-    return <CreateNewCompany/>;
+    return <CreateNewCompany />;
   }
 
   return (
@@ -142,7 +158,9 @@ const Company = () => {
                 <div className="space-y-1 flex-1">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h2 className="text-2xl font-bold">{company.companyName}</h2>
+                      <h2 className="text-2xl font-bold">
+                        {company.companyName}
+                      </h2>
                       <p className="text-muted-foreground">
                         {company.industry} • Founded {company.foundedYear}
                       </p>
@@ -215,9 +233,7 @@ const Company = () => {
                 <Users className="h-8 w-8 text-blue-400" />
               </CardHeader>
               <CardContent className="space-y-1">
-                <div className="text-2xl font-bold">
-                  {company.noOfEmployee}
-                </div>
+                <div className="text-2xl font-bold">{company.noOfEmployee}</div>
                 <div className="flex items-center pt-1 space-x-2">
                   <TrendingUp className="mr-1 h-6 w-6 text-green-500" />
                   <p className="text-sm text-green-500">
@@ -263,9 +279,7 @@ const Company = () => {
 
             <Card className="overflow-hidden rounded-sm">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-base font-medium">
-                  Admins
-                </CardTitle>
+                <CardTitle className="text-base font-medium">Admins</CardTitle>
                 <ShieldCheck className="h-8 w-8 text-blue-400" />
               </CardHeader>
               <CardContent className="space-y-1">
@@ -341,7 +355,7 @@ const Company = () => {
       <DeleteConfirmationDialog
         open={deleteCompanyOpen}
         onOpenChange={setDeleteCompanyOpen}
-        onConfirm={() => console.log("Delete company")}
+        onConfirm={handleDeleteCompany}
         title="Delete Company"
         description="Are you sure you want to delete this company? This action cannot be undone and will remove all associated data including employees and job posts."
       />

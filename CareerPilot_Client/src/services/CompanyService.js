@@ -44,5 +44,17 @@ class CompanyService {
             },
         });
     }
+
+    // Delete a company
+    deleteCompany(companyId) {
+        const token = localStorage.getItem("ACCESS_TOKEN");
+        return axios.delete(`http://localhost:8082/api/companies/${companyId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+    }
+
 }
 export default new CompanyService();
