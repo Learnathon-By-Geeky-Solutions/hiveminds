@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import SkillsService from "@/services/SkillsService";
 import { useState } from "react";
+import SkillsService from "@/services/SkillsService";
 
 const AddSkills = ({ open, onOpenChange }) => {
   const [skill, setSkill] = useState({
