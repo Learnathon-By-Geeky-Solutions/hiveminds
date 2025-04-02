@@ -1,9 +1,11 @@
 import AddEmployeeDialog from "@/components/company/AddEmployeeDialog";
 import AddJobPostDialog from "@/components/company/AddJobPostDialog";
+import AddSkills from "@/components/company/AddSkills";
 import CreateNewCompany from "@/components/company/CreateNewCompany";
 import EditCompanyDialog from "@/components/company/EditCompanyDialog";
 import EmployeeSection from "@/components/company/EmployeeSection";
 import JobSection from "@/components/company/JobSection";
+import SkillsSection from "@/components/company/SkillsSection";
 import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -59,6 +61,7 @@ const Company = () => {
   const [deleteCompanyOpen, setDeleteCompanyOpen] = useState(false);
   const [addEmployeeOpen, setAddEmployeeOpen] = useState(false);
   const [addJobOpen, setAddJobOpen] = useState(false);
+  const [addSkillsOpen, setAddSkillsOpen] = useState(false);
   const [company, setCompany] = useState(null);
   const navigate = useNavigate();
   const { user } = useUser();
@@ -141,6 +144,9 @@ const Company = () => {
           </TabsTrigger>
           <TabsTrigger className="text-base" value="jobs">
             Job Posts
+          </TabsTrigger>
+          <TabsTrigger className="text-base" value="skills">
+            Add Skills
           </TabsTrigger>
         </TabsList>
 
@@ -338,12 +344,35 @@ const Company = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="skills">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="space-y-2">
+                <CardTitle className="text-xl">Skills</CardTitle>
+                <CardDescription className="text-base">
+                  Manage all skills for {company.name}
+                </CardDescription>
+              </div>
+              <Button
+                onClick={() => setAddSkillsOpen(true)}
+                className="rounded-sm text-white"
+              >
+                Add Skills
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <SkillsSection/>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       <AddEmployeeDialog
         open={addEmployeeOpen}
         onOpenChange={setAddEmployeeOpen}
       />
+      <AddSkills open={addSkillsOpen} onOpenChange={setAddSkillsOpen} />
       <AddJobPostDialog open={addJobOpen} onOpenChange={setAddJobOpen} />
       {/* Edit Company Dialog */}
       <EditCompanyDialog

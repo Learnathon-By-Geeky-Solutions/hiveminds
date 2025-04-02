@@ -1,6 +1,7 @@
 import UserService from "@/services/UserService";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
+import Loader from "@/components/Loader";
 
 const UserContext = createContext();
 
@@ -30,7 +31,7 @@ export const UserProvider = ({ children }) => {
 
   return (
     <UserContext.Provider value={{ user, setUser, loading }}>
-      {loading ? <div>Loading...</div> : children}
+      {loading ? <Loader/> : children}
     </UserContext.Provider>
   );
 };

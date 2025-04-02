@@ -17,15 +17,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useCompany } from "@/contexts/CompanyContext";
+import JobPostService from "@/services/JobPostService";
 import { useState } from "react";
 
-const AddJobPostDialog = ({ open, onOpenChange, onSave }) => {
-  // Mock companies (replace with actual API call)
-  const mockCompanies = [
-    { id: 1, name: "HR" },
-    { id: 2, name: "IT" },
-    { id: 3, name: "Engr." },
-  ];
+const AddJobPostDialog = ({ open, onOpenChange }) => {
+  const { company } = useCompany();
+  const companyId = company?.id || null;
 
   const mockSkills = [
     { id: 1, name: "React.js" },
@@ -37,7 +35,7 @@ const AddJobPostDialog = ({ open, onOpenChange, onSave }) => {
 
   // State for form data
   const [formData, setFormData] = useState({
-    companyId: "", // Matches `company_id` in the entity
+    companyId: companyId,
     jobTitle: "",
     jobDescription: "",
     requirements: "",
@@ -93,9 +91,9 @@ const AddJobPostDialog = ({ open, onOpenChange, onSave }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.companyId) {
-      newErrors.companyId = "Company selection is required.";
-    }
+    // if (!formData.deptId) {
+    //   newErrors.deptId = "Company selection is required.";
+    // }
     if (!formData.jobTitle.trim()) {
       newErrors.jobTitle = "Job title is required.";
     }
@@ -122,6 +120,9 @@ const AddJobPostDialog = ({ open, onOpenChange, onSave }) => {
     }
     if (!formData.applicationDeadline) {
       newErrors.applicationDeadline = "Application deadline is required.";
+    }
+    if (formData.skills.length === 0) {
+      newErrors.skills = "At least one skill must be selected.";
     }
 
     setErrors(newErrors);
@@ -150,24 +151,32 @@ const AddJobPostDialog = ({ open, onOpenChange, onSave }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // onSave(formData); 
-      onOpenChange(false); 
-      console.log("Form submitted:", formData); // For debugging
-      // rest the form data
-      setFormData({
-        companyId: "",
-        jobTitle: "",
-        jobDescription: "",
-        requirements: "",
-        lowerSalary: "",
-        upperSalary: "",
-        location: "",
-        jobType: "",
-        jobCategory: "",
-        applicationDeadline: "",
-        fulfilled: false,
-        skills: [],
-      });
+      console.log(formData);
+      // API call to save the job post
+      JobPostService.addNewJobPost(formData, companyId)
+        .then((response) => {
+          console.log("Job post created successfully:", response.data);
+          // Reset form data and close the dialog
+          setFormData({
+            // deptId: "",
+            companyId: "",
+            jobTitle: "",
+            jobDescription: "",
+            requirements: "",
+            upperSalary: "",
+            lowerSalary: "",
+            location: "",
+            jobType: "",
+            jobCategory: "",
+            applicationDeadline: "",
+            fulfilled: false,
+            // skills: [],
+          });
+          onOpenChange(false);
+        })
+        .catch((error) => {
+          console.error("Error creating job post:", error);
+        });
     }
   };
 
@@ -184,31 +193,31 @@ const AddJobPostDialog = ({ open, onOpenChange, onSave }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Company and Job Title */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="companyId">Department</Label>
+            {/* <div className="space-y-2">
+              <Label htmlFor="deptId">Department</Label>
               <Select
-                value={formData.companyId}
+                value={formData.deptId}
                 onValueChange={(value) =>
-                  handleSelectChange("companyId", value)
+                  handleSelectChange("deptId", value)
                 }
               >
                 <SelectTrigger
-                  className={errors.companyId ? "border-destructive" : ""}
+                  className={errors.deptId ? "border-destructive" : ""}
                 >
                   <SelectValue placeholder="Select a Department" />
                 </SelectTrigger>
                 <SelectContent>
-                  {mockCompanies.map((company) => (
-                    <SelectItem key={company.id} value={company.id.toString()}>
-                      {company.name}
+                  {mockDept.map((dept) => (
+                    <SelectItem key={dept.id} value={dept.id.toString()}>
+                      {dept.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {errors.companyId && (
-                <p className="text-sm text-destructive">{errors.companyId}</p>
+              {errors.deptId && (
+                <p className="text-sm text-destructive">{errors.deptId}</p>
               )}
-            </div>
+            </div> */}
 
             <div className="space-y-2">
               <Label htmlFor="jobTitle">Job Title</Label>
@@ -331,11 +340,11 @@ const AddJobPostDialog = ({ open, onOpenChange, onSave }) => {
                   <SelectValue placeholder="Select job type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="full_time">Full Time</SelectItem>
-                  <SelectItem value="part_time">Part Time</SelectItem>
-                  <SelectItem value="contract">Contract</SelectItem>
-                  <SelectItem value="internship">Internship</SelectItem>
-                  <SelectItem value="temporary">Temporary</SelectItem>
+                  <SelectItem value="FULL_TIME">Full Time</SelectItem>
+                  <SelectItem value="PART_TIME">Part Time</SelectItem>
+                  <SelectItem value="CONTRACT">Contract</SelectItem>
+                  <SelectItem value="INTERNSHIP">Internship</SelectItem>
+                  <SelectItem value="TEMPORARY">Temporary</SelectItem>
                 </SelectContent>
               </Select>
               {errors.jobType && (
