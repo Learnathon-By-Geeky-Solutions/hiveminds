@@ -11,6 +11,27 @@ class JobPostService {
             }
         });
     }
+
+    // Get all job posts for a company
+    getAllJobPosts(companyId) {
+        const token = localStorage.getItem("ACCESS_TOKEN");
+        return axios.get(`http://localhost:8082/api/companies/${companyId}/job-posts`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+    }
+
+    // Update a job using its ID
+    updateJobPost(companyId, postId, postJobData) {
+        const token = localStorage.getItem("ACCESS_TOKEN");
+        return axios.put(`http://localhost:8082/api/companies/${companyId}/job-posts/${postId}`, postJobData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            }
+        });
+    }
 }
 
 export default new JobPostService();

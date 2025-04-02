@@ -20,18 +20,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { useCompany } from "@/contexts/CompanyContext";
 import JobPostService from "@/services/JobPostService";
 import { useState } from "react";
+import AddSkillInJob from "./AddSkillInJob";
 
 const AddJobPostDialog = ({ open, onOpenChange }) => {
-  const { company } = useCompany();
-  const companyId = company?.id || null;
-
-  const mockSkills = [
-    { id: 1, name: "React.js" },
-    { id: 2, name: "Node.js" },
-    { id: 3, name: "Python" },
-    { id: 4, name: "Java" },
-    { id: 5, name: "SQL" },
-  ];
+  const { companyApi } = useCompany();
+  const companyId = companyApi?.id || null;
 
   // State for form data
   const [formData, setFormData] = useState({
@@ -128,22 +121,19 @@ const AddJobPostDialog = ({ open, onOpenChange }) => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
-  // Handle adding a skill
-  const handleAddSkill = (skillId) => {
-    if (!formData.skills.includes(skillId)) {
-      setFormData((prev) => ({
-        ...prev,
-        skills: [...prev.skills, skillId], // Add the skill to the list
-      }));
-    }
+  // Callback function to update skills in formData
+  const handleAddSkill = (newSkill) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      skills: [...prevFormData.skills, newSkill], // Append the new skill
+    }));
   };
 
-  // Handle removing a skill
-  const handleRemoveSkill = (skillId) => {
-    setFormData((prev) => ({
-      ...prev,
-      skills: prev.skills.filter((id) => id !== skillId), // Remove the skill from the list
+  // Function to remove a skill by index
+  const handleRemoveSkill = (indexToRemove) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      skills: prevFormData.skills.filter((_, index) => index !== indexToRemove),
     }));
   };
 
@@ -170,7 +160,7 @@ const AddJobPostDialog = ({ open, onOpenChange }) => {
             jobCategory: "",
             applicationDeadline: "",
             fulfilled: false,
-            // skills: [],
+            skills: [],
           });
           onOpenChange(false);
         })
@@ -407,49 +397,39 @@ const AddJobPostDialog = ({ open, onOpenChange }) => {
           </div>
 
           {/* Skills Section */}
-          <div className="space-y-2">
-            <Label>Skills</Label>
-            <div className="flex flex-col space-y-2">
-              {mockSkills.map((skill) => (
-                <div key={skill.id} className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    id={`skill-${skill.id}`}
-                    name="selectedSkill"
-                    value={skill.id}
-                    onChange={() => handleAddSkill(skill.id)}
-                  />
-                  <Label htmlFor={`skill-${skill.id}`}>{skill.name}</Label>
-                </div>
-              ))}
-            </div>
-            {formData.skills.length > 0 && (
-              <div className="mt-2">
-                <Label>Selected Skills:</Label>
-                <ul className="flex flex-wrap gap-2 mt-1">
-                  {formData.skills.map((skillId) => {
-                    const skill = mockSkills.find(
-                      (s) => s.id === parseInt(skillId)
-                    );
-                    return (
+          <div className="flex flex-col space-y-2">
+            <h3>Skills</h3>
+            <div className="flex flex-row space-x-4 items-center">
+              {/* Add Skill Button */}
+              <AddSkillInJob onAddSkill={handleAddSkill} />
+
+              {/* Display Current Skills */}
+              <div className="flex-grow">
+                {/* <h4 className="text-sm font-medium mb-2">Added Skills:</h4> */}
+                {formData.skills.length > 0 ? (
+                  <ul className="flex flex-row flex-wrap gap-2">
+                    {formData.skills.map((skill, index) => (
                       <li
-                        key={skillId}
-                        className="px-2 py-1 bg-primary rounded-md flex items-center"
+                        key={index}
+                        className="flex items-center px-3 py-1 rounded-md text-sm"
                       >
-                        {skill?.name}
+                        <span>
+                          {skill.skillName} - {skill.proficiencyLevel}
+                        </span>
                         <button
-                          type="button"
-                          onClick={() => handleRemoveSkill(skillId)}
-                          className="ml-2 text-red-500 hover:text-red-700"
+                          onClick={() => handleRemoveSkill(index)}
+                          className="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
                         >
                           ×
                         </button>
                       </li>
-                    );
-                  })}
-                </ul>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-500">No skills added yet.</p>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
           <DialogFooter>

@@ -1,5 +1,4 @@
-"use client";
-import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,9 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -19,63 +16,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useCompany } from "@/contexts/CompanyContext";
+import JobPostService from "@/services/JobPostService";
+import { useState } from "react";
+import AddSkillInJob from "./AddSkillInJob";
 
-const EditJobPostDialog = ({
-  open,
-  onOpenChange,
-  jobPost,
-  companies,
-  onSave,
-}) => {
-  // Initialize form data with jobPost details
+const EditJobPostDialog = ({ jobPost, open, onOpenChange, onSave }) => {
+  // State for form data (pre-filled with jobPost data)
+  const { companyApi } = useCompany();
+  const companyId = companyApi.id;
   const [formData, setFormData] = useState({
-    id: jobPost?.id || "",
-    title: jobPost?.title || "",
-    company_id: jobPost?.company_id?.toString() || "",
-    location: jobPost?.location || "",
-    type: jobPost?.type || "",
-    category: jobPost?.category || "",
-    lowerSalary: jobPost?.lowerSalary || "",
-    upperSalary: jobPost?.upperSalary || "",
-    deadline: jobPost?.deadline || "",
-    description: jobPost?.description || "",
-    requirements: jobPost?.requirements || "",
-    fulfilled: jobPost?.fulfilled || false,
-    skills: jobPost?.skills || [], // Array of selected skill IDs
+    id: jobPost.id,
+    jobTitle: jobPost.jobTitle || "",
+    jobDescription: jobPost.jobDescription || "",
+    requirements: jobPost.requirements || "",
+    lowerSalary: jobPost.lowerSalary?.toString() || "",
+    upperSalary: jobPost.upperSalary?.toString() || "",
+    location: jobPost.location || "",
+    jobType: jobPost.jobType || "",
+    jobCategory: jobPost.jobCategory || "",
+    applicationDeadline: jobPost.applicationDeadline || "",
+    fulfilled: jobPost.fulfilled || false,
+    skills: jobPost.skills || [],
   });
-
-  // Mock skills (replace with actual API call)
-  const mockSkills = [
-    { id: 1, name: "React.js" },
-    { id: 2, name: "Node.js" },
-    { id: 3, name: "Python" },
-    { id: 4, name: "Java" },
-    { id: 5, name: "SQL" },
-  ];
 
   // State for validation errors
   const [errors, setErrors] = useState({});
-
-  // Update form data when the jobPost prop changes
-  useEffect(() => {
-    if (jobPost) {
-      setFormData({
-        id: jobPost.id,
-        title: jobPost.title,
-        company_id: jobPost.company_id?.toString() || "",
-        location: jobPost.location,
-        type: jobPost.type,
-        category: jobPost.category,
-        lowerSalary: jobPost.lowerSalary || "",
-        upperSalary: jobPost.upperSalary || "",
-        deadline: jobPost.deadline,
-        description: jobPost.description,
-        requirements: jobPost.requirements,
-        fulfilled: jobPost.fulfilled || false,
-        skills: jobPost.skills || [],
-      });
-    }
-  }, [jobPost]);
 
   // Handle input changes for text and date fields
   const handleChange = (e) => {
@@ -84,7 +51,6 @@ const EditJobPostDialog = ({
       ...prev,
       [name]: value,
     }));
-
     // Clear error when field is edited
     if (errors[name]) {
       setErrors((prev) => {
@@ -101,7 +67,6 @@ const EditJobPostDialog = ({
       ...prev,
       [name]: value,
     }));
-
     // Clear error when field is edited
     if (errors[name]) {
       setErrors((prev) => {
@@ -112,42 +77,17 @@ const EditJobPostDialog = ({
     }
   };
 
-  // Handle adding a skill
-  const handleAddSkill = (skillId) => {
-    if (!formData.skills.includes(skillId)) {
-      setFormData((prev) => ({
-        ...prev,
-        skills: [...prev.skills, skillId], // Add the skill to the list
-      }));
-    }
-  };
-
-  // Handle removing a skill
-  const handleRemoveSkill = (skillId) => {
-    setFormData((prev) => ({
-      ...prev,
-      skills: prev.skills.filter((id) => id !== skillId), // Remove the skill from the list
-    }));
-  };
-
   // Validate form before submission
   const validateForm = () => {
     const newErrors = {};
-
-    if (!formData.title.trim()) {
-      newErrors.title = "Job title is required.";
+    if (!formData.jobTitle.trim()) {
+      newErrors.jobTitle = "Job title is required.";
     }
-    if (!formData.company_id) {
-      newErrors.company_id = "Company selection is required.";
+    if (!formData.jobDescription.trim()) {
+      newErrors.jobDescription = "Job description is required.";
     }
-    if (!formData.location.trim()) {
-      newErrors.location = "Location is required.";
-    }
-    if (!formData.type) {
-      newErrors.type = "Job type selection is required.";
-    }
-    if (!formData.category.trim()) {
-      newErrors.category = "Category is required.";
+    if (!formData.requirements.trim()) {
+      newErrors.requirements = "Requirements are required.";
     }
     if (!formData.lowerSalary.trim() || isNaN(formData.lowerSalary)) {
       newErrors.lowerSalary = "Lower salary is required and must be a number.";
@@ -155,26 +95,58 @@ const EditJobPostDialog = ({
     if (!formData.upperSalary.trim() || isNaN(formData.upperSalary)) {
       newErrors.upperSalary = "Upper salary is required and must be a number.";
     }
-    if (!formData.deadline) {
-      newErrors.deadline = "Application deadline is required.";
+    if (!formData.location.trim()) {
+      newErrors.location = "Location is required.";
     }
-    if (!formData.description.trim()) {
-      newErrors.description = "Job description is required.";
+    if (!formData.jobType) {
+      newErrors.jobType = "Job type selection is required.";
     }
-    if (!formData.requirements.trim()) {
-      newErrors.requirements = "Requirements are required.";
+    if (!formData.jobCategory.trim()) {
+      newErrors.jobCategory = "Job category is required.";
     }
-
+    if (!formData.applicationDeadline) {
+      newErrors.applicationDeadline = "Application deadline is required.";
+    }
+    if (formData.skills.length === 0) {
+      newErrors.skills = "At least one skill must be selected.";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  // Callback function to update skills in formData
+  const handleAddSkill = (newSkill) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      skills: [...prevFormData.skills, newSkill], // Append the new skill
+    }));
+  };
+
+  // Function to remove a skill by index
+  const handleRemoveSkill = (indexToRemove) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      skills: prevFormData.skills.filter((_, index) => index !== indexToRemove),
+    }));
   };
 
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      onSave(formData); // Pass the updated form data to the parent component
-      onOpenChange(false); // Close the dialog after submission
+      console.log("Updating job post:", formData);
+      // API call to update the job post
+      JobPostService.updateJobPost(companyId, jobPost.id, formData)
+        .then((response) => {
+          console.log("Job post updated successfully:", response.data);
+          // Notify parent component to refresh the job list
+          onSave(response.data);
+          // Reset form data and close the dialog
+          onOpenChange(false);
+        })
+        .catch((error) => {
+          console.error("Error updating job post:", error);
+        });
     }
   };
 
@@ -184,74 +156,53 @@ const EditJobPostDialog = ({
         <DialogHeader>
           <DialogTitle>Edit Job Post</DialogTitle>
           <DialogDescription>
-            Update the job posting details. Click save when you're done.
+            Update the details for the job posting. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Company and Job Title */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="company_id">Company</Label>
-              <Select
-                value={formData.company_id}
-                onValueChange={(value) => handleSelectChange("company_id", value)}
-              >
-                <SelectTrigger
-                  className={errors.company_id ? "border-destructive" : ""}
-                >
-                  <SelectValue placeholder="Select a company" />
-                </SelectTrigger>
-                <SelectContent>
-                  {companies.map((company) => (
-                    <SelectItem key={company.id} value={company.id.toString()}>
-                      {company.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.company_id && (
-                <p className="text-sm text-destructive">{errors.company_id}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="title">Job Title</Label>
+              <Label htmlFor="jobTitle">Job Title</Label>
               <Input
-                id="title"
-                name="title"
-                value={formData.title}
+                id="jobTitle"
+                name="jobTitle"
+                placeholder="Senior Software Engineer"
+                value={formData.jobTitle}
                 onChange={handleChange}
-                className={errors.title ? "border-destructive" : ""}
+                className={errors.jobTitle ? "border-destructive" : ""}
               />
-              {errors.title && (
-                <p className="text-sm text-destructive">{errors.title}</p>
+              {errors.jobTitle && (
+                <p className="text-sm text-destructive">{errors.jobTitle}</p>
               )}
             </div>
           </div>
-
           {/* Job Description and Requirements */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="description">Job Description</Label>
+              <Label htmlFor="jobDescription">Job Description</Label>
               <Textarea
-                id="description"
-                name="description"
-                value={formData.description}
+                id="jobDescription"
+                name="jobDescription"
+                placeholder="Describe the job role and responsibilities"
+                value={formData.jobDescription}
                 onChange={handleChange}
                 className={`min-h-[200px] ${
-                  errors.description ? "border-destructive" : ""
+                  errors.jobDescription ? "border-destructive" : ""
                 }`}
               />
-              {errors.description && (
-                <p className="text-sm text-destructive">{errors.description}</p>
+              {errors.jobDescription && (
+                <p className="text-sm text-destructive">
+                  {errors.jobDescription}
+                </p>
               )}
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="requirements">Requirements</Label>
               <Textarea
                 id="requirements"
                 name="requirements"
+                placeholder="List the required skills and qualifications"
                 value={formData.requirements}
                 onChange={handleChange}
                 className={`min-h-[200px] ${
@@ -259,11 +210,12 @@ const EditJobPostDialog = ({
                 }`}
               />
               {errors.requirements && (
-                <p className="text-sm text-destructive">{errors.requirements}</p>
+                <p className="text-sm text-destructive">
+                  {errors.requirements}
+                </p>
               )}
             </div>
           </div>
-
           {/* Salary Range, Location, and Job Type */}
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
@@ -272,6 +224,7 @@ const EditJobPostDialog = ({
                 id="lowerSalary"
                 name="lowerSalary"
                 type="number"
+                placeholder="Enter lower salary"
                 value={formData.lowerSalary}
                 onChange={handleChange}
                 className={errors.lowerSalary ? "border-destructive" : ""}
@@ -280,13 +233,13 @@ const EditJobPostDialog = ({
                 <p className="text-sm text-destructive">{errors.lowerSalary}</p>
               )}
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="upperSalary">Upper Salary</Label>
               <Input
                 id="upperSalary"
                 name="upperSalary"
                 type="number"
+                placeholder="Enter upper salary"
                 value={formData.upperSalary}
                 onChange={handleChange}
                 className={errors.upperSalary ? "border-destructive" : ""}
@@ -295,12 +248,12 @@ const EditJobPostDialog = ({
                 <p className="text-sm text-destructive">{errors.upperSalary}</p>
               )}
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
                 name="location"
+                placeholder="San Francisco, CA"
                 value={formData.location}
                 onChange={handleChange}
                 className={errors.location ? "border-destructive" : ""}
@@ -310,64 +263,66 @@ const EditJobPostDialog = ({
               )}
             </div>
           </div>
-
           {/* Job Type and Job Category */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="type">Job Type</Label>
+              <Label htmlFor="jobType">Job Type</Label>
               <Select
-                value={formData.type}
-                onValueChange={(value) => handleSelectChange("type", value)}
+                value={formData.jobType}
+                onValueChange={(value) => handleSelectChange("jobType", value)}
               >
                 <SelectTrigger
-                  className={errors.type ? "border-destructive" : ""}
+                  className={errors.jobType ? "border-destructive" : ""}
                 >
                   <SelectValue placeholder="Select job type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Full-time">Full-time</SelectItem>
-                  <SelectItem value="Part-time">Part-time</SelectItem>
-                  <SelectItem value="Contract">Contract</SelectItem>
-                  <SelectItem value="Internship">Internship</SelectItem>
+                  <SelectItem value="FULL_TIME">Full Time</SelectItem>
+                  <SelectItem value="PART_TIME">Part Time</SelectItem>
+                  <SelectItem value="CONTRACT">Contract</SelectItem>
+                  <SelectItem value="INTERNSHIP">Internship</SelectItem>
+                  <SelectItem value="TEMPORARY">Temporary</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.type && (
-                <p className="text-sm text-destructive">{errors.type}</p>
+              {errors.jobType && (
+                <p className="text-sm text-destructive">{errors.jobType}</p>
               )}
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
+              <Label htmlFor="jobCategory">Job Category</Label>
               <Input
-                id="category"
-                name="category"
-                value={formData.category}
+                id="jobCategory"
+                name="jobCategory"
+                placeholder="Engineering"
+                value={formData.jobCategory}
                 onChange={handleChange}
-                className={errors.category ? "border-destructive" : ""}
+                className={errors.jobCategory ? "border-destructive" : ""}
               />
-              {errors.category && (
-                <p className="text-sm text-destructive">{errors.category}</p>
+              {errors.jobCategory && (
+                <p className="text-sm text-destructive">{errors.jobCategory}</p>
               )}
             </div>
           </div>
-
           {/* Application Deadline and Is Fulfilled */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="deadline">Application Deadline</Label>
+              <Label htmlFor="applicationDeadline">Application Deadline</Label>
               <Input
-                id="deadline"
-                name="deadline"
+                id="applicationDeadline"
+                name="applicationDeadline"
                 type="date"
-                value={formData.deadline}
+                value={formData.applicationDeadline}
                 onChange={handleChange}
-                className={errors.deadline ? "border-destructive" : ""}
+                className={
+                  errors.applicationDeadline ? "border-destructive" : ""
+                }
               />
-              {errors.deadline && (
-                <p className="text-sm text-destructive">{errors.deadline}</p>
+              {errors.applicationDeadline && (
+                <p className="text-sm text-destructive">
+                  {errors.applicationDeadline}
+                </p>
               )}
             </div>
-
             <div className="flex items-center space-x-2 mt-6">
               <input
                 id="fulfilled"
@@ -384,53 +339,39 @@ const EditJobPostDialog = ({
               <Label htmlFor="fulfilled">Job Fulfilled</Label>
             </div>
           </div>
-
           {/* Skills Section */}
-          <div className="space-y-2">
-            <Label>Skills</Label>
-            <div className="flex flex-col space-y-2">
-              {mockSkills.map((skill) => (
-                <div key={skill.id} className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    id={`skill-${skill.id}`}
-                    name="selectedSkill"
-                    value={skill.id}
-                    onChange={() => handleAddSkill(skill.id)}
-                  />
-                  <Label htmlFor={`skill-${skill.id}`}>{skill.name}</Label>
-                </div>
-              ))}
-            </div>
-            {formData.skills.length > 0 && (
-              <div className="mt-2">
-                <Label>Selected Skills:</Label>
-                <ul className="flex flex-wrap gap-2 mt-1">
-                  {formData.skills.map((skillId) => {
-                    const skill = mockSkills.find(
-                      (s) => s.id === parseInt(skillId)
-                    );
-                    return (
+          <div className="flex flex-col space-y-2">
+            <h3>Skills</h3>
+            <div className="flex flex-row space-x-4 items-center">
+              {/* Add Skill Button */}
+              <AddSkillInJob onAddSkill={handleAddSkill} />
+              {/* Display Current Skills */}
+              <div className="flex-grow">
+                {formData.skills.length > 0 ? (
+                  <ul className="flex flex-row flex-wrap gap-2">
+                    {formData.skills.map((skill, index) => (
                       <li
-                        key={skillId}
-                        className="px-2 py-1 bg-gray-200 rounded-md flex items-center"
+                        key={index}
+                        className="flex items-center px-3 py-1 rounded-md text-sm"
                       >
-                        {skill?.name}
+                        <span>
+                          {skill.skillName} - {skill.proficiencyLevel}
+                        </span>
                         <button
-                          type="button"
-                          onClick={() => handleRemoveSkill(skillId)}
-                          className="ml-2 text-red-500 hover:text-red-700"
+                          onClick={() => handleRemoveSkill(index)}
+                          className="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
                         >
                           ×
                         </button>
                       </li>
-                    );
-                  })}
-                </ul>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-500">No skills added yet.</p>
+                )}
               </div>
-            )}
+            </div>
           </div>
-
           <DialogFooter>
             <Button
               type="button"

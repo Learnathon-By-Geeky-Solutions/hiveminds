@@ -7,7 +7,7 @@ import Loader from "@/components/Loader";
 const CompanyContext = createContext();
 
 export const CompanyProvider = ({ children }) => {
-  const [company, setCompany] = useState(null);
+  const [companyApi, setCompanyApi] = useState(null);
   const [loading, setLoading] = useState(true);
   const { token } = useAuth();
   const { user } = useUser();
@@ -29,20 +29,20 @@ export const CompanyProvider = ({ children }) => {
 
         if (isMounted) {
           if (Array.isArray(data) && data.length > 0) {
-            setCompany(data[0]); // Extract the first object from the array
+            setCompanyApi(data[0]); // Extract the first object from the array
             console.log("Company Data Set:", data[0]);
           } else if (data === null || data === undefined) {
             console.warn("API returned null or undefined for userId:", userId);
-            setCompany(null); // No company exists
+            setCompanyApi(null); // No company exists
           } else {
             console.warn("Unexpected API response format:", data);
-            setCompany(null); // Handle unexpected response
+            setCompanyApi(null); // Handle unexpected response
           }
         }
       } catch (error) {
         if (isMounted) {
           console.error("Error fetching company data:", error);
-          setCompany(null); // Reset company state in case of an error
+          setCompanyApi(null); // Reset company state in case of an error
         }
       } finally {
         if (isMounted) {
@@ -66,7 +66,7 @@ export const CompanyProvider = ({ children }) => {
   }, [userId, token]);
 
   return (
-    <CompanyContext.Provider value={{ company, setCompany, loading }}>
+    <CompanyContext.Provider value={{ companyApi, setCompanyApi, loading }}>
       {loading ? <Loader/> : children}
     </CompanyContext.Provider>
   );

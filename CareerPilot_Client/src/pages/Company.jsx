@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCompany } from "@/contexts/CompanyContext";
 import { useUser } from "@/contexts/UserContext";
 import CompanyService from "@/services/CompanyService";
 import {
@@ -66,6 +67,7 @@ const Company = () => {
   const navigate = useNavigate();
   const { user } = useUser();
   const userId = user?.id;
+  const {companyApi} = useCompany();
 
   useEffect(() => {
     const fetchCompanyData = async (userId) => {
@@ -340,7 +342,7 @@ const Company = () => {
               </Button>
             </CardHeader>
             <CardContent>
-              <JobSection />
+              <JobSection companyId={companyApi.id} />
             </CardContent>
           </Card>
         </TabsContent>
