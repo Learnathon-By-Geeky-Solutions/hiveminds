@@ -1,18 +1,53 @@
+import CustomLoader from "@/components/CustomLoader";
 import CompanyService from "@/services/CompanyService";
+import SkillsService from "@/services/SkillsService";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useUser } from "./UserContext";
-import CustomLoader from "@/components/CustomLoader";
 
 const CompanyContext = createContext();
 
 export const CompanyProvider = ({ children }) => {
   const [company, setCompany] = useState(null);
+  const [skills, setSkills] = useState([]);
+  const [skillsLoading, setSkillsLoading] = useState(true);
   const [companyLoading, setCompanyLoading] = useState(true);
   const { token } = useAuth();
   const { user } = useUser();
 
   const userId = user?.id || null; // Get the user ID from the user context
+
+  // Fetch skills
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchSkills = async () => {
+      if (!isMounted) return;
+      setSkillsLoading(true);
+      try {
+        const response = await SkillsService.getSkills();
+        if (isMounted) {
+          setSkills(response.data);
+          // console.log("Skills fetched successfully:", skills); // Log the fetched skills
+        }
+      } catch (error) {
+        console.error("Error fetching skills:", error);
+        if (isMounted) {
+          setSkills([]);
+        }
+      } finally {
+        if (isMounted) {
+          setSkillsLoading(false);
+        }
+      }
+    };
+
+    fetchSkills();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [token]);
 
   useEffect(() => {
     let isMounted = true; // Track whether the component is still mounted
@@ -66,8 +101,17 @@ export const CompanyProvider = ({ children }) => {
   }, [userId, token]);
 
   return (
-    <CompanyContext.Provider value={{ company, setCompany, companyLoading }}>
-      {companyLoading ? <CustomLoader/> : children}
+    <CompanyContext.Provider
+      value={{
+        company,
+        setCompany,
+        companyLoading,
+        skills,
+        setSkills,
+        skillsLoading,
+      }}
+    >
+      {companyLoading ? <CustomLoader /> : children}
     </CompanyContext.Provider>
   );
 };
