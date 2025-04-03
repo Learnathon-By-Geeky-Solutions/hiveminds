@@ -6,7 +6,7 @@ const AddNewCompanyPage = () => {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false); // State to control dialog visibility
 
   return (
-    <div className="container mx-auto py-12 space-y-8 text-center">
+    <div className="container mx-auto py-12 space-y-8 text-center animate-fade-in">
       {/* Eye-catching tagline */}
       <h1 className="text-4xl font-bold text-gradient bg-gradient-to-r from-primary to-secondary inline-block px-4 py-2 rounded-md">
         Start Your Journey Today!

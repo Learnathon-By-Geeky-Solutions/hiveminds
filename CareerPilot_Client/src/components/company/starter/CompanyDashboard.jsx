@@ -11,7 +11,7 @@ const CompanyDashboard = () => {
   const { company, companyLoading } = useCompany();
   if (companyLoading) return <CustomLoader />;
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 animate-fade-in">
       <h1 className="text-3xl font-bold mb-6 text-gradient">
         {company.companyName} Dashboard
       </h1>
