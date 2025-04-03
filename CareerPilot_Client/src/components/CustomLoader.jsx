@@ -1,4 +1,4 @@
-const Loader = () => {
+const CustomLoader = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <div class="flex flex-row gap-2">
@@ -10,4 +10,4 @@ const Loader = () => {
   );
 };
 
-export default Loader;
+export default CustomLoader;

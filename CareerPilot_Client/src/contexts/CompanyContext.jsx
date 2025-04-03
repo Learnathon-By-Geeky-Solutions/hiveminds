@@ -2,13 +2,13 @@ import CompanyService from "@/services/CompanyService";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useUser } from "./UserContext";
-import Loader from "@/components/Loader";
+import CustomLoader from "@/components/CustomLoader";
 
 const CompanyContext = createContext();
 
 export const CompanyProvider = ({ children }) => {
-  const [companyApi, setCompanyApi] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [company, setCompany] = useState(null);
+  const [companyLoading, setCompanyLoading] = useState(true);
   const { token } = useAuth();
   const { user } = useUser();
 
@@ -19,7 +19,7 @@ export const CompanyProvider = ({ children }) => {
 
     const fetchCompanyData = async (userId) => {
       if (!isMounted) return; // Prevent state updates if the component is unmounted
-      setLoading(true);
+      setCompanyLoading(true);
       try {
         console.log("Fetching company data for userId:", userId); // Log userId
         const response = await CompanyService.getCompanyProfileById(userId);
@@ -29,24 +29,24 @@ export const CompanyProvider = ({ children }) => {
 
         if (isMounted) {
           if (Array.isArray(data) && data.length > 0) {
-            setCompanyApi(data[0]); // Extract the first object from the array
+            setCompany(data[0]); // Extract the first object from the array
             console.log("Company Data Set:", data[0]);
           } else if (data === null || data === undefined) {
             console.warn("API returned null or undefined for userId:", userId);
-            setCompanyApi(null); // No company exists
+            setCompany(null); // No company exists
           } else {
             console.warn("Unexpected API response format:", data);
-            setCompanyApi(null); // Handle unexpected response
+            setCompany(null); // Handle unexpected response
           }
         }
       } catch (error) {
         if (isMounted) {
           console.error("Error fetching company data:", error);
-          setCompanyApi(null); // Reset company state in case of an error
+          setCompany(null); // Reset company state in case of an error
         }
       } finally {
         if (isMounted) {
-          setLoading(false); // Ensure loading is set to false after API call completes
+          setCompanyLoading(false); // Ensure loading is set to false after API call completes
           console.log("Loading state set to false");
         }
       }
@@ -57,7 +57,7 @@ export const CompanyProvider = ({ children }) => {
       fetchCompanyData(userId);
     } else {
       console.log("UserId is null or undefined"); // Log when userId is missing
-      setLoading(false); // Ensure loading is set to false if userId is missing
+      setCompanyLoading(false); // Ensure loading is set to false if userId is missing
     }
 
     return () => {
@@ -66,8 +66,8 @@ export const CompanyProvider = ({ children }) => {
   }, [userId, token]);
 
   return (
-    <CompanyContext.Provider value={{ companyApi, setCompanyApi, loading }}>
-      {loading ? <Loader/> : children}
+    <CompanyContext.Provider value={{ company, setCompany, companyLoading }}>
+      {companyLoading ? <CustomLoader/> : children}
     </CompanyContext.Provider>
   );
 };

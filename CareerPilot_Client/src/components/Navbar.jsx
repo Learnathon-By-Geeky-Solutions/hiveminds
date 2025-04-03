@@ -96,7 +96,10 @@ const Navbar = () => {
           {token && (
             <LinkStyled
               to="/profile/company"
-              isActive={location.pathname === "/profile/company"}
+              isActive={
+                location.pathname === "/profile/company/dashboard" ||
+                location.pathname === "/profile/company/create"
+              }
             >
               Company
             </LinkStyled>
@@ -178,7 +181,7 @@ const Navbar = () => {
                 Blog
               </MobileNavLink>
             )}
-             {token && (
+            {token && (
               <MobileNavLink
                 href="/profile/company"
                 onClick={toggleMenu}

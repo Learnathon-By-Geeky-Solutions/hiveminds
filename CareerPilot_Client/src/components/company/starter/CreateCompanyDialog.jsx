@@ -10,11 +10,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useCompany } from "@/contexts/CompanyContext";
 import CompanyService from "@/services/CompanyService";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const CreateCompanyDialog = ({ open, onOpenChange }) => {
+  const { setCompany } = useCompany();
   // State for form data
   const [formData, setFormData] = useState({
     companyName: "",
@@ -29,9 +31,11 @@ const CreateCompanyDialog = ({ open, onOpenChange }) => {
   const [errors, setErrors] = useState({});
 
   const handleChange = (property, value) => {
+    const updatedValue =
+      property === "noOfEmployee" ? parseInt(value, 10) || 0 : value;
     setFormData((prev) => ({
       ...prev,
-      [property]: value,
+      [property]: updatedValue,
     }));
 
     // Clear error when field is edited
@@ -66,9 +70,8 @@ const CreateCompanyDialog = ({ open, onOpenChange }) => {
     ) {
       newErrors.contactEmail = "Invalid email format.";
     }
-    if (!formData.noOfEmployee.trim() || isNaN(formData.noOfEmployee)) {
-      newErrors.noOfEmployee =
-        "Employee count is required and must be a number.";
+    if (!formData.noOfEmployee || isNaN(formData.noOfEmployee)) {
+      errors.noOfEmployee = "Employee count is required and must be a number.";
     }
     if (!formData.descriptions.trim()) {
       newErrors.descriptions = "Description is required.";
@@ -81,9 +84,12 @@ const CreateCompanyDialog = ({ open, onOpenChange }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
+      // Checking if the form data is valid before sending it to the server
+      console.log("Form data is valid:", formData);
       CompanyService.createCompany(formData)
         .then((response) => {
           console.log("Company created successfully:", response.data);
+          setCompany(response.data);
           setFormData({
             companyName: "",
             descriptions: "",
@@ -93,7 +99,7 @@ const CreateCompanyDialog = ({ open, onOpenChange }) => {
             noOfEmployee: "",
           });
           onOpenChange(false);
-          navigate("/profile/company", { replace: true });
+          navigate("/profile/company/dashboard", { replace: true });
         })
         .catch((error) => {
           console.error("Error creating company:", error);
@@ -111,27 +117,30 @@ const CreateCompanyDialog = ({ open, onOpenChange }) => {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div>
+            {/* Company Name */}
             <div className="space-y-2">
-              <Label htmlFor="name">Company Name</Label>
+              <Label htmlFor="companyName">Company Name</Label>
               <Input
-                id="name"
-                name="name"
+                id="companyName"
                 placeholder="Acme Corporation"
                 value={formData.companyName}
                 onChange={(e) => handleChange("companyName", e.target.value)}
-                className={errors.companyName ? "border-destructive" : ""}
+                className={errors.companyName ? "border-destructive" : "w-full"}
               />
               {errors.companyName && (
                 <p className="text-sm text-destructive">{errors.companyName}</p>
               )}
             </div>
+          </div>
 
+          {/* Location */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Industry */}
             <div className="space-y-2">
               <Label htmlFor="industry">Industry</Label>
               <Input
                 id="industry"
-                name="industry"
                 placeholder="Technology"
                 value={formData.industry}
                 onChange={(e) => handleChange("industry", e.target.value)}
@@ -141,14 +150,10 @@ const CreateCompanyDialog = ({ open, onOpenChange }) => {
                 <p className="text-sm text-destructive">{errors.industry}</p>
               )}
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
-                name="location"
                 placeholder="San Francisco, CA"
                 value={formData.location}
                 onChange={(e) => handleChange("location", e.target.value)}
@@ -160,12 +165,12 @@ const CreateCompanyDialog = ({ open, onOpenChange }) => {
             </div>
           </div>
 
+          {/* Contact Email and Employee Count */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="contactEmail">Contact Email</Label>
               <Input
                 id="contactEmail"
-                name="contactEmail"
                 placeholder="contact@acme.com"
                 value={formData.contactEmail}
                 onChange={(e) => handleChange("contactEmail", e.target.value)}
@@ -179,10 +184,9 @@ const CreateCompanyDialog = ({ open, onOpenChange }) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="employeeCount">Employee Count</Label>
+              <Label htmlFor="noOfEmployee">Employee Count</Label>
               <Input
-                id="employeeCount"
-                name="employeeCount"
+                id="noOfEmployee"
                 type="number"
                 placeholder="100"
                 value={formData.noOfEmployee}
@@ -197,35 +201,23 @@ const CreateCompanyDialog = ({ open, onOpenChange }) => {
             </div>
           </div>
 
+          {/* Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="descriptions">Description</Label>
             <Textarea
-              id="description"
-              name="description"
+              id="descriptions"
               placeholder="Brief description of the company"
+              rows={10}
               value={formData.descriptions}
               onChange={(e) => handleChange("descriptions", e.target.value)}
-              className={`min-h-[100px] ${
-                errors.descriptions ? "border-destructive" : ""
-              }`}
+              className={errors.descriptions ? "border-destructive" : ""}
             />
             {errors.descriptions && (
               <p className="text-sm text-destructive">{errors.descriptions}</p>
             )}
           </div>
 
-          {/* Commented-out code remains unchanged */}
-          {/* <div className="space-y-2">
-            <Label htmlFor="logo">Logo URL</Label>
-            <Input
-              id="logo"
-              name="logo"
-              placeholder="/placeholder.svg?height=128&width=128"
-              value={formData.logo}
-              onChange={(e) => handleChange("logo", e.target.value)}
-            />
-          </div> */}
-
+          {/* Buttons */}
           <DialogFooter>
             <Button
               type="button"
