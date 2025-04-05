@@ -32,6 +32,16 @@ class JobPostService {
             }
         });
     }
+
+    // Delete a job using its ID
+    deleteJobPost(companyId, postId) {
+        const token = localStorage.getItem("ACCESS_TOKEN");
+        return axios.delete(`http://localhost:8082/api/companies/${companyId}/job-posts/${postId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+    }
 }
 
 export default new JobPostService();

@@ -20,43 +20,42 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useCompany } from "@/contexts/CompanyContext";
 import JobPostService from "@/services/JobPostService";
-import { useState } from "react";
-import SkillsComponent from "./SkillsComponent";
+import { useEffect, useState } from "react";
+import UpdateSkillsComponent from "./UpdateSkillsComponent";
 
-const CreateJobDialog = ({ open, onOpenChange, onJobCreated }) => {
+const UpdateJobDialog = ({ open, onOpenChange, onSuccess, jobData = {} }) => {
   const { company } = useCompany();
-
   const [formData, setFormData] = useState({
-    jobTitle: "",
-    jobDescription: "",
-    requirements: "",
-    jobCategory: "",
-    location: "",
-    upperSalary: "",
-    lowerSalary: "",
-    applicationDeadline: "",
-    jobType: "",
-    status: "",
-    fulfilled: false,
-    skills: [],
+    jobTitle: jobData?.jobTitle || "",
+    jobDescription: jobData?.jobDescription || "",
+    requirements: jobData?.requirements || "",
+    jobCategory: jobData?.jobCategory || "",
+    location: jobData?.location || "",
+    upperSalary: jobData?.upperSalary || "",
+    lowerSalary: jobData?.lowerSalary || "",
+    applicationDeadline: jobData?.applicationDeadline?.split("T")[0] || "",
+    jobType: jobData?.jobType || "",
+    status: jobData?.status || "",
+    fulfilled: jobData?.fulfilled || false,
+    skills: jobData?.skills || [],
   });
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.jobTitle.trim()) {
+    if (!formData?.jobTitle?.trim()) {
       newErrors.jobTitle = "Job title is required";
     }
-    if (!formData.jobDescription.trim()) {
+    if (!formData?.jobDescription?.trim()) {
       newErrors.jobDescription = "Job description is required";
     }
-    if (!formData.requirements.trim()) {
+    if (!formData?.requirements?.trim()) {
       newErrors.requirements = "Requirements are required";
     }
-    if (!formData.jobCategory.trim()) {
+    if (!formData?.jobCategory?.trim()) {
       newErrors.jobCategory = "Job category is required";
     }
-    if (!formData.location.trim()) {
+    if (!formData?.location?.trim()) {
       newErrors.location = "Location is required";
     }
     if (!formData.lowerSalary) {
@@ -83,13 +82,32 @@ const CreateJobDialog = ({ open, onOpenChange, onJobCreated }) => {
     if (!formData.status) {
       newErrors.status = "Status is required";
     }
-    if (formData.skills.length === 0)
+    if (!formData.skills || formData.skills.length === 0) {
       newErrors.skills = "At least one skill is required";
-
-    // console.log("Validation Errors:", newErrors); // Debugging line
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
+
+  // Initialize form with job data
+  useEffect(() => {
+    if (jobData) {
+      const formattedData = {
+        ...jobData,
+        applicationDeadline: jobData.applicationDeadline?.split("T")[0],
+        // Normalize skills array
+        skills:
+          jobData.skills?.map((skill) => ({
+            skillId: parseInt(skill.skill.skillId), // Extract skillId from nested skill object
+            proficiencyLevel: skill.proficiencyLevel || "BEGINNER",
+          })) || [],
+        status: jobData.status || "OPEN",
+        jobType: jobData.jobType || "FULL_TIME",
+        fulfilled: jobData.fulfilled || false,
+      };
+      setFormData(formattedData);
+    }
+  }, [jobData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -119,22 +137,6 @@ const CreateJobDialog = ({ open, onOpenChange, onJobCreated }) => {
     }
   };
 
-  // Handle form submission
-  //   const handleSubmit = (e) => {
-  //     e.preventDefault();
-  //     if (validateForm()) {
-  //       const submitData = {
-  //         ...formData,
-  //         lowerSalary: parseInt(formData.lowerSalary),
-  //         upperSalary: parseInt(formData.upperSalary),
-  //         skills: formData.skills, // Send the skills array as-is
-  //       };
-  //       console.log("Submit data:", submitData);
-  //         // Call the API to create a new job post
-
-  //     }
-  //   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
@@ -145,70 +147,45 @@ const CreateJobDialog = ({ open, onOpenChange, onJobCreated }) => {
         skills: formData.skills.map((skill) => ({
           skillId: skill.skillId,
           proficiencyLevel: skill.proficiencyLevel,
-        })), // Format skills array as required by the backend
+        })),
       };
-
-      console.log("Submit data:", submitData);
-
       try {
         const companyId = parseInt(company?.id);
         if (!companyId) {
-          console.error("Company ID is missing. Cannot create job post.");
+          console.error("Company ID is missing. Cannot update job post.");
           return;
         }
-
-        console.log(submitData);
-        console.log("Company ID:", companyId);
-
-        // Call the API to create a new job post
-        const response = await JobPostService.addNewJobPost(
-          submitData,
-          companyId
-        );
-        onJobCreated?.();
-
-        // Log the response for debugging
-        console.log("Job post created successfully:", response.data);
-
-        // Optionally, reset the form or close the dialog
-        setFormData({
-          jobTitle: "",
-          jobDescription: "",
-          requirements: "",
-          jobCategory: "",
-          location: "",
-          upperSalary: "",
-          lowerSalary: "",
-          applicationDeadline: "",
-          jobType: "",
-          status: "",
-          fulfilled: false,
-          skills: [],
-        });
-
-        // Close the dialog after successful submission
+        await JobPostService.updateJobPost(companyId, jobData.id, submitData);
+        onSuccess?.();
         onOpenChange(false);
       } catch (error) {
-        // Handle errors (e.g., show an error message to the user)
         console.error(
-          "Error creating job post:",
+          "Error updating job post:",
           error.response?.data || error.message
         );
       }
     }
   };
 
+  // Status options array for better management
+  const statusOptions = [
+    { value: "OPEN", label: "Open" },
+    { value: "CLOSED", label: "Closed" },
+    { value: "PENDING", label: "Pending" },
+  ];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
-            Create New Job Post
+            Update Job Post
           </DialogTitle>
           <DialogDescription>
-            Fill in the details for the new job position.
+            Update the details for this job position.
           </DialogDescription>
         </DialogHeader>
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
           <div className="space-y-4">
@@ -335,9 +312,11 @@ const CreateJobDialog = ({ open, onOpenChange, onJobCreated }) => {
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="OPEN">Open</SelectItem>
-                  <SelectItem value="CLOSED">Closed</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
+                  {statusOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {errors.status && (
@@ -399,7 +378,7 @@ const CreateJobDialog = ({ open, onOpenChange, onJobCreated }) => {
             <div className="space-y-2">
               <Label>Fulfilled Status</Label>
               <RadioGroup
-                value={formData.fulfilled.toString()}
+                value={formData.fulfilled}
                 onValueChange={(value) => {
                   handleChange({
                     target: { name: "fulfilled", value: value === "true" },
@@ -418,10 +397,13 @@ const CreateJobDialog = ({ open, onOpenChange, onJobCreated }) => {
               </RadioGroup>
             </div>
           </div>
-          <SkillsComponent
+          {/* Skills Component */}
+          <UpdateSkillsComponent
             onSkillsChange={handleSkillsChange}
             error={errors.skills}
-          />
+            initialSkills={formData.skills}
+          />         
+          {/* Footer Buttons */}
           <DialogFooter>
             <Button
               type="button"
@@ -430,7 +412,7 @@ const CreateJobDialog = ({ open, onOpenChange, onJobCreated }) => {
             >
               Cancel
             </Button>
-            <Button type="submit">Create Job Post</Button>
+            <Button type="submit">Update Job Post</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -438,4 +420,4 @@ const CreateJobDialog = ({ open, onOpenChange, onJobCreated }) => {
   );
 };
 
-export default CreateJobDialog;
+export default UpdateJobDialog;

@@ -1,3 +1,4 @@
+import DeleteConfirmationDialog from "@/components/DeleteConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -12,9 +13,13 @@ import JobPostService from "@/services/JobPostService";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import CreateJobDialog from "./CreateJobDialog";
+import UpdateJobDialog from "./UpdateJobDialog";
 
 const JobSection = () => {
   const [createDialog, setCreateDialog] = useState(false);
+  const [updateDialog, setUpdateDialog] = useState(false);
+  const [selectedJob, setSelectedJob] = useState(null);
+  const [deleteJobDialog, setDeleteJobDialog] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const { company } = useCompany();
@@ -37,8 +42,8 @@ const JobSection = () => {
 
   const handleDelete = async (jobId) => {
     try {
-      await JobPostService.deleteJob(jobId);
-      fetchJobs();
+      await JobPostService.deleteJobPost(companyId, jobId);
+      fetchJobs(); 
     } catch (error) {
       console.error("Error deleting job:", error);
     }
@@ -56,7 +61,7 @@ const JobSection = () => {
         </div>
         <Button
           onClick={() => setCreateDialog(true)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 rounded-sm bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
         >
           <Plus className="h-4 w-4" />
           Add New Job
@@ -103,6 +108,10 @@ const JobSection = () => {
                     variant="outline"
                     size="icon"
                     className="h-8 w-8 border-blue-400 hover:bg-blue-400"
+                    onClick={() => {
+                      setSelectedJob(job);
+                      setUpdateDialog(true);
+                    }}
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -110,7 +119,10 @@ const JobSection = () => {
                     variant="outline"
                     size="icon"
                     className="h-8 w-8 border-red-400 hover:bg-red-500"
-                    onClick={() => handleDelete(job.id)}
+                    onClick={() => {
+                      setSelectedJob(job);
+                      setDeleteJobDialog(true);
+                    }}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -131,7 +143,33 @@ const JobSection = () => {
       <CreateJobDialog
         open={createDialog}
         onOpenChange={setCreateDialog}
+        onJobCreated={fetchJobs}
+      />
+      <UpdateJobDialog
+        open={updateDialog}
+        onOpenChange={(isOpen) => {
+          setUpdateDialog(isOpen);
+          if (!isOpen) setSelectedJob(null); 
+        }}
         onSuccess={fetchJobs}
+        jobData={selectedJob}
+      />
+      <DeleteConfirmationDialog
+        open={deleteJobDialog}
+        onOpenChange={(isOpen) => {
+          setDeleteJobDialog(isOpen);
+          if (!isOpen) setSelectedJob(null); 
+        }}
+        title="Delete Job Post"
+        description="Are you sure you want to delete this job post? This action cannot be undone."
+        onConfirm={() => {
+          if (!selectedJob?.id) {
+            console.error("Job ID is missing. Cannot delete job post.");
+            return;
+          }
+          handleDelete(selectedJob.id); 
+          setDeleteJobDialog(false); 
+        }}
       />
     </div>
   );
