@@ -1,5 +1,6 @@
 import CustomLoader from "@/components/CustomLoader";
 import CompanyService from "@/services/CompanyService";
+import JobPostService from "@/services/JobPostService";
 import SkillsService from "@/services/SkillsService";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
@@ -12,10 +13,39 @@ export const CompanyProvider = ({ children }) => {
   const [skills, setSkills] = useState([]);
   const [skillsLoading, setSkillsLoading] = useState(true);
   const [companyLoading, setCompanyLoading] = useState(true);
+  const [publicJobs, setPublicJobs] = useState([]);
+  const [publicJobLoading, setPublicJobLoading] = useState(true);
+  const [publicJobError, setPublicJobError] = useState(null);
   const { token } = useAuth();
   const { user } = useUser();
 
   const userId = user?.id || null; // Get the user ID from the user context
+
+  // Fetch public jobs
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const response = await JobPostService.getAllPublicJobPosts();
+        if (response.status !== 200) {
+          throw new Error(response.data?.message || "Failed to fetch jobs");
+        }
+        setPublicJobs(response.data);
+      } catch (err) {
+        console.error(
+          "Error fetching jobs:",
+          err.response?.data || err.message
+        );
+        setPublicJobError(
+          err.response?.data?.message ||
+            "Failed to load jobs. Please try again later."
+        );
+      } finally {
+        setPublicJobLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
 
   // Fetch skills
   useEffect(() => {
@@ -109,6 +139,10 @@ export const CompanyProvider = ({ children }) => {
         skills,
         setSkills,
         skillsLoading,
+        publicJobs,
+        setPublicJobs,
+        publicJobError,
+        publicJobLoading,
       }}
     >
       {companyLoading ? <CustomLoader /> : children}

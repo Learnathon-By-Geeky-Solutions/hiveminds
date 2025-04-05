@@ -76,10 +76,7 @@ const Navbar = () => {
           <LinkStyled to="/" isActive={location.pathname === "/"}>
             Find Jobs
           </LinkStyled>
-          <LinkStyled
-            to="/all-jobs"
-            isActive={location.pathname === "/all-jobs"}
-          >
+          <LinkStyled to="/jobs" isActive={location.pathname === "/jobs"}>
             Jobs
           </LinkStyled>
           {/* <LinkStyled to="/company" isActive={location.pathname === "/company"}>

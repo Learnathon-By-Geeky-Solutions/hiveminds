@@ -1,7 +1,21 @@
-import { ArrowUpRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  ArrowUpRight,
+  Briefcase,
+  Calendar,
+  CheckCircle2,
+  MapPin,
+} from "lucide-react";
 
 const JobCard = ({
-  jobTitle,
+  title,
   jobCategory,
   location,
   lowerSalary,
@@ -13,74 +27,74 @@ const JobCard = ({
   fulfilled,
 }) => {
   return (
-    <div className="glass-card rounded-xl p-6 group animate-fade-in transition-all duration-300 hover:translate-y-[-5px]">
-      <div className="flex items-start gap-4">
-        {/* Left Section: Placeholder for Company Logo */}
-        <div className="h-12 w-12 rounded-lg overflow-hidden bg-secondary flex items-center justify-center flex-shrink-0">
-          <span className="text-white font-bold text-lg">{jobCategory[0]}</span>
-        </div>
-
-        {/* Right Section: Job Details */}
-        <div className="flex-1">
-          {/* Job Title and Quick Action Button */}
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-lg text-white leading-tight">
-              {jobTitle}
-            </h3>
-            <button className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 flex items-center justify-center rounded-full bg-primary/10 text-primary">
-              <ArrowUpRight size={16} />
+    <Card className="overflow-hidden transition-all hover:shadow-md hover:scale-[1.02] duration-300">
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-xl font-semibold tracking-tight">{title}</h3>
+            <p className="text-sm text-muted-foreground">{jobCategory}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">
+              {fulfilled
+                ? "Fulfilled"
+                : status.charAt(0).toUpperCase() + status.slice(1)}
+            </Badge>
+            <button
+              className="rounded-full p-1.5 bg-blue-500 hover:bg-blue-600 transition-colors"
+              aria-label="View job details"
+              onClick={() => console.log(`View details for ${title}`)}
+            >
+              <ArrowUpRight className="h-4 w-4" />
             </button>
           </div>
-
-          {/* Job Category and Location */}
-          <div className="flex flex-wrap items-center text-sm text-gray-400 mb-2">
-            <span className="mr-3">{jobCategory}</span>
-            <span className="mr-3">•</span>
+        </div>
+      </CardHeader>
+      <CardContent className="pb-2">
+        <div className="grid gap-3">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4" />
             <span>{location}</span>
+            <Separator orientation="vertical" className="mx-1 h-4" />
+            <Briefcase className="h-4 w-4" />
+            <span>{jobType}</span>
           </div>
 
-          {/* Salary Range */}
-          <div className="text-sm text-gray-400 mb-2">
-            <span>
-              Salary: ${lowerSalary} - ${upperSalary}
+          <div className="flex items-center gap-2">
+            <span className="text-base font-medium">
+              ${lowerSalary} - ${upperSalary}
             </span>
           </div>
 
-          {/* Application Deadline */}
-          <div className="text-sm text-gray-400 mb-2">
-            <span>Deadline: {applicationDeadline}</span>
+          <div className="flex items-center gap-2 text-sm">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <span className="text-white font-medium">
+              {applicationDeadline}
+            </span>
           </div>
 
-          {/* Job Type and Status */}
-          <div className="flex flex-wrap items-center text-sm text-gray-400 mb-2">
-            <span className="mr-3">Type: {jobType}</span>
-            <span className="mr-3">•</span>
-            <span>Status: {status}</span>
-          </div>
-
-          {/* Skills */}
-          <div className="flex flex-wrap gap-2">
-            {skills.map((skill, index) => (
-              <span
-                key={index}
-                className="text-xs px-3 py-1 rounded-full bg-secondary text-gray-300"
+          <div className="flex flex-wrap gap-1.5 pt-1">
+            {skills.map((skill) => (
+              <Badge
+                key={skill}
+                variant="secondary"
+                className="px-2 py-0.5 text-sm bg-blue-950"
               >
                 {skill}
-              </span>
+              </Badge>
             ))}
           </div>
-
-          {/* Fulfilled Badge */}
-          {fulfilled && (
-            <div className="flex gap-2 mt-3">
-              <span className="text-xs px-2 py-1 rounded-full bg-green-400/20 text-green-400 font-medium">
-                Fulfilled
-              </span>
-            </div>
-          )}
         </div>
-      </div>
-    </div>
+      </CardContent>
+      <CardFooter className="pt-2">
+        {fulfilled && (
+          <div className="flex w-full items-center justify-center gap-1.5 rounded-md bg-green-50 py-1.5 text-sm text-green-700">
+            <CheckCircle2 className="h-4 w-4" />
+            <span>Position filled</span>
+          </div>
+        )}
+      </CardFooter>
+    </Card>
   );
 };
 

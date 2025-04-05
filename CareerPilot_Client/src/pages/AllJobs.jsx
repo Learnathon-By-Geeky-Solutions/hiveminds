@@ -1,40 +1,15 @@
 import CustomLoader from "@/components/CustomLoader";
 import JobCard from "@/components/JobCard";
-import JobPostService from "@/services/JobPostService";
-import { useEffect, useState } from "react";
+import { useCompany } from "@/contexts/CompanyContext";
 import { Link, Outlet, useMatch } from "react-router-dom";
 
 const AllJobs = () => {
-  const [jobs, setJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { publicJobs, publicJobError, publicJobLoading } = useCompany();
 
-  // UseEffect to fetch jobs from the API
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const response = await JobPostService.getAllPublicJobPosts();
-        if (!response.ok) {
-          throw new Error("Failed to fetch jobs");
-        }
-        setJobs(response.data);
-      } catch (err) {
-        console.error("Error fetching jobs:", err);
-        setError("Failed to load jobs. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchJobs();
-  }, []);
-
-  console.log("Jobs fetched:", jobs); // Log the fetched jobs
-
-  const isJobDetailsPage = useMatch("/all-jobs/job/:id");
+  const isJobDetailsPage = useMatch("/jobs/job/:id");
 
   // Loading state
-  if (loading) {
+  if (publicJobLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <p className="text-gray-400">
@@ -45,16 +20,16 @@ const AllJobs = () => {
   }
 
   // Error state
-  if (error) {
+  if (publicJobError) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p className="text-red-500">{error}</p>
+        <p className="text-red-500">{publicJobError}</p>
       </div>
     );
   }
 
   // Empty job list
-  if (!loading && jobs.length === 0) {
+  if (!publicJobLoading && publicJobs.length === 0) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <p className="text-gray-400">No jobs available at the moment.</p>
@@ -64,13 +39,6 @@ const AllJobs = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Helmet>
-        <title>All Jobs | CareerPilot</title>
-        <meta
-          name="description"
-          content="Browse through our curated list of job opportunities from top companies around the world."
-        />
-      </Helmet>
       <main className="min-h-screen">
         {!isJobDetailsPage && (
           <div className="container mx-auto py-28 space-y-8 px-4 md:px-6 lg:px-8">
@@ -84,9 +52,9 @@ const AllJobs = () => {
               </p>
             </header>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {jobs.map((job, index) => (
+              {publicJobs.map((job, index) => (
                 <Link
-                  to={`/all-jobs/job/${job.id}`}
+                  to={`/jobs/job/${job.id}`}
                   key={job.id}
                   className="block"
                   aria-label={`View details for ${job.jobTitle}`}
@@ -95,13 +63,14 @@ const AllJobs = () => {
                     title={job.jobTitle || "Untitled Job"}
                     jobCategory={job.jobCategory || "Unknown Category"}
                     location={job.location || "Remote"}
-                    salary={`${job.lowerSalary || "N/A"} - ${
-                      job.upperSalary || "N/A"
-                    }`}
+                    lowerSalary={job.lowerSalary}
+                    upperSalary={job.upperSalary}
                     applicationDeadline={job.applicationDeadline || "N/A"}
                     jobType={job.jobType || "Not Specified"}
                     status={job.status || "Not Specified"}
-                    skills={job.skills?.map((skill) => skill.skillName) || []}
+                    skills={
+                      job.skills?.map((skill) => skill.skill.skillName) || []
+                    }
                     fulfilled={job.fulfilled || false}
                     delayIndex={index}
                   />

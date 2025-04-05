@@ -49,6 +49,7 @@ class JobPostService {
         return axios.get(`http://localhost:8082/api/job-posts`, {
             headers: {
                 Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
             }
         });
         

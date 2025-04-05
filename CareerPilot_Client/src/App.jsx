@@ -64,7 +64,7 @@ function App() {
             />
           </Route>
         </Route>
-        <Route path="/all-jobs" element={<AllJobs />}>
+        <Route path="/jobs" element={<AllJobs />}>
           <Route path="job/:id" element={<JobDetails />} />
         </Route>
       </Routes>
