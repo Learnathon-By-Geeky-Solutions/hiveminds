@@ -2,6 +2,7 @@ package com.example.careerPilot.demo.controller;
 
 import com.example.careerPilot.demo.dto.*;
 import com.example.careerPilot.demo.service.JobPostService;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins ="http://localhost:5173/")
 @RequestMapping("/api/companies/{companyId}/job-posts")
 @RequiredArgsConstructor
 public class JobPostController {
