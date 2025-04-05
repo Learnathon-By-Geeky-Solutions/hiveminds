@@ -42,6 +42,17 @@ class JobPostService {
             }
         });
     }
+
+    // Public API to get all job posts
+    getAllPublicJobPosts() {
+        const token = localStorage.getItem("ACCESS_TOKEN");
+        return axios.get(`http://localhost:8082/api/job-posts`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+        
+    }
 }
 
 export default new JobPostService();

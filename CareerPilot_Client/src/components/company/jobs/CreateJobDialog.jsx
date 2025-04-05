@@ -119,22 +119,6 @@ const CreateJobDialog = ({ open, onOpenChange, onJobCreated }) => {
     }
   };
 
-  // Handle form submission
-  //   const handleSubmit = (e) => {
-  //     e.preventDefault();
-  //     if (validateForm()) {
-  //       const submitData = {
-  //         ...formData,
-  //         lowerSalary: parseInt(formData.lowerSalary),
-  //         upperSalary: parseInt(formData.upperSalary),
-  //         skills: formData.skills, // Send the skills array as-is
-  //       };
-  //       console.log("Submit data:", submitData);
-  //         // Call the API to create a new job post
-
-  //     }
-  //   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
