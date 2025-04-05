@@ -10,54 +10,43 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState } from "react";
+import { useCompany } from "@/contexts/CompanyContext";
+import CompanyService from "@/services/CompanyService";
+import { useState } from "react";
 
-const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
+const EditCompanyDialog = ({ open, onOpenChange, company }) => {
   const [formData, setFormData] = useState({
-    id: company.id,
-    companyName: company.companyName || "",
-    industry: company.industry || "",
-    location: company.location || "",
-    contactEmail: company.contactEmail || "",
-    noOfEmployee: company.noOfEmployee || "",
-    descriptions: company.descriptions || "",
+    companyName: company?.companyName || "",
+    descriptions: company?.descriptions || "",
+    industry: company?.industry || "",
+    location: company?.location || "",
+    contactEmail: company?.contactEmail || "",
+    noOfEmployee: company?.noOfEmployee || 0,
   });
-
-  // State for validation errors
   const [errors, setErrors] = useState({});
-
-  // Update form data when the `company` prop changes
-  useEffect(() => {
-    if (company) {
-      setFormData({
-        id: company.id,
-        companyName: company.companyName || "",
-        industry: company.industry || "",
-        location: company.location || "",
-        contactEmail: company.contactEmail || "",
-        noOfEmployee: company.noOfEmployee || "",
-        descriptions: company.descriptions || "",
-      });
-    }
-  }, [company]);
+  const [loading, setLoading] = useState(false);
+  const { setCompany } = useCompany();
 
   // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (property, value) => {
+    const updatedValue =
+      property === "noOfEmployee" ? parseInt(value, 10) || 0 : value;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [property]: updatedValue,
     }));
 
     // Clear error when field is edited
-    if (errors[name]) {
-      const newErrors = { ...errors };
-      delete newErrors[name];
-      setErrors(newErrors);
+    if (errors[property]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[property];
+        return newErrors;
+      });
     }
   };
 
-  // Validate form before submission
+  // Manually validate form fields
   const validateForm = () => {
     const newErrors = {};
 
@@ -77,7 +66,7 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
     ) {
       newErrors.contactEmail = "Invalid email format.";
     }
-    if (!formData.noOfEmployee.trim() || isNaN(formData.noOfEmployee)) {
+    if (!formData.noOfEmployee || isNaN(formData.noOfEmployee)) {
       newErrors.noOfEmployee =
         "Employee count is required and must be a number.";
     }
@@ -86,19 +75,42 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      const processedData = {
-        ...formData,
-        noOfEmployee: Number(formData.noOfEmployee),
-      };
-      onSave(processedData);
-      onOpenChange(false);
+    const isValid = validateForm();
+
+    if (isValid) {
+      setLoading(true);
+      try {
+        // console.log("Updated Form Data:", formData);
+
+        // Extract the company ID from the global state
+        const companyId = company.id;
+
+        // Call the updateCompany API
+        const response = await CompanyService.updateCompany(
+          companyId,
+          formData
+        );
+
+        // Log the updated company data from the server
+        // console.log("Company updated successfully:", response.data);
+
+        // Update the global state with the new company data
+        setCompany(response.data);
+
+        // Close the dialog after successful update
+        onOpenChange(false);
+      } catch (error) {
+        console.error("Error updating company:", error);
+        // Optionally, display an error message to the user
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -106,71 +118,53 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Edit Company Profile</DialogTitle>
+          <DialogTitle>Edit Company</DialogTitle>
           <DialogDescription>
-            Update your company details. Click save when you're done.
+            Update the details for your company. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Company Name and Industry */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="companyName">Company Name</Label>
-              <Input
-                id="companyName"
-                name="companyName"
-                value={formData.companyName}
-                onChange={handleChange}
-                className={errors.companyName ? "border-destructive" : ""}
-              />
-              {errors.companyName && (
-                <p className="text-sm text-destructive">{errors.companyName}</p>
-              )}
-            </div>
+          {/* Company Name */}
+          <div className="space-y-2">
+            <Label htmlFor="companyName">Company Name</Label>
+            <Input
+              id="companyName"
+              placeholder="Acme Corporation"
+              value={formData.companyName}
+              onChange={(e) => handleChange("companyName", e.target.value)}
+              className={errors.companyName ? "border-destructive" : ""}
+            />
+            {errors.companyName && (
+              <p className="text-sm text-destructive">{errors.companyName}</p>
+            )}
+          </div>
 
+          {/* Industry and Location */}
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="industry">Industry</Label>
               <Input
                 id="industry"
-                name="industry"
+                placeholder="Technology"
                 value={formData.industry}
-                onChange={handleChange}
+                onChange={(e) => handleChange("industry", e.target.value)}
                 className={errors.industry ? "border-destructive" : ""}
               />
               {errors.industry && (
                 <p className="text-sm text-destructive">{errors.industry}</p>
               )}
             </div>
-          </div>
-
-          {/* Location and Founded Year */}
-          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
-                name="location"
+                placeholder="San Francisco, CA"
                 value={formData.location}
-                onChange={handleChange}
+                onChange={(e) => handleChange("location", e.target.value)}
                 className={errors.location ? "border-destructive" : ""}
               />
               {errors.location && (
                 <p className="text-sm text-destructive">{errors.location}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="foundedYear">Founded Year</Label>
-              <Input
-                id="foundedYear"
-                name="foundedYear"
-                type="number"
-                value={formData.foundedYear}
-                onChange={handleChange}
-                className={errors.foundedYear ? "border-destructive" : ""}
-              />
-              {errors.foundedYear && (
-                <p className="text-sm text-destructive">{errors.foundedYear}</p>
               )}
             </div>
           </div>
@@ -181,9 +175,9 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
               <Label htmlFor="contactEmail">Contact Email</Label>
               <Input
                 id="contactEmail"
-                name="contactEmail"
+                placeholder="contact@acme.com"
                 value={formData.contactEmail}
-                onChange={handleChange}
+                onChange={(e) => handleChange("contactEmail", e.target.value)}
                 className={errors.contactEmail ? "border-destructive" : ""}
               />
               {errors.contactEmail && (
@@ -192,15 +186,14 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
                 </p>
               )}
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="noOfEmployee">Employee Count</Label>
               <Input
                 id="noOfEmployee"
-                name="noOfEmployee"
                 type="number"
+                placeholder="100"
                 value={formData.noOfEmployee}
-                onChange={handleChange}
+                onChange={(e) => handleChange("noOfEmployee", e.target.value)}
                 className={errors.noOfEmployee ? "border-destructive" : ""}
               />
               {errors.noOfEmployee && (
@@ -216,33 +209,18 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
             <Label htmlFor="descriptions">Description</Label>
             <Textarea
               id="descriptions"
-              name="descriptions"
+              placeholder="Brief description of the company"
+              rows={10}
               value={formData.descriptions}
-              onChange={handleChange}
-              className={`min-h-[100px] ${
-                errors.descriptions ? "border-destructive" : ""
-              }`}
+              onChange={(e) => handleChange("descriptions", e.target.value)}
+              className={errors.descriptions ? "border-destructive" : ""}
             />
             {errors.descriptions && (
               <p className="text-sm text-destructive">{errors.descriptions}</p>
             )}
           </div>
 
-          {/* Commented-out code remains unchanged */}
-          {/* <div className="space-y-2">
-            <Label htmlFor="logo">Logo URL</Label>
-            <Input
-              id="logo"
-              name="logo"
-              value={formData.logo}
-              onChange={handleChange}
-              className={errors.logo ? "border-destructive" : ""}
-            />
-            {errors.logo && (
-              <p className="text-sm text-destructive">{errors.logo}</p>
-            )}
-          </div> */}
-
+          {/* Buttons */}
           <DialogFooter>
             <Button
               type="button"
@@ -251,7 +229,9 @@ const EditCompanyDialog = ({ company, open, onOpenChange, onSave }) => {
             >
               Cancel
             </Button>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Saving..." : "Save Changes"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

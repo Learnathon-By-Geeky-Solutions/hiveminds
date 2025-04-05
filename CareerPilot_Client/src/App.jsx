@@ -10,6 +10,8 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Signup from "./pages/Signup";
 import ProtectedRoute from "./utils/ProtectedRoute";
+import AddNewCompanyPage from "./components/company/starter/AddNewCompanyPage";
+import CompanyDashboard from "./components/company/starter/CompanyDashboard";
 function App() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -41,7 +43,26 @@ function App() {
                 <Company />
               </ProtectedRoute>
             }
-          />
+          >
+            {/* Route for creating a new company */}
+            <Route
+              path="create"
+              element={
+                <ProtectedRoute>
+                  <AddNewCompanyPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* Route for viewing the company dashboard */}
+            <Route
+              path="dashboard"
+              element={
+                <ProtectedRoute>
+                  <CompanyDashboard />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
         </Route>
         <Route path="/all-jobs" element={<AllJobs />}>
           <Route path="job/:id" element={<JobDetails />} />

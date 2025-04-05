@@ -1,8 +1,8 @@
 import axios from "axios";
 
 class CompanyService {
-    // Fetch current company profile
-    getCurrentCompanyProfile() {
+    // Fetch all companies
+    getAllCompanies() {
         const token = localStorage.getItem("ACCESS_TOKEN");
         return axios.get("http://localhost:8082/api/companies", {
             headers: {
