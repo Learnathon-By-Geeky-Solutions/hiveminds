@@ -138,7 +138,7 @@ public class JobPostService {
     }
 
     public List<JobPostDTO> getAllPublicJobPosts() {
-        return jobPostRepository.findAllByStatus(JobPost.Status.OPEN).stream()
+        return jobPostRepository.findAllByFulfilledFalse().stream()
                 .map(JobPostDTO::fromEntity)
                 .collect(Collectors.toList());
     }

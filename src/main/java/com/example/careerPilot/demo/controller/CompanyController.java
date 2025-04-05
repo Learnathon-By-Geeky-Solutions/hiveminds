@@ -88,6 +88,7 @@ public class CompanyController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CompanyDTO> getCompanyById(@PathVariable Long id) {
-        return ResponseEntity.ok(companyService.getCompanyById(id));
+        CompanyDTO response = companyService.getCompanyById(id);
+        return ResponseEntity.ok(response);
     }
 }

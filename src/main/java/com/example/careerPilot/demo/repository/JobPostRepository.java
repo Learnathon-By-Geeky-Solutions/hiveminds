@@ -12,7 +12,10 @@ import java.util.Optional;
 @Repository
 public interface JobPostRepository extends JpaRepository<JobPost, Long> {
     List<JobPost> findByCompanyId(Long companyId);
-    List<JobPost> findAllByStatus(JobPost.Status status);
+//    List<JobPost> findAllByStatus(JobPost.Status status);
+
+    List<JobPost> findAllByFulfilledFalse();
+
     @Query("SELECT jp FROM JobPost jp LEFT JOIN FETCH jp.jobSkills WHERE jp.id = :id")
     Optional<JobPost> findByIdWithSkills(@Param("id") Long id);
 
