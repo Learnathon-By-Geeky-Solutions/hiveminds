@@ -1,31 +1,48 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ListChecks } from "lucide-react";
+import SkillsService from "@/services/SkillsService";
+import { Edit, ListChecks, Plus, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import DeleteConfirmationDialog from "../DeleteConfirmationDialog";
+import { Button } from "../ui/button";
+import AddUserSkillDialog from "./AddUserSkillDialog";
 
 const Skills = () => {
-  // Define the skills array
-  const skills = [
-    { name: "JavaScript", category: "expert", level: 90 },
-    { name: "React", category: "advanced", level: 85 },
-    { name: "Node.js", category: "intermediate", level: 70 },
-    { name: "Python", category: "beginner", level: 50 },
-    { name: "Ruby", category: "intermediate", level: 70 },
-    { name: "PHP", category: "beginner", level: 55 },
-    { name: "TypeScript", category: "advanced", level: 85 },
-    { name: "Go", category: "beginner", level: 65 },
-  ];
+  const [addSkillDialogOpen, setAddSkillDialogOpen] = useState(false);
+  const [userSkills, setUserSkills] = useState([]);
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [selectedSkill, setSelectedSkill] = useState(null);
 
-  // Define the tools array
-  const tools = ["VS Code", "Git", "Docker", "Figma", "Postman"];
+  const fetchUserSkills = async () => {
+    try {
+      const response = await SkillsService.allUserSkills();
+      setUserSkills(response.data);
+    } catch (error) {
+      console.error("Error fetching user skills:", error);
+    }
+  };
+  // Fetch user skills and tools from API
+  useEffect(() => {
+    fetchUserSkills();
+  }, []);
 
-  // Function to determine badge styling based on skill category
-  const getLevelBadge = (category) => {
-    switch (category) {
+  // Function to handle skill deletion
+  const handleDeleteSkill = async (skillId) => {
+    try {
+      await SkillsService.deleteUserSkill(skillId);
+      fetchUserSkills();
+    } catch (error) {
+      console.error("Error deleting skill:", error);
+    }
+  };
+
+  // Function to determine badge styling based on proficiencyLevel
+  const getLevelBadge = (proficiencyLevel) => {
+    const level = proficiencyLevel.toLowerCase();
+    switch (level) {
       case "expert":
         return "bg-green-500/20 text-green-300";
-      case "advanced":
-        return "bg-blue-500/20 text-blue-300";
       case "intermediate":
         return "bg-yellow-500/20 text-yellow-300";
       case "beginner":
@@ -37,49 +54,70 @@ const Skills = () => {
 
   return (
     <Card className="mt-6">
-      <CardHeader>
+      <CardHeader className="flex justify-between items-center flex-row">
         <CardTitle className="flex items-center gap-2">
           <ListChecks size={18} className="text-primary" />
           Skills & Tools
         </CardTitle>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setAddSkillDialogOpen(true)}>
+            <Plus size={20} className="text-blue-500" />
+          </Button>
+          <Button variant="outline">
+            <Edit size={20} className="text-blue-500" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {/* Skills Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {skills.map((skill, index) => (
-            <div key={index}>
+          {userSkills.map((skill, index) => (
+            <div
+              key={index}
+              className="p-4 border rounded-md bg-transparent shadow-sm"
+            >
               <div className="flex justify-between mb-1">
-                <span>{skill.name}</span>
+                <span>{skill.skillName}</span>
                 <Badge
-                  className={cn("font-normal", getLevelBadge(skill.category))}
+                  className={cn(
+                    "font-normal",
+                    getLevelBadge(skill.proficiencyLevel)
+                  )}
                 >
-                  {skill.category.charAt(0).toUpperCase() +
-                    skill.category.slice(1)}
+                  {skill.proficiencyLevel}
                 </Badge>
+                <Button
+                  onClick={() => {
+                    setSelectedSkill(skill);
+                    setDeleteDialog(true);
+                  }}
+                  className="bg-transparent hover:cursor-pointer hover:bg-transparent"
+                >
+                  <X size={16} className="text-red-500" />
+                </Button>
               </div>
-              <div className="w-full h-2 bg-secondary/50 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full"
-                  style={{ width: `${skill.level}%` }}
-                ></div>
-              </div>
+              {/* Removed progress bar since proficiencyLevel is categorical */}
             </div>
           ))}
         </div>
-
-        {/* Tools Section */}
-        <div className="flex flex-wrap gap-2 mt-6">
-          {tools.map((tool, index) => (
-            <Badge
-              key={index}
-              variant="outline"
-              className="bg-secondary/40 font-normal"
-            >
-              {tool}
-            </Badge>
-          ))}
-        </div>
       </CardContent>
+      <AddUserSkillDialog
+        open={addSkillDialogOpen}
+        onOpenChange={setAddSkillDialogOpen}
+        onSkillAdded={fetchUserSkills}
+      />
+      <DeleteConfirmationDialog
+        open={deleteDialog}
+        onOpenChange={setDeleteDialog}
+        title="Delete Skill"
+        description="Are you sure you want to delete this skill? This action cannot be undone."
+        onConfirm={() => {
+          handleDeleteSkill(selectedSkill.id);
+          setSelectedSkill(null);
+          fetchUserSkills();
+          setDeleteDialog(false);
+        }}
+      />
     </Card>
   );
 };
