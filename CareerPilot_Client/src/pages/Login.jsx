@@ -1,3 +1,4 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { Lock, Mail } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -5,12 +6,11 @@ import AuthenticationFormBtn from "../components/AuthenticationFormBtn";
 import Backgroundgrad from "../components/Backgroundgrad";
 import InputField from "../components/InputField";
 import AuthService from "../services/AuthService";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState("");
-  const {setToken} = useAuth();
+  const { setToken } = useAuth();
   const [loginUser, setLoginUser] = useState({
     username: "",
     password: "",
@@ -28,7 +28,7 @@ const Login = () => {
     AuthService.loginUser(loginUser)
       .then((response) => {
         console.log(response.data);
-        const {token} = response.data; // Extract token from the response
+        const { token } = response.data; // Extract token from the response
         setToken(token); // Set token in context
         // clear loginUser state after successful login
         setLoginUser({

@@ -7,9 +7,11 @@ import { useEffect, useState } from "react";
 import DeleteConfirmationDialog from "../DeleteConfirmationDialog";
 import { Button } from "../ui/button";
 import AddUserSkillDialog from "./AddUserSkillDialog";
+import UpdateSkillDialog from "./UpdateSkillDialog";
 
 const Skills = () => {
   const [addSkillDialogOpen, setAddSkillDialogOpen] = useState(false);
+  const [updateSkillDialogOpen, setUpdateSkillDialogOpen] = useState(false);
   const [userSkills, setUserSkills] = useState([]);
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState(null);
@@ -59,14 +61,10 @@ const Skills = () => {
           <ListChecks size={18} className="text-primary" />
           Skills & Tools
         </CardTitle>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setAddSkillDialogOpen(true)}>
-            <Plus size={20} className="text-blue-500" />
-          </Button>
-          <Button variant="outline">
-            <Edit size={20} className="text-blue-500" />
-          </Button>
-        </div>
+
+        <Button variant="outline" onClick={() => setAddSkillDialogOpen(true)}>
+          <Plus size={24} className="text-blue-500" />
+        </Button>
       </CardHeader>
       <CardContent>
         {/* Skills Section */}
@@ -86,15 +84,27 @@ const Skills = () => {
                 >
                   {skill.proficiencyLevel}
                 </Badge>
-                <Button
-                  onClick={() => {
-                    setSelectedSkill(skill);
-                    setDeleteDialog(true);
-                  }}
-                  className="bg-transparent hover:cursor-pointer hover:bg-transparent"
-                >
-                  <X size={16} className="text-red-500" />
-                </Button>
+                <div>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedSkill(skill);
+                      setUpdateSkillDialogOpen(true);
+                    }}
+                  >
+                    <Edit size={20} className="text-blue-500" />
+                  </Button>
+
+                  <Button
+                    onClick={() => {
+                      setSelectedSkill(skill);
+                      setDeleteDialog(true);
+                    }}
+                    className="bg-transparent hover:cursor-pointer hover:bg-transparent hover:scale-150 transition-transform duration-200"
+                  >
+                    <X size={16} className="text-red-500" />
+                  </Button>
+                </div>
               </div>
               {/* Removed progress bar since proficiencyLevel is categorical */}
             </div>
@@ -105,6 +115,12 @@ const Skills = () => {
         open={addSkillDialogOpen}
         onOpenChange={setAddSkillDialogOpen}
         onSkillAdded={fetchUserSkills}
+      />
+      <UpdateSkillDialog
+        open={updateSkillDialogOpen}
+        onOpenChange={setUpdateSkillDialogOpen}
+        skill={selectedSkill}
+        onSkillUpdated={fetchUserSkills}
       />
       <DeleteConfirmationDialog
         open={deleteDialog}
