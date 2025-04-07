@@ -5,7 +5,7 @@ const Guest = () => {
   return (
     <div>
       <Hero />
-      <Jobs/>
+      {/* <Jobs/> */}
     </div>
   );
 };
