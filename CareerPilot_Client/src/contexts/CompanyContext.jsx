@@ -58,7 +58,6 @@ export const CompanyProvider = ({ children }) => {
         const response = await SkillsService.getSkills();
         if (isMounted) {
           setSkills(response.data);
-          // console.log("Skills fetched successfully:", skills); // Log the fetched skills
         }
       } catch (error) {
         console.error("Error fetching skills:", error);

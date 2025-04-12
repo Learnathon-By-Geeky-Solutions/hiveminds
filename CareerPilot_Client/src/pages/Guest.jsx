@@ -1,3 +1,4 @@
+import CallToAction from "@/components/CallToAction";
 import Hero from "../components/Hero";
 import Jobs from "../components/Jobs";
 
@@ -6,6 +7,7 @@ const Guest = () => {
     <div>
       <Hero />
       <Jobs />
+      <CallToAction />
     </div>
   );
 };

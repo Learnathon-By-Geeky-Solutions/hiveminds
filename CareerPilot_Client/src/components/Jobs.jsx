@@ -1,26 +1,32 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import JobPostService from "@/services/JobPostService";
 import JobCard from "@/components/JobCard";
 import { Button } from "@/components/ui/button";
+import { useCompany } from "@/contexts/CompanyContext";
+import CustomLoader from "@/components/CustomLoader";
 
 const Jobs = () => {
-  const [jobs, setJobs] = useState([]);
+  const { publicJobs, publicJobLoading, publicJobError } = useCompany();
+  const displayJobs = publicJobs.slice(0, 6);
 
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        const response = await JobPostService.getAllPublicJobPosts();
-        setJobs(response.data.slice(0, 6));
-      } catch (error) {
-        console.error("Error fetching jobs:", error);
-      }
-    };
-    fetchJobs();
-  }, []);
+  if (publicJobLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <CustomLoader />
+      </div>
+    );
+  }
+
+  if (publicJobError) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-red-500">{publicJobError}</p>
+      </div>
+    );
+  }
 
   return (
-    <section id="jobs" className="py-20 px-6 bg-gradient-to-b from-background to-background/80">
+    <section id="jobs" className="py-20 min-h-screen px-6 bg-gradient-to-b from-background to-background/80">
+    <div className="absolute bottom-0 right-0 w-72 h-72 bg-blue-500/10 rounded-full filter blur-3xl"></div>
       <div className="max-w-7xl mx-auto text-center">
         <h2 className="text-4xl font-bold mb-4 bg-clip-text text-gradient">Featured Jobs</h2>
         <p className="text-gray-200 mb-12 max-w-2xl mx-auto">Discover your next career move with our handpicked selection of top opportunities from leading companies.</p>
@@ -32,7 +38,7 @@ const Jobs = () => {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {jobs.map((job, index) => (
+          {displayJobs.map((job, index) => (
             <Link
               to={`/jobs/job/${job.id}`}
               key={job.id}
