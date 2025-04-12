@@ -12,9 +12,11 @@ import Signup from "./pages/Signup";
 import ProtectedRoute from "./utils/ProtectedRoute";
 import AddNewCompanyPage from "./components/company/starter/AddNewCompanyPage";
 import CompanyDashboard from "./components/company/starter/CompanyDashboard";
+import { ThemeProvider } from "./contexts/ThemeContext";
 function App() {
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    <ThemeProvider>
+      <div className="min-h-screen bg-background text-foreground overflow-x-hidden dark:bg-gray-900 dark:text-white transition-colors duration-200">
       <Navbar />
       <Routes>
         <Route path="/" element={<Guest />} />
@@ -69,7 +71,8 @@ function App() {
         </Route>
       </Routes>
       <Footer />
-    </div>
+      </div>
+    </ThemeProvider>
   );
 }
 

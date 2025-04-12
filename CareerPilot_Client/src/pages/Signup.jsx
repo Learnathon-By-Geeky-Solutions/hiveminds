@@ -1,4 +1,4 @@
-import { Lock, Mail, User } from "lucide-react";
+import { Lock, Mail, User, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthenticationFormBtn from "../components/AuthenticationFormBtn";
@@ -15,23 +15,60 @@ const Signup = () => {
     email: "",
     password: "",
   });
+  const [errors, setErrors] = useState({
+    username: false,
+    firstName: false,
+    lastName: false,
+    email: false,
+    password: false,
+  });
   const [errorMessage, setErrorMessage] = useState({});
+  const [errorType, setErrorType] = useState("");
+  const [errorStatus, setErrorStatus] = useState(null);
+
   useEffect(() => {
-    // Log the updated errorMessage whenever it changes
-    console.log("Updated errorMessage:", errorMessage);
-  }, [errorMessage]); // Run this effect whenever errorMessage changes
-  const inputOnChnage = (property, value) => {
-    setUser((prevObj) => ({
-      ...prevObj,
-      [property]: value,
-    }));
+    if (Object.keys(errorMessage).length > 0) {
+      const timer = setTimeout(() => {
+        setErrorMessage({});
+        setErrorType("");
+        setErrorStatus(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
+
+  const validateForm = () => {
+    const newErrors = {};
+    Object.keys(user).forEach(field => {
+      if (!user[field].trim()) {
+        newErrors[field] = true;
+      }
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Clear previous error messages
+    setErrorMessage({});
+    setErrorType("");
+    setErrorStatus(null);
+
+    if (!validateForm()) {
+      const newErrorMessages = {};
+      Object.keys(errors).forEach(field => {
+        if (errors[field]) {
+          newErrorMessages[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
+        }
+      });
+      setErrorMessage(newErrorMessages);
+      return;
+    }
+
     AuthService.registerUser(user)
       .then((response) => {
         console.log(response.data);
-        // clear the user state
         setUser({
           username: "",
           firstName: "",
@@ -44,17 +81,22 @@ const Signup = () => {
       .catch((error) => {
         console.error("Error registering user!", error);
 
-        // Extract field-specific errors from the backend response
         if (error.response && error.response.data) {
-          setErrorMessage(error.response.data); // Set errors for each field
+          const { message, error: errorType, status } = error.response.data;
+          setErrorMessage(error.response.data);
+          setErrorType(errorType || "");
+          setErrorStatus(status || null);
+          console.log("Error response:", { message, errorType, status });
         } else {
-          setErrorMessage({ general: "An unexpected error occurred." }); // Generic error message
+          setErrorMessage({ general: "An unexpected error occurred. Please try again later." });
         }
       });
-    // Clear error message after 5 seconds
-    setTimeout(() => {
-      setErrorMessage({}); // Clear error message after 3 seconds
-    }, 5000);
+  };
+  const inputOnChnage = (property, value) => {
+    setUser((prevObj) => ({
+      ...prevObj,
+      [property]: value,
+    }));
   };
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -81,7 +123,10 @@ const Signup = () => {
                   placeholder={"User Name"}
                   onChange={(e) => {
                     inputOnChnage("username", e.target.value);
+                    setErrors(prev => ({ ...prev, username: false }));
                   }}
+                  error={errors.username}
+                  errorMessage={errorMessage.username}
                 />
 
                 {/* Display error message for username */}
@@ -101,7 +146,10 @@ const Signup = () => {
                   placeholder={"First Name"}
                   onChange={(e) => {
                     inputOnChnage("firstName", e.target.value);
+                    setErrors(prev => ({ ...prev, firstName: false }));
                   }}
+                  error={errors.firstName}
+                  errorMessage={errorMessage.firstName}
                 />
 
                 {/* Display error message for firstName */}
@@ -121,7 +169,10 @@ const Signup = () => {
                   placeholder={"Last Name"}
                   onChange={(e) => {
                     inputOnChnage("lastName", e.target.value);
+                    setErrors(prev => ({ ...prev, lastName: false }));
                   }}
+                  error={errors.lastName}
+                  errorMessage={errorMessage.lastName}
                 />
 
                 {/* Display error message for lastName */}
@@ -141,7 +192,10 @@ const Signup = () => {
                   placeholder={"Email Address"}
                   onChange={(e) => {
                     inputOnChnage("email", e.target.value);
+                    setErrors(prev => ({ ...prev, email: false }));
                   }}
+                  error={errors.email}
+                  errorMessage={errorMessage.email}
                 />
 
                 {/* Display error message for email */}
@@ -159,7 +213,10 @@ const Signup = () => {
                   placeholder={"Password"}
                   onChange={(e) => {
                     inputOnChnage("password", e.target.value);
+                    setErrors(prev => ({ ...prev, password: false }));
                   }}
+                  error={errors.password}
+                  errorMessage={errorMessage.password}
                 />
 
                 {/* Display error message for password */}
@@ -174,6 +231,28 @@ const Signup = () => {
 
               <AuthenticationFormBtn btnText="Create Account" />
             </form>
+
+            {/* Display error messages */}
+            {Object.keys(errorMessage).length > 0 && (
+              <div className="mt-4 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-center animate-fade-in">
+                <div className="flex flex-col items-center justify-center gap-2">
+                  {Object.entries(errorMessage).map(([field, message]) => (
+                    <div key={field} className="flex items-center justify-center gap-2">
+                      <XCircle className="h-5 w-5 text-red-500" />
+                      <p className="text-red-500 font-medium">{message}</p>
+                    </div>
+                  ))}
+                  {errorType && (
+                    <p className="text-xs text-red-400/80">
+                      {errorStatus && <span className="font-semibold">{errorStatus}</span>} {errorType}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-400 mt-1">
+                    Please check your input and try again
+                  </p>
+                </div>
+              </div>
+            )}
 
             <div className="mt-8 text-center">
               <div className="relative">

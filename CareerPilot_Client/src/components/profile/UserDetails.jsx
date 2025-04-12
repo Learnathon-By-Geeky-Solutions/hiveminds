@@ -3,9 +3,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUser } from "@/contexts/UserContext";
 import { Edit, LogOut, Mail, User } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import EditProfileDialog from "./EditProfileDialog";
 
 const UserDetails = () => {
+  const [updateDialog, setUpdateDialog] = useState(false);
   const navigate = useNavigate();
   const { setToken } = useAuth();
   const { user, setUser, loading } = useUser();
@@ -14,7 +17,7 @@ const UserDetails = () => {
     setToken(null);
     navigate("/login");
   };
-  // console.log(user);
+
   return (
     <Card className="overflow-hidden">
       <div className="h-28 bg-gradient-to-r from-primary/30 to-primary/10"></div>
@@ -74,7 +77,7 @@ const UserDetails = () => {
           </div> */}
         </div>
         <div className="mt-6 flex flex-col gap-2">
-          <Button className="w-full" size="lg">
+          <Button className="w-full" size="lg" onClick={() => setUpdateDialog(true)}>
             <Edit size={14} className="mr-2" /> Edit Profile
           </Button>
           <Button
@@ -87,6 +90,7 @@ const UserDetails = () => {
           </Button>
         </div>
       </CardContent>
+      <EditProfileDialog open={updateDialog} onOpenChange={setUpdateDialog}/>
     </Card>
   );
 };
