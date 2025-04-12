@@ -17,7 +17,6 @@ export const UserProvider = ({ children }) => {
       if (token) {
         const response = await UserService.getCurrentUserProfile();
         setUser(response.data);
-        console.log("User data fetched successfully:", response.data);
       } else {
         setUser(null);
       }

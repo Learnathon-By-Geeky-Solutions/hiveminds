@@ -49,6 +49,7 @@
             adminEmployee.setRole(CompanyEmployee.Role.ADMIN);
             adminEmployee.setHiringDate(LocalDateTime.now());
             adminEmployee.setStatus(CompanyEmployee.Status.ACTIVE);
+            adminEmployee.setJobTitle("Founder");
             companyEmployeeRepository.save(adminEmployee);
 
             return CompanyDTO.fromEntity(company);

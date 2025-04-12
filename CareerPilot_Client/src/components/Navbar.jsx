@@ -75,8 +75,8 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-10">
-          <LinkStyled to="/" isActive={location.pathname === "/"}>
-            Find Jobs
+          <LinkStyled to="/" isActive={location.pathname === "/"} hasDropdown={true}>
+            Home
           </LinkStyled>
           <LinkStyled to="/jobs" isActive={location.pathname === "/jobs"}>
             Jobs
@@ -168,7 +168,7 @@ const Navbar = () => {
               onClick={toggleMenu}
               isActive={location.pathname === "/"}
             >
-              Find Jobs
+              Home
             </MobileNavLink>
             <MobileNavLink
               href="/all-jobs"
@@ -244,19 +244,65 @@ const Navbar = () => {
 };
 
 // Helper components for cleaner code
-const LinkStyled = ({ to, children, isActive }) => {
+const LinkStyled = ({ to, children, isActive, hasDropdown }) => {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  if (hasDropdown) {
+    return (
+      <div className="relative group">
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className={`text-base font-medium cursor-pointer transition-all duration-200 flex items-center gap-1 ${isActive ? "text-primary" : "text-gray-300 hover:text-white"}`}
+        >
+          {children}
+          <svg
+            className={`h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {isDropdownOpen && (
+          <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-background border border-border">
+            <div className="py-1">
+              <a
+                href="#jobs"
+                className="block px-4 py-2 text-sm text-gray-300 hover:bg-primary/10 hover:text-white"
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                Featured Jobs
+              </a>
+              <a
+                href="#about"
+                className="block px-4 py-2 text-sm text-gray-300 hover:bg-primary/10 hover:text-white"
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                About Us
+              </a>
+              <a
+                href="#contact"
+                className="block px-4 py-2 text-sm text-gray-300 hover:bg-primary/10 hover:text-white"
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                Contact
+              </a>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <Link
       to={to}
-      className={`text-base font-medium cursor-pointer transition-all duration-200 relative group ${
-        isActive ? "text-primary" : "text-gray-300 hover:text-white"
-      }`}
+      className={`text-base font-medium cursor-pointer transition-all duration-200 relative group ${isActive ? "text-primary" : "text-gray-300 hover:text-white"}`}
     >
       {children}
       <span
-        className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${
-          isActive ? "w-full" : "w-0 group-hover:w-full"
-        }`}
+        className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"}`}
       ></span>
     </Link>
   );

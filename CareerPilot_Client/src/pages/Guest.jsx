@@ -1,11 +1,11 @@
-import Jobs from "@/components/Jobs";
 import Hero from "../components/Hero";
+import Jobs from "../components/Jobs";
 
 const Guest = () => {
   return (
     <div>
       <Hero />
-      {/* <Jobs/> */}
+      <Jobs />
     </div>
   );
 };

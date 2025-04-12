@@ -79,22 +79,19 @@ export const CompanyProvider = ({ children }) => {
     };
   }, [token]);
 
+  // Fetch company data based on userId
   useEffect(() => {
-    let isMounted = true; // Track whether the component is still mounted
+    let isMounted = true; 
 
     const fetchCompanyData = async (userId) => {
-      if (!isMounted) return; // Prevent state updates if the component is unmounted
+      if (!isMounted) return; 
       setCompanyLoading(true);
       try {
-        console.log("Fetching company data for userId:", userId); // Log userId
         const response = await CompanyService.getCompanyProfileById(userId);
         const data = response.data;
-
-        console.log("API Response:", data); // Log the API response
-
         if (isMounted) {
           if (Array.isArray(data) && data.length > 0) {
-            setCompany(data[0]); // Extract the first object from the array
+            setCompany(data[0]);
             console.log("Company Data Set:", data[0]);
           } else if (data === null || data === undefined) {
             console.warn("API returned null or undefined for userId:", userId);
