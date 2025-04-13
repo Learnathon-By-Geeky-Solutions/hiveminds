@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { useUser } from "@/contexts/UserContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useUser } from "@/contexts/UserContext";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import CustomLoader from "./CustomLoader";
@@ -75,15 +75,22 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-10">
-          <LinkStyled to="/" isActive={location.pathname === "/"} hasDropdown={true}>
+          <LinkStyled
+            to="/"
+            isActive={location.pathname === "/"}
+            hasDropdown={true}
+          >
             Home
           </LinkStyled>
           <LinkStyled to="/jobs" isActive={location.pathname === "/jobs"}>
             Jobs
           </LinkStyled>
-          {/* <LinkStyled to="/company" isActive={location.pathname === "/company"}>
-            Company
-          </LinkStyled> */}
+          <LinkStyled
+            to="/community"
+            isActive={location.pathname === "/community"}
+          >
+            Community
+          </LinkStyled>
           {token && (
             <LinkStyled
               to="/profile/blog"
@@ -117,16 +124,17 @@ const Navbar = () => {
             <div className="flex items-center gap-4">
               <Link to="/profile" className="flex items-center gap-2 group">
                 <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold border border-primary/30">
-                  {user && user.username ? user.username.charAt(0).toUpperCase() : '?'}
+                  {user && user.username
+                    ? user.username.charAt(0).toUpperCase()
+                    : "?"}
                 </div>
                 <h2 className="text-base font-medium text-gray-200 group-hover:text-white transition-colors duration-200">
-                  {user && user.username ? user.username : <CustomLoader/>}
+                  {user && user.username ? user.username : <CustomLoader />}
                 </h2>
               </Link>
             </div>
           ) : (
             <>
-
               <Link
                 to="/login"
                 className="text-base text-gray-300 hover:text-white transition-colors duration-200 relative group"
@@ -142,8 +150,7 @@ const Navbar = () => {
               </Link>
             </>
           )}
-        <ThemeToggle />
-
+          <ThemeToggle />
         </div>
       </div>
 
@@ -211,10 +218,12 @@ const Navbar = () => {
                 className="flex flex-col items-center gap-3"
               >
                 <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xl font-semibold border border-primary/30">
-                  {user && user.username ? user.username.charAt(0).toUpperCase() : '?'}
+                  {user && user.username
+                    ? user.username.charAt(0).toUpperCase()
+                    : "?"}
                 </div>
                 <h2 className="text-lg font-medium text-gray-200 hover:text-white transition-colors duration-200">
-                  {user && user.username ? user.username : <CustomLoader/>}
+                  {user && user.username ? user.username : <CustomLoader />}
                 </h2>
               </Link>
             ) : (
@@ -252,16 +261,25 @@ const LinkStyled = ({ to, children, isActive, hasDropdown }) => {
       <div className="relative group">
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className={`text-base font-medium cursor-pointer transition-all duration-200 flex items-center gap-1 ${isActive ? "text-primary" : "text-gray-300 hover:text-white"}`}
+          className={`text-base font-medium cursor-pointer transition-all duration-200 flex items-center gap-1 ${
+            isActive ? "text-primary" : "text-gray-300 hover:text-white"
+          }`}
         >
           {children}
           <svg
-            className={`h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+            className={`h-4 w-4 transition-transform duration-200 ${
+              isDropdownOpen ? "rotate-180" : ""
+            }`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </button>
         {isDropdownOpen && (
@@ -298,11 +316,15 @@ const LinkStyled = ({ to, children, isActive, hasDropdown }) => {
   return (
     <Link
       to={to}
-      className={`text-base font-medium cursor-pointer transition-all duration-200 relative group ${isActive ? "text-primary" : "text-gray-300 hover:text-white"}`}
+      className={`text-base font-medium cursor-pointer transition-all duration-200 relative group ${
+        isActive ? "text-primary" : "text-gray-300 hover:text-white"
+      }`}
     >
       {children}
       <span
-        className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${isActive ? "w-full" : "w-0 group-hover:w-full"}`}
+        className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${
+          isActive ? "w-full" : "w-0 group-hover:w-full"
+        }`}
       ></span>
     </Link>
   );
@@ -334,16 +356,35 @@ const ThemeToggle = () => {
       className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary hover:bg-primary/30 transition-colors duration-200"
       aria-label="Toggle theme"
     >
-      {theme === 'light' ? (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+      {theme === "light" ? (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-5 h-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+            clipRule="evenodd"
+          />
         </svg>
-      ) : theme === 'dark' ? (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+      ) : theme === "dark" ? (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-5 h-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
           <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
         </svg>
       ) : (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-5 h-5"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
           <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 110 4H4a2 2 0 01-2-2z" />
         </svg>
       )}
