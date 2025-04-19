@@ -17,7 +17,7 @@ import ProtectedRoute from "./utils/ProtectedRoute";
 function App() {
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-background text-foreground overflow-x-hidden dark:bg-gray-900 dark:text-white transition-colors duration-200">
+      <div className="min-h-screen bg-background text-foreground antialiased overflow-x-hidden transition-colors duration-200">
         <Navbar />
         <Routes>
           <Route path="/" element={<Guest />} />

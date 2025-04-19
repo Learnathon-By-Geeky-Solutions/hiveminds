@@ -88,11 +88,9 @@ const Community = () => {
   const [selectedCommunity, setSelectedCommunity] = useState(null);
 
   return (
-    <div className="container mx-auto px-4 py-8 mt-14 min-h-screen bg-gradient-to-b from-background to-background/80">
+    <div className="container mx-auto px-4 py-8 mt-24 min-h-screen bg-gradient-to-b from-background to-background/80">
       <div className="flex flex-col items-center mb-12 text-center space-y-4">
-        <h1 className="text-5xl font-bold tracking-tight bg-clip-text text-gradient">
-          Community Hub
-        </h1>
+        <h1 className="text-4xl font-bold mb-3 text-gradient">Community Hub</h1>
         <p className="text-xl text-muted-foreground max-w-2xl">
           Connect, collaborate, and grow with fellow professionals in our
           vibrant communities

@@ -6,7 +6,7 @@ export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) return savedTheme;
-    
+
     // Check system preference
     if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
       return "dark";
@@ -22,16 +22,12 @@ export const ThemeProvider = ({ children }) => {
   }, [theme]);
 
   const toggleTheme = () => {
-    setTheme(prev => {
-      if (prev === "dark") return "light";
-      if (prev === "light") return "system";
-      return "dark";
-    });
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    
+
     const handleChange = () => {
       if (theme === "system") {
         const root = window.document.documentElement;

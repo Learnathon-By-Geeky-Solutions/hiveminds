@@ -63,9 +63,12 @@ const JobDetails = () => {
                   <span>{job.location}</span>
                 </div>
                 <div className="flex items-center">
-                  <span>${`${job.lowerSalary || "N/A"} -$ ${
-                    job.upperSalary || "N/A"
-                  }`}</span>
+                  <span>
+                    $
+                    {`${job.lowerSalary || "N/A"} -$ ${
+                      job.upperSalary || "N/A"
+                    }`}
+                  </span>
                 </div>
                 <div className="flex items-center">
                   <span>{job.jobType}</span>
@@ -119,7 +122,7 @@ const JobDetails = () => {
           <p className="text-gray-300 mb-6">
             Apply now and take the next step in your career journey.
           </p>
-          <button className="px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary/90 transition-colors">
+          <button className="px-6 py-3 bg-black text-white dark:bg-white dark:text-black rounded-lg font-medium hover:bg-black/90 dark:hover:bg-white/90 transition-colors">
             Apply for this position
           </button>
         </div>

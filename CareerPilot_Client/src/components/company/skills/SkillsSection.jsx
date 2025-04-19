@@ -56,7 +56,7 @@ const SkillsSection = () => {
         </div>
         <Button
           onClick={() => setIsAddSkillOpen(true)}
-          className="flex items-center gap-2 rounded-sm bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+          className="flex items-center gap-2 px-4 py-2 rounded-sm text-base font-medium transition-all duration-200 bg-gray-900 text-gray-100 hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 dark:focus:ring-gray-400"
         >
           <Plus className="h-4 w-4" />
           Add Skill
@@ -64,10 +64,10 @@ const SkillsSection = () => {
       </div>
 
       {/* Table Section */}
-      <div className="border rounded-lg">
+      <div className="border rounded-lg bg-card">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="hover:bg-muted/50">
               <TableHead className="w-[100px]">SI No</TableHead>
               <TableHead>Skills Name</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -85,7 +85,7 @@ const SkillsSection = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8 border-blue-400 hover:bg-blue-400"
+                    className="h-8 w-8 hover:bg-primary/20 hover:text-primary border-primary/20"
                     onClick={() => {
                       setSelectedSkillId(skill.skillId);
                       setIsUpdateSkillOpen(true);
@@ -96,7 +96,7 @@ const SkillsSection = () => {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8 border-red-400 hover:bg-red-500"
+                    className="h-8 w-8 hover:bg-destructive/20 hover:text-destructive border-destructive/20"
                     onClick={() => {
                       setDeleteDialog(true);
                       setSelectedSkillId(skill.skillId);

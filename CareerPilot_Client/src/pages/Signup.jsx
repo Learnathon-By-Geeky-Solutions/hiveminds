@@ -99,12 +99,12 @@ const Signup = () => {
     }));
   };
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    <div className="min-h-screen bg-secondary/20 text-foreground overflow-x-hidden">
       <section className="relative min-h-screen flex items-center justify-center px-6 py-24 overflow-hidden">
         {/* Background gradient effect */}
-        <Backgroundgrad />
+        {/* <Backgroundgrad /> */}
 
-        <div className="relative z-10 w-full max-w-md mx-auto">
+        <div className="relative z-10 w-full max-w-md mx-auto border border-primary rounded-lg">
           <div className="glass-card rounded-xl p-8 animate-fade-in">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold mb-2">Create an Account</h2>

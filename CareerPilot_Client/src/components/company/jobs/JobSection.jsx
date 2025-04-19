@@ -43,7 +43,7 @@ const JobSection = () => {
   const handleDelete = async (jobId) => {
     try {
       await JobPostService.deleteJobPost(companyId, jobId);
-      fetchJobs(); 
+      fetchJobs();
     } catch (error) {
       console.error("Error deleting job:", error);
     }
@@ -61,7 +61,14 @@ const JobSection = () => {
         </div>
         <Button
           onClick={() => setCreateDialog(true)}
-          className="flex items-center gap-2 rounded-sm bg-blue-500 text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
+          className="
+    flex items-center gap-2 px-4 py-2 rounded-sm text-base font-medium 
+    transition-all duration-200
+    bg-gray-900 text-gray-100 hover:bg-gray-800
+    dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200
+    focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50
+    dark:focus:ring-gray-400
+  "
         >
           <Plus className="h-4 w-4" />
           Add New Job
@@ -149,7 +156,7 @@ const JobSection = () => {
         open={updateDialog}
         onOpenChange={(isOpen) => {
           setUpdateDialog(isOpen);
-          if (!isOpen) setSelectedJob(null); 
+          if (!isOpen) setSelectedJob(null);
         }}
         onSuccess={fetchJobs}
         jobData={selectedJob}
@@ -158,7 +165,7 @@ const JobSection = () => {
         open={deleteJobDialog}
         onOpenChange={(isOpen) => {
           setDeleteJobDialog(isOpen);
-          if (!isOpen) setSelectedJob(null); 
+          if (!isOpen) setSelectedJob(null);
         }}
         title="Delete Job Post"
         description="Are you sure you want to delete this job post? This action cannot be undone."
@@ -167,8 +174,8 @@ const JobSection = () => {
             console.error("Job ID is missing. Cannot delete job post.");
             return;
           }
-          handleDelete(selectedJob.id); 
-          setDeleteJobDialog(false); 
+          handleDelete(selectedJob.id);
+          setDeleteJobDialog(false);
         }}
       />
     </div>

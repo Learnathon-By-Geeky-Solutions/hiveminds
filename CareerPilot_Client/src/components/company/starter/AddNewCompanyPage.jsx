@@ -17,7 +17,11 @@ const AddNewCompanyPage = () => {
 
       {/* Button to open the dialog */}
       <Button
-        className="bg-primary text-white text-base hover:bg-primary/90 transition px-6 py-6 rounded-sm"
+        className="
+    px-6 py-6 rounded-sm text-base font-medium transition-all duration-200
+    bg-gray-900 text-gray-100 hover:bg-gray-800
+    dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200
+  "
         onClick={() => setIsDialogOpen(true)}
       >
         Create New Company

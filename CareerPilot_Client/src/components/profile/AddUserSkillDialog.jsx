@@ -87,11 +87,14 @@ const AddUserSkillDialog = ({ open, onOpenChange, onSkillAdded }) => {
         <button
           onClick={handleAdd}
           disabled={!selectedSkillId || !selectedProficiency}
-          className={`px-4 py-2 rounded ${
-            selectedSkillId && selectedProficiency
-              ? "bg-blue-500 text-white"
-              : "bg-blue-800"
-          }`}
+          className={`
+    px-4 py-2 rounded font-medium transition-all duration-200
+    ${
+      selectedSkillId && selectedProficiency
+        ? "bg-gray-900 text-gray-100 hover:bg-gray-800 dark:bg-gray-100 dark:text-gray-900 dark:hover:bg-gray-200"
+        : "bg-gray-600 text-gray-300 cursor-not-allowed dark:bg-gray-400 dark:text-gray-800 dark:hover:bg-gray-300"
+    }
+  `}
         >
           Add Skill
         </button>
