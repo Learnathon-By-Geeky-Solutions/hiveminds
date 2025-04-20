@@ -31,81 +31,87 @@ public class PostService {
     private final CommunityRepository communityRepository;
 
 
-    public List<Post> getAllPosts() {
+    public List<PostDTO> getAllPosts() {
         log.debug("Fetching all posts from the database");
-        return postRepository.findAll();
+        return postRepository.findAll().stream()
+                .map(PostDTO::fromEntity) // Use PostDTO.fromEntity
+                .collect(Collectors.toList());
     }
 
-    public Post getPostById(Long id) throws PostNotFoundException {
+    public PostDTO getPostById(Long id) throws PostNotFoundException {
         log.debug("Fetching post with ID: {}", id);
-        return postRepository.findById(id)
-                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + id));
+        return PostDTO.fromEntity(postRepository.findById(id)
+                // Use PostDTO.fromEntity
+                .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + id)));
     }
 
 
 
-    public Post createPost(Post post, String username) {
-        log.debug("Saving new post for user: {}", username);
+
+    public PostDTO createPost(PostRequest postRequest, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
-
-        post.setUser(user);
-        post.setApproved(true);
-        return postRepository.save(post);
+        Post post = Post.builder()
+                .content(postRequest.getContent())
+                .image(postRequest.getImage())
+                .visibility(postRequest.getVisibility())
+                .user(user)
+                .approved(true)
+                .build();
+        return PostDTO.fromEntity(postRepository.save(post));
     }
 
 
     public void deletePost(Long id, String username) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
-
-        // Check if the user is the owner of the post
-        if (post.getUser() == null || !post.getUser().getUsername().equals(username)) {
+        if (!post.getUser().getUsername().equals(username)) {
             throw new RuntimeException("You don't have permission to delete this post");
         }
-
         postRepository.delete(post);
-        log.info("Post with ID {} deleted by user {}", id, username);
     }
 
-    public Post updatePost(Long id, Post updatedPost, String username) {
+    public PostDTO updatePost(Long id, PostRequest postRequest, String username) {
         Post existingPost = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
-
-        if (existingPost.getUser() == null || !existingPost.getUser().getUsername().equals(username)) {
+        if (!existingPost.getUser().getUsername().equals(username)) {
             throw new RuntimeException("You don't have permission to update this post");
         }
-
-        // Update only allowed fields
-        existingPost.setContent(updatedPost.getContent());
-        existingPost.setImage(updatedPost.getImage());
-        existingPost.setVisibility(updatedPost.getVisibility());
-
-        return postRepository.save(existingPost);
+        existingPost.setContent(postRequest.getContent());
+        existingPost.setImage(postRequest.getImage());
+        existingPost.setVisibility(postRequest.getVisibility());
+        return PostDTO.fromEntity(postRepository.save(existingPost));
     }
 
-    public PostDTO createPostByCommunity(@Valid PostRequest postRequest, Long communityId, UserDetails userDetails) {
-        Community community = communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community not found with id: " + communityId));
-        Post post = new Post();
-        post.setUser(userRepository.findByUsername(userDetails.getUsername()).orElseThrow(() -> new RuntimeException("User not found with username: " + userDetails.getUsername())));
-        post.setCommunity(community);
-        post.setContent(postRequest.getContent());
-        post.setImage(postRequest.getImage());
-        post.setVisibility(postRequest.getVisibility());
-        postRepository.save(post);
-        return PostDTO.fromEntity(post);
+    public PostDTO createPostByCommunity(PostRequest postRequest, Long communityId, org.springframework.security.core.userdetails.UserDetails userDetails) {
+        Community community = communityRepository.findById(communityId)
+                .orElseThrow(() -> new RuntimeException("Community not found with id: " + communityId));
+        User user = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found with username: " + userDetails.getUsername()));
+        Post post = Post.builder()
+                .content(postRequest.getContent())
+                .image(postRequest.getImage())
+                .visibility(postRequest.getVisibility())
+                .user(user)
+                .community(community)
+                .approved(true)
+                .build();
+        return PostDTO.fromEntity(postRepository.save(post));
     }
 
     public Page<PostDTO> getPostByCommunityId(Long communityId, Pageable pageable) {
-        Community community = communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community not found with id: " + communityId));
-         Page<Post> posts = postRepository.findPostByCommunity(community,pageable);
-         return posts.map(post-> PostDTO.fromEntity(post));
+        Community community = communityRepository.findById(communityId)
+                .orElseThrow(() -> new RuntimeException("Community not found with id: " + communityId));
+        return postRepository.findPostByCommunity(community, pageable)
+                .map(PostDTO::fromEntity);
     }
 
-    public Page<PostDTO> getPostByUserId(Long userId , Pageable pageable) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        Page<Post> posts = postRepository.findPostByUser(user,pageable);
-        return posts.map(post -> PostDTO.fromEntity(post));
+
+    public Page<PostDTO> getPostByUserId(Long userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        return postRepository.findPostByUser(user, pageable)
+                .map(PostDTO::fromEntity);
     }
 }
 

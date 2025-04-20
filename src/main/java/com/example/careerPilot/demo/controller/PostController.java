@@ -38,114 +38,67 @@ public class PostController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<PostDTO>> getAllPosts() {
-        log.info("GET /api/posts called");
-        List<Post> posts = postService.getAllPosts();
-        List<PostDTO> postDTOs = posts.stream()
-                .map(PostDTO::fromEntity) // Use PostDTO.fromEntity
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(postDTOs);
+        log.debug("Fetching all posts");
+        return ResponseEntity.ok(postService.getAllPosts());
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<PostDTO> getPostById(@PathVariable Long id) throws PostNotFoundException {
-        Post post = postService.getPostById(id);
-        PostDTO postDTO = PostDTO.fromEntity(post);
-        return ResponseEntity.ok(postDTO);
+        log.debug("Fetching post with ID: {}", id);
+        return ResponseEntity.ok(postService.getPostById(id));
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/user/{userId}")
-    public ResponseEntity<Page<PostDTO>> getPostByUserId(@PathVariable Long userId, Pageable pageable) throws PostNotFoundException {
-        try {
-            Page<PostDTO> post = postService.getPostByUserId(userId , pageable);
-        return ResponseEntity.ok(post);
-        } catch (Exception e) {
-            throw new PostNotFoundException(e.getMessage());
-        }
+    public ResponseEntity<?> getPostByUserId(@PathVariable Long userId, Pageable pageable) {
+        return ResponseEntity.ok(postService.getPostByUserId(userId, pageable));
     }
 
 
 
-    @PostMapping
-    public ResponseEntity<PostDTO> createPost(
-            @Valid @RequestBody PostRequest postRequest,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        Post post = new Post();
-        post.setContent(postRequest.getContent());
-        post.setImage(postRequest.getImage());
-        post.setVisibility(postRequest.getVisibility());
 
-        Post savedPost = postService.createPost(post, userDetails.getUsername());
-        PostDTO savedPostDTO = PostDTO.fromEntity(savedPost); // Use PostDTO.fromEntity
-        return ResponseEntity.ok(savedPostDTO);
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping
+    public ResponseEntity<?> createPost(@Valid @RequestBody PostRequest postRequest,
+                                        @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
+        return ResponseEntity.ok(postService.createPost(postRequest, userDetails.getUsername()));
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePost(
-            @PathVariable Long id,
-            @Valid @RequestBody PostRequest postRequest,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        try {
-            Post postUpdates = new Post();
-            postUpdates.setContent(postRequest.getContent());
-            postUpdates.setImage(postRequest.getImage());
-            postUpdates.setVisibility(postRequest.getVisibility());
-
-            Post updatedPost = postService.updatePost(id, postUpdates, userDetails.getUsername());
-            PostDTO updatedPostDTO = PostDTO.fromEntity(updatedPost); // Use PostDTO.fromEntity
-            return ResponseEntity.ok(updatedPostDTO);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        }
+    public ResponseEntity<?> updatePost(@PathVariable Long id,
+                                        @Valid @RequestBody PostRequest postRequest,
+                                        @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
+        return ResponseEntity.ok(postService.updatePost(id, postRequest, userDetails.getUsername()));
     }
 
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deletePost(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails
-    ) {
-        try {
-            postService.deletePost(id, userDetails.getUsername());
-            return ResponseEntity.ok("Post deleted successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        }
+    public ResponseEntity<?> deletePost(@PathVariable Long id,
+                                        @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
+        postService.deletePost(id, userDetails.getUsername());
+        return ResponseEntity.ok("Post deleted successfully");
     }
 
     //community post create
     // api/posts/communityId
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/{communityId}")
+    @PostMapping("/communityPost/{communityId}")
     public ResponseEntity<?> createPostByCommunity(@Valid @RequestBody PostRequest postRequest,
-                                                         @PathVariable Long communityId,
-                                                         @AuthenticationPrincipal UserDetails userDetails) {
-        try {
-            PostDTO createdPost = postService.createPostByCommunity(postRequest,communityId,userDetails);
-            return ResponseEntity.ok(createdPost);
-        }
-        catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to create Post"+e.getMessage());
-        }
+                                                   @PathVariable Long communityId,
+                                                   @AuthenticationPrincipal org.springframework.security.core.userdetails.UserDetails userDetails) {
+        return ResponseEntity.ok(postService.createPostByCommunity(postRequest, communityId, userDetails));
     }
+
 
     //get post by community
     // api/posts/communityId?page=0&size=10
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/{communityId}")
-    public ResponseEntity<?> getPostByCommunity(@PathVariable Long communityId , Pageable pageable) {
-        try{
-            Page<PostDTO> posts = postService.getPostByCommunityId(communityId ,pageable);
-            return ResponseEntity.ok(posts);
-        }
-        catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    @GetMapping("/communityPost/{communityId}")
+    public ResponseEntity<?> getPostByCommunity(@PathVariable Long communityId, Pageable pageable) {
+        return ResponseEntity.ok(postService.getPostByCommunityId(communityId, pageable));
     }
 
 

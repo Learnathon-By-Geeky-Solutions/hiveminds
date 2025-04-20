@@ -65,6 +65,17 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                ex.getMessage(),
+                "Access Denied",
+                HttpStatus.FORBIDDEN.value()
+        );
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {

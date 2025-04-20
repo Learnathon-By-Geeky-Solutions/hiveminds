@@ -8,6 +8,7 @@ import com.example.careerPilot.demo.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Slf4j
 @CrossOrigin(origins = "http://localhost:5173/")
 @RestController
@@ -31,25 +31,16 @@ public class CommentController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/all")
     public ResponseEntity<List<CommentDTO>> getCommentsByPostId(@PathVariable Long postId) {
-        log.info("GET /api/posts/{}/comments called", postId);
-        List<Comment> comments = commentService.getCommentsByPostId(postId);
-        List<CommentDTO> commentDTOs = comments.stream()
-                .map(CommentDTO::fromComment)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(commentDTOs);
+        log.info("GET /api/posts/{}/comments/all called", postId);
+        return ResponseEntity.ok(commentService.getAllCommentsByPostId(postId));
     }
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<CommentDTO>> getFirstLayerCommentsByPostId(@PathVariable Long postId) {
         log.info("GET /api/posts/{}/comments called", postId);
-        List<Comment> comments = commentService.getFirstLayerCommentsByPostId(postId);
-        List<CommentDTO> commentDTOs = comments.stream()
-                .map(CommentDTO::fromComment)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(commentDTOs);
+        return ResponseEntity.ok(commentService.getFirstLayerCommentsByPostId(postId));
     }
-
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
@@ -58,21 +49,9 @@ public class CommentController {
             @Valid @RequestBody CommentRequest commentRequest,
             @AuthenticationPrincipal UserDetails userDetails) {
         log.info("POST /api/posts/{}/comments called", postId);
-
-        Comment comment = new Comment();
-        comment.setContent(commentRequest.getContent());
-
-        // Handle reply if parentId is provided
-        Comment savedComment;
-        if (commentRequest.getParentId() != null) {
-            savedComment = commentService.createReply(postId, commentRequest.getParentId(), comment, userDetails.getUsername());
-        } else {
-            savedComment = commentService.createComment(postId, comment, userDetails.getUsername());
-        }
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(CommentDTO.fromComment(savedComment));
+        CommentDTO savedComment = commentService.createComment(postId, commentRequest, userDetails.getUsername());
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedComment);
     }
-
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{commentId}/replies")
@@ -80,23 +59,16 @@ public class CommentController {
             @PathVariable Long postId,
             @PathVariable Long commentId) {
         log.info("GET /api/posts/{}/comments/{}/replies called", postId, commentId);
-        List<Comment> replies = commentService.getRepliesForComment(commentId);
-        List<CommentDTO> replyDTOs = replies.stream()
-                .map(CommentDTO::fromComment)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(replyDTOs);
+        return ResponseEntity.ok(commentService.getRepliesForComment(commentId));
     }
-
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{commentId}")
     public ResponseEntity<CommentDTO> getCommentById(
             @PathVariable Long postId,
-            @PathVariable Long commentId) throws CommentNotFoundException {
+            @PathVariable Long commentId) {
         log.info("GET /api/posts/{}/comments/{} called", postId, commentId);
-        Comment comment = commentService.getCommentById(commentId)
-                .orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + commentId));
-        return ResponseEntity.ok(CommentDTO.fromComment(comment));
+        return ResponseEntity.ok(commentService.getCommentById(commentId));
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -107,29 +79,17 @@ public class CommentController {
             @Valid @RequestBody CommentRequest commentRequest,
             @AuthenticationPrincipal UserDetails userDetails) {
         log.info("PUT /api/posts/{}/comments/{} called", postId, commentId);
-        try {
-            Comment commentUpdates = new Comment();
-            commentUpdates.setContent(commentRequest.getContent());
-            Comment updatedComment = commentService.updateComment(commentId, commentUpdates, userDetails.getUsername());
-            return ResponseEntity.ok(CommentDTO.fromComment(updatedComment));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
-        }
+        return ResponseEntity.ok(commentService.updateComment(commentId, commentRequest, userDetails.getUsername()));
     }
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<?> deleteComment(
+    public ResponseEntity<Void> deleteComment(
             @PathVariable Long postId,
             @PathVariable Long commentId,
             @AuthenticationPrincipal UserDetails userDetails) {
         log.info("DELETE /api/posts/{}/comments/{} called", postId, commentId);
-        boolean deleted = commentService.deleteComment(commentId, userDetails.getUsername());
-        if (deleted) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("You don't have permission to delete this comment");
-        }
+        commentService.deleteComment(commentId, userDetails.getUsername());
+        return ResponseEntity.noContent().build();
     }
 }
