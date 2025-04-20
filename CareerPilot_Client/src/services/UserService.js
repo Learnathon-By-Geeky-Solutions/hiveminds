@@ -1,7 +1,6 @@
 import axios from "axios";
 
 class UserService {
-
   // Fetch the current user's profile (protected endpoint)
   getCurrentUserProfile() {
     const token = localStorage.getItem("ACCESS_TOKEN"); // Retrieve the token from localStorage
@@ -12,7 +11,6 @@ class UserService {
       },
     });
   }
-
 
   // Update the current user's profile (protected endpoint)
   updateCurrentUserProfile(updatedData) {
@@ -25,7 +23,6 @@ class UserService {
     });
   }
 
-  
   // Fetch a user's profile by username (protected endpoint)
   getUserProfileByUsername(username) {
     const token = localStorage.getItem("ACCESS_TOKEN"); // Retrieve the token from localStorage

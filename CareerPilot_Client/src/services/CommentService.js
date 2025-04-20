@@ -21,12 +21,16 @@ class CommentService {
     if (!postId) {
       throw new Error("Invalid postId");
     }
-    return axios.post(`http://localhost:8082/api/posts/${postId}/comments`, commentData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    return axios.post(
+      `http://localhost:8082/api/posts/${postId}/comments`,
+      commentData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
 
   // Add a reply to a comment
@@ -53,12 +57,15 @@ class CommentService {
     if (!postId || !commentId) {
       throw new Error("Invalid postId or commentId");
     }
-    return axios.get(`http://localhost:8082/api/posts/${postId}/comments/${commentId}/replies`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
+    return axios.get(
+      `http://localhost:8082/api/posts/${postId}/comments/${commentId}/replies`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
 }
 

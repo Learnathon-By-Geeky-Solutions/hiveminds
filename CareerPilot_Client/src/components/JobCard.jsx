@@ -38,7 +38,7 @@ const JobCard = ({
             <Badge variant="outline">
               {fulfilled
                 ? "Fulfilled"
-                : status.charAt(0).toUpperCase() + status.slice(1)}
+                : (status ? status.charAt(0).toUpperCase() + status.slice(1) : "Open")}
             </Badge>
             <button
               className="rounded-full p-1.5 bg-blue-500 hover:bg-blue-600 transition-colors"

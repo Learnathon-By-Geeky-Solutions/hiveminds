@@ -4,9 +4,8 @@ import { useParams } from "react-router-dom";
 const JobDetails = () => {
   const { id } = useParams();
   const jobId = parseInt(id);
-  const { publicJobs } = useCompany();
+  const { company, publicJobs } = useCompany();
   const job = publicJobs.find((job) => job.id === jobId);
-  console.log(id, job);
 
   // If no job is found, show a fallback message
   if (!job) {
