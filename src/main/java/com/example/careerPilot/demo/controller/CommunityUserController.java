@@ -140,5 +140,16 @@ public class CommunityUserController {
         }
 
     }
+    //get all members of community users
+    @GetMapping("/getAllMember")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> getAllMember(Pageable pageable){
+        try {
+            Page<CommunityUserDtO> communityUserDtOS = communityUserService.getAllMember(pageable);
+            return ResponseEntity.ok(communityUserDtOS);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
 
 }
