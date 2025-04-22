@@ -1,4 +1,5 @@
 import ApplicationSection from "@/components/profile/ApplicationSection";
+import CommunityInvitesSection from "@/components/profile/CommunityInvitesSection";
 import JobPreference from "@/components/profile/JobPreference";
 import RecommendationsSection from "@/components/profile/RecommendationsSection";
 import Skills from "@/components/profile/Skills";
@@ -23,6 +24,8 @@ const Profile = () => {
               <JobPreference />
             </div>
             <div className="lg:w-3/4">
+              {/* Add the CommunityInvitesSection at the top of the right column */}
+              <CommunityInvitesSection />
               <Skills />
               <ApplicationSection />
               <RecommendationsSection />

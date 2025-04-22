@@ -47,10 +47,10 @@ class CommunityService {
   }
 
   // Send request to join a community
-  sendJoinRequest(userId, communityId) {
+  sendJoinRequest(userId, communityId, role = "MEMBER") {
     const token = localStorage.getItem("ACCESS_TOKEN");
     return axios.post(
-      `${API_BASE_URL}/community/join-request?userId=${userId}&communityId=${communityId}`,
+      `${API_BASE_URL}/community/request/${userId}?communityId=${communityId}&role=${role}`,
       {},
       {
         headers: {
@@ -66,6 +66,21 @@ class CommunityService {
     const token = localStorage.getItem("ACCESS_TOKEN");
     return axios.post(
       `${API_BASE_URL}/community/accept/${requestId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  }
+
+  // Reject a join request (This needs to be implemented in the backend)
+  rejectJoinRequest(requestId) {
+    const token = localStorage.getItem("ACCESS_TOKEN");
+    return axios.post(
+      `${API_BASE_URL}/community/reject/${requestId}`,
       {},
       {
         headers: {

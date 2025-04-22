@@ -14,6 +14,7 @@ export const CommunityProvider = ({ children }) => {
   const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [joinRequests, setJoinRequests] = useState([]);
   const { user } = useUser();
 
   // Fetch all communities - memoized with useCallback to prevent infinite loops
@@ -83,17 +84,71 @@ export const CommunityProvider = ({ children }) => {
     }
   }, [user]); // Add user as a dependency
 
-  // Send join request to a community
-  const sendJoinRequest = async (communityId) => {
+  // Send join request to a community with role
+  const sendJoinRequest = async (userId, communityId) => {
     if (!user || !user.id) {
-      throw new Error("User must be authenticated to join a community");
+      throw new Error("User must be authenticated to send join requests");
     }
 
     try {
-      await CommunityService.sendJoinRequest(user.id, communityId);
+      // Always use MEMBER role for community join requests
+      await CommunityService.sendJoinRequest(userId, communityId, "MEMBER");
       return true;
     } catch (err) {
       console.error("Error sending join request:", err);
+      throw err;
+    }
+  };
+
+  // Fetch pending join requests for the current user
+  const fetchJoinRequests = useCallback(
+    async (page = 0, size = 10) => {
+      if (!user || !user.id) {
+        return { content: [], empty: true };
+      }
+
+      try {
+        setLoading(true);
+        const response = await CommunityService.getUserRequests(page, size);
+        const requests = response.data.content || [];
+        setJoinRequests(requests);
+        return requests;
+      } catch (err) {
+        console.error("Error fetching join requests:", err);
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user]
+  );
+
+  // Accept a join request
+  const acceptJoinRequest = async (requestId) => {
+    try {
+      await CommunityService.acceptJoinRequest(requestId);
+      // Update the local join requests state
+      setJoinRequests((prevRequests) =>
+        prevRequests.filter((request) => request.id !== requestId)
+      );
+      return true;
+    } catch (err) {
+      console.error("Error accepting join request:", err);
+      throw err;
+    }
+  };
+
+  // Reject/delete a join request
+  const rejectJoinRequest = async (requestId) => {
+    try {
+      await CommunityService.rejectJoinRequest(requestId);
+      // Update the local join requests state
+      setJoinRequests((prevRequests) =>
+        prevRequests.filter((request) => request.id !== requestId)
+      );
+      return true;
+    } catch (err) {
+      console.error("Error rejecting join request:", err);
       throw err;
     }
   };
@@ -144,10 +199,14 @@ export const CommunityProvider = ({ children }) => {
         communities,
         loading,
         error,
+        joinRequests,
         fetchCommunities,
         createCommunity,
         fetchUserCommunities,
         sendJoinRequest,
+        fetchJoinRequests,
+        acceptJoinRequest,
+        rejectJoinRequest,
         getCommunityMembers,
         getCommunityPosts,
       }}

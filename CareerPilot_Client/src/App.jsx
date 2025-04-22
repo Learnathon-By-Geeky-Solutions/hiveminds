@@ -29,7 +29,9 @@ function App() {
             path="/profile"
             element={
               <ProtectedRoute>
-                <Profile />
+                <CommunityProvider>
+                  <Profile />
+                </CommunityProvider>
               </ProtectedRoute>
             }
           >
