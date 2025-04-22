@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUser } from "@/contexts/UserContext";
 import { useToast } from "@/hooks/use-toast";
 import CommunityService from "@/services/CommunityService";
 import {
@@ -28,8 +29,9 @@ const CommunityUsers = ({ communityId }) => {
   const [members, setMembers] = useState([]);
   const [error, setError] = useState(null);
   const { token } = useAuth();
+  const { user } = useUser(); // Get user from UserContext
   const { toast } = useToast();
-  const [currentUserRole, setCurrentUserRole] = useState(null);
+  const currentUserId = user?.id;
 
   useEffect(() => {
     fetchMembers();
@@ -43,17 +45,12 @@ const CommunityUsers = ({ communityId }) => {
       const response = await CommunityService.getAllCommunityMembers(
         communityId
       );
-      const membersList = response.data.content || [];
-      setMembers(membersList);
-
-      // For development/testing - let's assume the current user is an admin
-      // In production, you would use your auth context to get the current user's ID
-      // const loggedInUserId = parseInt(localStorage.getItem("USER_ID"));
-      // const currentMember = membersList.find(member => member.userId === loggedInUserId);
-      // setCurrentUserRole(currentMember?.role || null);
-
-      // For now, hardcode the current user as an admin to allow actions
-      setCurrentUserRole("ADMIN");
+      console.log("Fetched members:", response.data);
+      // Add detailed debugging of the data structure
+      if (response.data.content) {
+        console.log("First member data:", response.data.content[0]);
+      }
+      setMembers(response.data.content || []);
     } catch (error) {
       console.error("Error fetching community members:", error);
       setError("Failed to load community members");
@@ -67,19 +64,27 @@ const CommunityUsers = ({ communityId }) => {
     }
   };
 
-  const isAdmin = currentUserRole === "ADMIN";
+  // Add logging to debug user information
+  useEffect(() => {
+    console.log("Current user ID:", currentUserId);
+    console.log("All members:", members);
+  }, [currentUserId, members]);
+
+  // Log user data for debugging
+  useEffect(() => {
+    console.log("Current user data:", user);
+  }, [user]);
 
   const handleMakeModerator = async (userId) => {
-    if (!isAdmin) {
-      toast({
-        variant: "destructive",
-        title: "Permission denied",
-        description: "Only admins can promote members to moderator",
-      });
-      return;
-    }
-
+    console.log("Making user moderator:", userId, communityId);
     try {
+      // Add loading state for this specific user
+      setMembers((prev) =>
+        prev.map((member) =>
+          member.userId === userId ? { ...member, isLoading: true } : member
+        )
+      );
+
       await CommunityService.addModerator(userId, communityId);
       toast({
         title: "Success",
@@ -87,26 +92,36 @@ const CommunityUsers = ({ communityId }) => {
       });
       fetchMembers();
     } catch (error) {
-      console.error("Error updating role:", error);
+      console.error(
+        "Error updating role:",
+        error.response?.data || error.message
+      );
       toast({
         variant: "destructive",
         title: "Action failed",
-        description: "Could not update user role. Please try again.",
+        description:
+          error.response?.data?.message ||
+          "Could not update user role. Please try again.",
       });
+      // Reset loading state
+      setMembers((prev) =>
+        prev.map((member) =>
+          member.userId === userId ? { ...member, isLoading: false } : member
+        )
+      );
     }
   };
 
   const handleMakeAdmin = async (userId) => {
-    if (!isAdmin) {
-      toast({
-        variant: "destructive",
-        title: "Permission denied",
-        description: "Only admins can promote members to admin",
-      });
-      return;
-    }
-
+    console.log("Making user admin:", userId, communityId);
     try {
+      // Add loading state for this specific user
+      setMembers((prev) =>
+        prev.map((member) =>
+          member.userId === userId ? { ...member, isLoading: true } : member
+        )
+      );
+
       await CommunityService.addAdmin(userId, communityId);
       toast({
         title: "Success",
@@ -114,27 +129,37 @@ const CommunityUsers = ({ communityId }) => {
       });
       fetchMembers();
     } catch (error) {
-      console.error("Error updating role:", error);
+      console.error(
+        "Error updating role:",
+        error.response?.data || error.message
+      );
       toast({
         variant: "destructive",
         title: "Action failed",
-        description: "Could not update user role. Please try again.",
+        description:
+          error.response?.data?.message ||
+          "Could not update user role. Please try again.",
       });
+      // Reset loading state
+      setMembers((prev) =>
+        prev.map((member) =>
+          member.userId === userId ? { ...member, isLoading: false } : member
+        )
+      );
     }
   };
 
   const handleRemoveUser = async (userId) => {
-    if (!isAdmin) {
-      toast({
-        variant: "destructive",
-        title: "Permission denied",
-        description: "Only admins can remove members",
-      });
-      return;
-    }
-
+    console.log("Removing user:", userId, communityId);
     if (window.confirm("Are you sure you want to remove this user?")) {
       try {
+        // Add loading state for this specific user
+        setMembers((prev) =>
+          prev.map((member) =>
+            member.userId === userId ? { ...member, isLoading: true } : member
+          )
+        );
+
         await CommunityService.removeUser(userId, communityId);
         toast({
           title: "Success",
@@ -142,14 +167,34 @@ const CommunityUsers = ({ communityId }) => {
         });
         fetchMembers();
       } catch (error) {
-        console.error("Error removing user:", error);
+        console.error(
+          "Error removing user:",
+          error.response?.data || error.message
+        );
         toast({
           variant: "destructive",
           title: "Action failed",
-          description: "Could not remove user. Please try again.",
+          description:
+            error.response?.data?.message ||
+            "Could not remove user. Please try again.",
         });
+        // Reset loading state
+        setMembers((prev) =>
+          prev.map((member) =>
+            member.userId === userId ? { ...member, isLoading: false } : member
+          )
+        );
       }
     }
+  };
+
+  // Find the current user's role in this community
+  const getCurrentUserRole = () => {
+    if (!user?.id || !members.length) return null;
+    const currentUserMember = members.find(
+      (member) => String(member.userId) === String(user.id)
+    );
+    return currentUserMember?.role || null;
   };
 
   const getRoleBadgeVariant = (role) => {
@@ -206,6 +251,7 @@ const CommunityUsers = ({ communityId }) => {
             <TableRow>
               <TableHead>UserId</TableHead>
               <TableHead>Role</TableHead>
+              <TableHead>CommunityName</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
@@ -236,6 +282,7 @@ const CommunityUsers = ({ communityId }) => {
                         {member.role || "Member"}
                       </Badge>
                     </TableCell>
+                    <TableCell>{member.communityName || "Unknown"}</TableCell>
                     <TableCell>
                       <Badge
                         variant={
@@ -247,62 +294,132 @@ const CommunityUsers = ({ communityId }) => {
                             : "bg-yellow-100 text-yellow-800"
                         }
                       >
-                        {member.status || "Active"}
+                        {member.status || "Pending"}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
-                        {/* Make Admin button - only visible to admins and only for ACCEPTED members */}
-                        {isAdmin &&
-                          member.role !== "ADMIN" &&
-                          member.status === "ACCEPTED" && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              title="Make Admin"
-                              onClick={() => handleMakeAdmin(member.userId)}
-                            >
-                              <ShieldAlert className="h-4 w-4" />
-                            </Button>
-                          )}
+                        {getCurrentUserRole() === "MEMBER" ? (
+                          <span className="text-muted-foreground text-sm">
+                            You are a member
+                          </span>
+                        ) : getCurrentUserRole() === "ADMIN" ||
+                          getCurrentUserRole() === "MODERATOR" ? (
+                          <>
+                            {/* Only show admin button if current user is admin and target is not already admin */}
+                            {getCurrentUserRole() === "ADMIN" &&
+                              member.role !== "ADMIN" && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  title="Make Admin"
+                                  disabled={member.isLoading}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    if (member.userId && communityId) {
+                                      handleMakeAdmin(member.userId);
+                                    } else {
+                                      console.error(
+                                        "Missing userId or communityId",
+                                        {
+                                          userId: member.userId,
+                                          communityId,
+                                        }
+                                      );
+                                      toast({
+                                        variant: "destructive",
+                                        title: "Action failed",
+                                        description:
+                                          "Missing required information for this action",
+                                      });
+                                    }
+                                  }}
+                                >
+                                  {member.isLoading ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <ShieldAlert className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              )}
 
-                        {/* Make Moderator button - only visible to admins and only for ACCEPTED members */}
-                        {isAdmin &&
-                          member.role !== "MODERATOR" &&
-                          member.role !== "ADMIN" &&
-                          member.status === "ACCEPTED" && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              title="Make Moderator"
-                              onClick={() => handleMakeModerator(member.userId)}
-                            >
-                              <ShieldCheck className="h-4 w-4" />
-                            </Button>
-                          )}
+                            {/* Only show moderator button if current user is admin and target is not already mod or admin */}
+                            {getCurrentUserRole() === "ADMIN" &&
+                              member.role !== "MODERATOR" &&
+                              member.role !== "ADMIN" && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  title="Make Moderator"
+                                  disabled={member.isLoading}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    if (member.userId && communityId) {
+                                      handleMakeModerator(member.userId);
+                                    } else {
+                                      console.error(
+                                        "Missing userId or communityId",
+                                        { userId: member.userId, communityId }
+                                      );
+                                      toast({
+                                        variant: "destructive",
+                                        title: "Action failed",
+                                        description:
+                                          "Missing required information for this action",
+                                      });
+                                    }
+                                  }}
+                                >
+                                  {member.isLoading ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <ShieldCheck className="h-4 w-4" />
+                                  )}
+                                </Button>
+                              )}
 
-                        {/* Remove button - only visible to admins */}
-                        {isAdmin && (
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            title="Remove from community"
-                            onClick={() => handleRemoveUser(member.userId)}
-                          >
-                            <UserX className="h-4 w-4" />
-                          </Button>
-                        )}
-
-                        {/* Message shown when no actions are available */}
-                        {(!isAdmin ||
-                          (member.status !== "ACCEPTED" &&
-                            member.role !== "ADMIN")) && (
-                          <span className="text-sm text-muted-foreground italic">
-                            {!isAdmin
-                              ? "Admin privileges required"
-                              : member.status !== "ACCEPTED"
-                              ? "Pending approval"
-                              : "No actions available"}
+                            {/* Remove button - don't show for admin removing themselves */}
+                            {!(
+                              member.role === "ADMIN" &&
+                              String(member.userId) === String(user?.id)
+                            ) && (
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                title="Remove from community"
+                                disabled={member.isLoading}
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  if (member.userId && communityId) {
+                                    handleRemoveUser(member.userId);
+                                  } else {
+                                    console.error(
+                                      "Missing userId or communityId",
+                                      {
+                                        userId: member.userId,
+                                        communityId,
+                                      }
+                                    );
+                                    toast({
+                                      variant: "destructive",
+                                      title: "Action failed",
+                                      description:
+                                        "Missing required information for this action",
+                                    });
+                                  }
+                                }}
+                              >
+                                {member.isLoading ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <UserX className="h-4 w-4" />
+                                )}
+                              </Button>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">
+                            Loading permissions...
                           </span>
                         )}
                       </div>
@@ -313,7 +430,7 @@ const CommunityUsers = ({ communityId }) => {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={4}
+                  colSpan={5}
                   className="text-center py-6 text-muted-foreground"
                 >
                   No members found.

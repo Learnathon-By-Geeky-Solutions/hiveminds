@@ -33,37 +33,6 @@ class UserService {
       },
     });
   }
-
-  // Fetch all users (for member suggestions)
-  getAllUsers(page = 0, size = 20) {
-    const token = localStorage.getItem("ACCESS_TOKEN");
-    return axios.get("http://localhost:8082/api/users", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      params: {
-        page,
-        size,
-      },
-    });
-  }
-
-  // Search users by username or name (partial match)
-  searchUsers(query, page = 0, size = 10) {
-    const token = localStorage.getItem("ACCESS_TOKEN");
-    return axios.get(`http://localhost:8082/api/users/search`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      params: {
-        query,
-        page,
-        size,
-      },
-    });
-  }
 }
 
 export default new UserService();
