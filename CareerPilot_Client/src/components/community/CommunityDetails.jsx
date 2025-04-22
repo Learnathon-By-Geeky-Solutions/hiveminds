@@ -10,11 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CommunityPosts from "./CommunityPosts";
 import CommunityUsers from "./CommunityUsers";
 
-const CommunityDetails = ({
-  selectedCommunity,
-  placeholderPosts,
-  placeholderUsers,
-}) => {
+const CommunityDetails = ({ selectedCommunity }) => {
   return (
     <Card className="md:col-span-2 bg-gradient-to-br from-card/80 via-card/50 to-card/80 backdrop-blur-lg border border-accent/20 shadow-xl transition-all duration-300 hover:shadow-2xl hover:border-accent/30">
       {selectedCommunity ? (
@@ -27,12 +23,32 @@ const CommunityDetails = ({
             <CardDescription className="text-lg text-muted-foreground/90 leading-relaxed">
               {selectedCommunity.description}
             </CardDescription>
-            <Badge
-              variant="secondary"
-              className="text-sm w-28 p-4 text-center bg-primary/10 hover:bg-primary/20 transition-all duration-300 hover:scale-105 hover:shadow-md border border-primary/20"
-            >
-              {selectedCommunity.members.toLocaleString()} members
-            </Badge>
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                variant="secondary"
+                className="text-sm px-4 py-2 text-center bg-primary/10 hover:bg-primary/20 transition-all duration-300 hover:scale-105 hover:shadow-md border border-primary/20"
+              >
+                {selectedCommunity.memberCount || 0} members
+              </Badge>
+              {selectedCommunity.category && (
+                <Badge
+                  variant="outline"
+                  className="text-sm px-4 py-2 text-center bg-background/50 hover:bg-background/70 transition-all duration-300 hover:scale-105 hover:shadow-md border border-border/50"
+                >
+                  {selectedCommunity.category}
+                </Badge>
+              )}
+              <Badge
+                variant={
+                  selectedCommunity.visibility === "PUBLIC"
+                    ? "secondary"
+                    : "outline"
+                }
+                className="text-sm px-4 py-2 text-center bg-background/50 hover:bg-background/70 transition-all duration-300 hover:scale-105 hover:shadow-md"
+              >
+                {selectedCommunity.visibility || "Public"}
+              </Badge>
+            </div>
           </CardHeader>
 
           <Tabs defaultValue="posts" className="mt-10">
@@ -55,20 +71,14 @@ const CommunityDetails = ({
               value="posts"
               className="mt-8 animate-in fade-in-50 duration-500"
             >
-              <CommunityPosts
-                posts={placeholderPosts}
-                communityId={selectedCommunity.id}
-              />
+              <CommunityPosts communityId={selectedCommunity.id} />
             </TabsContent>
 
             <TabsContent
               value="users"
               className="mt-8 animate-in fade-in-50 duration-500"
             >
-              <CommunityUsers
-                users={placeholderUsers}
-                communityId={selectedCommunity.id}
-              />
+              <CommunityUsers communityId={selectedCommunity.id} />
             </TabsContent>
           </Tabs>
         </CardContent>

@@ -3,6 +3,7 @@ import AddNewCompanyPage from "./components/company/starter/AddNewCompanyPage";
 import CompanyDashboard from "./components/company/starter/CompanyDashboard";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
+import { CommunityProvider } from "./contexts/CommunityContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import AllJobs from "./pages/AllJobs";
 import Blog from "./pages/Blog";
@@ -14,6 +15,7 @@ import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import Signup from "./pages/Signup";
 import ProtectedRoute from "./utils/ProtectedRoute";
+
 function App() {
   return (
     <ThemeProvider>
@@ -70,7 +72,14 @@ function App() {
           <Route path="/jobs" element={<AllJobs />}>
             <Route path="job/:id" element={<JobDetails />} />
           </Route>
-          <Route path="/community" element={<Community />} />
+          <Route
+            path="/community"
+            element={
+              <CommunityProvider>
+                <Community />
+              </CommunityProvider>
+            }
+          />
         </Routes>
         <Footer />
       </div>
