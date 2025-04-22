@@ -1,5 +1,22 @@
 package com.example.careerPilot.demo.controller;
 
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.careerPilot.demo.Reponse.ApiResponse;
 import com.example.careerPilot.demo.dto.CommunityUserDtO;
 import com.example.careerPilot.demo.entity.Community;
@@ -9,19 +26,8 @@ import com.example.careerPilot.demo.repository.CommunityRepository;
 import com.example.careerPilot.demo.repository.CommunityUserRepository;
 import com.example.careerPilot.demo.repository.userRepository;
 import com.example.careerPilot.demo.service.CommunityUserService;
-import com.example.careerPilot.demo.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/community")
@@ -39,14 +45,17 @@ public class CommunityUserController {
     //send request /api/community/request/{id}?communityId=x
     @PostMapping("/request/{userId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse> sendRequest(@PathVariable Long userId, @RequestParam Long communityId) {
-
-        //check to see if request already sent
-        if( ! (communityUserService.sendRequest(userId,communityId))){
-            ApiResponse apiResponse = new ApiResponse("Request already sent", Map.of("userid",userId));
+    public ResponseEntity<ApiResponse> sendRequest(
+            @PathVariable Long userId, 
+            @RequestParam Long communityId,
+            @RequestParam(required = false, defaultValue = "MEMBER") String role) {
+        
+        // Always use MEMBER role for initial requests
+        if( ! (communityUserService.sendRequest(userId, communityId))){
+            ApiResponse apiResponse = new ApiResponse("Request already sent", Map.of("userid", userId));
             return ResponseEntity.ok(apiResponse);
         }
-        ApiResponse apiResponse = new ApiResponse("Request sent", Map.of("userid",userId));
+        ApiResponse apiResponse = new ApiResponse("Request sent", Map.of("userid", userId));
         return ResponseEntity.ok(apiResponse);
     }
 
