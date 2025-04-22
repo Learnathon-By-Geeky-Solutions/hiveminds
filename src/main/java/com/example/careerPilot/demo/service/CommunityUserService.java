@@ -98,12 +98,8 @@ public class CommunityUserService {
         return new PageImpl<>(communityUserDtOs, pageable, communityUsers.size());
     }
 
-    public Page<CommunityUserDtO> getAllMember(Pageable pageable) {
-        List<CommunityUser> communityUsers =  communityUserRepository.findAll();
-        List<CommunityUserDtO> communityUserDtOs = new ArrayList<>();
-        for( CommunityUser communityUser : communityUsers){
-            communityUserDtOs.add( CommunityUserDtO.fromEntity(communityUser));
-        }
-        return new PageImpl<>(communityUserDtOs,pageable,communityUsers.size());
+    public Page<CommunityUserDtO> getAllMember(Pageable pageable, Long communityId) {
+        Community community = communityRepository.findById(communityId).orElseThrow(()->new RuntimeException("Community not found"));
+        return communityUserRepository.findAllByCommunity(community,pageable).map(Community->CommunityUserDtO.fromEntity(Community));
     }
 }
