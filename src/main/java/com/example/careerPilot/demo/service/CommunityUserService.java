@@ -97,4 +97,9 @@ public class CommunityUserService {
         }
         return new PageImpl<>(communityUserDtOs, pageable, communityUsers.size());
     }
+
+    public Page<CommunityUserDtO> getAllMember(Pageable pageable, Long communityId) {
+        Community community = communityRepository.findById(communityId).orElseThrow(()->new RuntimeException("Community not found"));
+        return communityUserRepository.findAllByCommunity(community,pageable).map(Community->CommunityUserDtO.fromEntity(Community));
+    }
 }
