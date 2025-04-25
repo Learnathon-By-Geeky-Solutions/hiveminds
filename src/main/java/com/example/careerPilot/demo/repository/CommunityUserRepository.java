@@ -1,5 +1,6 @@
 package com.example.careerPilot.demo.repository;
 
+import com.example.careerPilot.demo.dto.CommunityUserDtO;
 import com.example.careerPilot.demo.entity.Community;
 import com.example.careerPilot.demo.entity.CommunityUser;
 import com.example.careerPilot.demo.entity.User;
@@ -13,4 +14,6 @@ public interface CommunityUserRepository extends JpaRepository<CommunityUser, Lo
     CommunityUser findByUserAndCommunity(User user , Community community);
 
     List<CommunityUser> findByUser(User user );
+
+    Page<CommunityUser> findAllByCommunity(Community community, Pageable pageable);
 }
