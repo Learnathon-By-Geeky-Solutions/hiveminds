@@ -16,7 +16,7 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    @Value("${app.secret.key}")
+    @Value(value = "${app.secret.key}")
     private String secretKey;
 
     public String extractUsername(String token) {
@@ -24,7 +24,7 @@ public class JwtService {
     }
     public boolean validateToken(String token, UserDetails user) {
         String username = extractUsername(token);
-        return ( username.equals(user.getUsername()) && isTokenExpired(token) );
+        return ( username.equals(user.getUsername()) && !isTokenExpired(token) );
 
     }
 

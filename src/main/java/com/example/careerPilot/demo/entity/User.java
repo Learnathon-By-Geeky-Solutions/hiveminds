@@ -1,6 +1,6 @@
 package com.example.careerPilot.demo.entity;
 
-import jakarta.annotation.Nullable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -15,15 +15,19 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 @Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "User")
+
+
 public class User implements UserDetails {
 
     @Id
@@ -31,17 +35,13 @@ public class User implements UserDetails {
     private Long id;
 
     @NotEmpty(message = "User name is required")
-    @Column( name="user_name" , unique = true, nullable = false)
+    @Column(name = "user_name", unique = true, nullable = false)
     private String username;
 
-    @Nullable
-    @NotEmpty(message = "first name is required")
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name")
     private String firstName;
 
-    @Nullable
-    @NotEmpty(message = "last name is required")
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name")
     private String lastName;
 
     @Email(message = "Input valid email")
@@ -49,7 +49,7 @@ public class User implements UserDetails {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Size( min = 8, message = "8 character long")
+    @Size(min = 8, message = "8 character long")
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -73,8 +73,8 @@ public class User implements UserDetails {
     private AvailabilityStatus availabilityStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "role" , columnDefinition = "enum('USER','ADMIN') default 'USER'")
-    ROLE role;
+    @Column(name = "role", columnDefinition = "enum('USER','ADMIN') default 'USER'")
+    private ROLE role;
 
     @Column(name = "preferred_working_hours")
     private String preferredWorkingHours;
@@ -100,7 +100,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of( new SimpleGrantedAuthority( role.name() ));
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
@@ -134,31 +134,48 @@ public class User implements UserDetails {
     }
 
     public enum AvailabilityStatus {
-        AVAILABLE,
-        BUSY,
-        ON_LEAVE
+        AVAILABLE, BUSY, ON_LEAVE
     }
 
     public enum AccountStatus {
-        ACTIVE,
-        INACTIVE,
-        SUSPENDED
+        ACTIVE, INACTIVE, SUSPENDED
     }
+
     public enum ROLE {
-        USER,
-        ADMIN
+        USER, ADMIN
     }
 
+    // User to Posts
 
-    // one to many relationship with post
-    @OneToMany(
-            cascade = CascadeType.ALL
 
-    )
-    @JoinColumn(
-            name = "user_id",
-            referencedColumnName = "id"
-    )
-    private List<Post> posts;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts = new ArrayList<>();
+
+
+
+    //  User to Comments
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("user")
+    private List<Comment> comments;
+
+
+
+
+    // User to Communities
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("createdBy")
+    private List<Community> communities;
+
+    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<UserSkill> userSkills;
+    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<CompanyEmployee> companyEmployees;
+    @OneToMany(mappedBy = "user" , cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<CommunityUser> communityUsers;
+    @OneToMany(mappedBy = "user1" , cascade = CascadeType.ALL ,orphanRemoval = true)
+    private List<Connection> connectionInitiated;
+    @OneToMany(mappedBy = "user2" , cascade = CascadeType.ALL ,orphanRemoval = true)
+    private List<Connection> connectionReceived;
+
+
 }
-
