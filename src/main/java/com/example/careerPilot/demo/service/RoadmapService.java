@@ -13,8 +13,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class RoadmapService {
 
-//    private final String GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-//    private final String API_KEY = "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";
+
 
     private final ApiConfig apiConfig;
     private final RestTemplate restTemplate = new RestTemplate();
